@@ -1,10 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Webhooks</title>
-</head>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Magento</title>
+        <link href="<?= $basePath ?>/pub/styles/setup.css" media="screen" rel="stylesheet" type="text/css" />
+        <script src="<?= $basePath ?>/pub/scripts/main.js"></script>
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="<?= $basePath ?>/pub/images/favicon/favicon.ico"
+            sizes="16x16">
+        <link
+            rel="icon"
+            type="image/png"
+            href="<?= $basePath ?>/pub/images/favicon/favicon-96x96.png"
+            sizes="96x96">
+        <link
+            rel="icon"
+            type="image/png"
+            href="<?= $basePath ?>/pub/images/favicon/favicon-32x32.png"
+            sizes="32x32">
+        <link
+            rel="icon"
+            type="image/png"
+            href="<?= $basePath ?>/pub/images/favicon/favicon-16x16.png"
+            sizes="16x16">
+        <style>
+            a.white-space-pre-line {
+                white-space: pre-line;
+            }
+        </style>
+    </head>
 <body>
     <h1>Welcome to Test Webhooks</h1>
     <h1>Welcomedsaddfsad to Test Webhooks SSSSS</h1>
@@ -24,6 +51,19 @@
             <li>Commit 4</li>
             <li>Commit 5</li>
         </ul>
+
+        <section data-section="license" class="row page-license" style="display: none">
+            <div class="col-m-offset-2 col-m-8 col-xs-12">
+                <div class="license-text">
+                    <?= nl2br(htmlspecialchars($license, ENT_COMPAT)) ?>
+                </div>
+                <div class="page-license-footer">
+                    <div class="btn-wrap-triangle-left">
+                        <button type="button" class="btn" onclick="showSection('landing')">Go Back</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </body>
 </html>
