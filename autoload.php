@@ -7,8 +7,18 @@
  */
 declare(strict_types=1);
 
-use Magento\Framework\Autoload\AutoloaderRegistry;
-use Magento\Framework\Autoload\ClassLoaderWrapper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\BlockJsDependencies;
+use Hyva\Theme\ViewModel\ProductCompare;
+use Hyva\Theme\ViewModel\ProductListItem;
+use Hyva\Theme\ViewModel\ProductPage;
+use Hyva\Theme\ViewModel\Wishlist;
+use Magento\Catalog\Block\Product\AbstractProduct;
+use Magento\Catalog\Helper\Output as CatalogOutputHelper;
+use Magento\Catalog\ViewModel\Product\OptionsData as ProductOptionsData;
+use Magento\Framework\Escaper;
 
 /**
  * Shortcut constant for the root directory
@@ -41,6 +51,24 @@ $vendorAutoload = (
         return null;
     }
 )();
+
+<?php if ($product->isSaleable()): ?>
+    <form method="post"
+        action="<?= $escaper->escapeUrl($productViewModel->getAddToCartUrl($product, ['useUencPlaceholder' => true])) ?>"
+        class="item product product-item product_addtocart_form card card-interactive flex flex-col <?= $viewIsGrid ? '' : 'md:flex-row' ?>"
+        style="background-color: #555555;"
+        <?php if ($product->getOptions()): ?>
+        enctype="multipart/form-data"
+        <?php endif; ?>
+    >
+        <?= /** @noEscape */ $block->getBlockHtml('formkey') ?>
+        <input type="hidden" name="product" value="<?= (int)$productId ?>"/>
+        <?php foreach ($options as $optionItem): ?>
+        <input type="hidden"
+               name="<?= $escaper->escapeHtml($optionItem['name']) ?>"
+               value="<?= $escaper->escapeHtml($optionItem['value']) ?>">
+        <?php endforeach; ?>
+        <?php else: ?>
 
 if ($vendorAutoload === null) {
     throw new \Exception(
