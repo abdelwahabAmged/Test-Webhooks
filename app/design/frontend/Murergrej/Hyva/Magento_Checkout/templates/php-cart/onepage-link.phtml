@@ -1,0 +1,51 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Magento\Checkout\Block\Onepage\Link;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var Link $block */
+?>
+<?php if ($block->isPossibleOnepageCheckout()): ?>
+    <template x-if="segment.code === 'grand_total'">
+
+    <div>
+    <div class="lg:px-6 px-4 pb-4 bg-cream"> 
+        <!-- Proceed to Checkout Button -->
+        <a @click.prevent.stop="$dispatch('toggle-authentication',
+            {url: '<?= $escaper->escapeHtmlAttr($escaper->escapeUrl($block->getCheckoutUrl())) ?>'})"
+            href="<?= $escaper->escapeHtmlAttr($escaper->escapeUrl($block->getCheckoutUrl())) ?>"
+            title="<?= $escaper->escapeHtmlAttr(__('Proceed to Checkout')) ?>"
+            class="btn btn-primary text-base font-extrabold 
+            py-4 px-10 checkout justify-center text-center max-lg:max-h-9 leading-5"
+            id="checkout-link-button"
+        >
+            <?= $escaper->escapeHtml(__('secure checkout')) ?>
+        </a>
+       
+    </div>
+    <div class=" flex-col hidden lg:flex lg:flex-row items-center 
+    PaymentMethod px-6 pt-4 pb-1 mt-0.5  border-2 w-full border-solid border-cream">
+    <div class="p-0 lg:pb-3 mr-2.5">           
+            <?= $block->getLayout()->createBlock('Magento\Cms\Block\Block')
+                ->setBlockId('Payment-Plan')
+                ->setTemplate('Magento_Cms::block.phtml')
+                ->toHtml(); ?>
+        </div>
+        <!-- Payment Methods Footer Block -->
+         <div class="w-[62%]">
+         <?= $block->getLayout()->createBlock('Magento\Cms\Block\Block')
+            ->setBlockId('payment_methods_footer')
+            ->setTemplate('Magento_Cms::block.phtml')
+            ->toHtml(); ?>
+         </div>
+    </div>  
+    </div>
+    </template>
+<?php endif ?>

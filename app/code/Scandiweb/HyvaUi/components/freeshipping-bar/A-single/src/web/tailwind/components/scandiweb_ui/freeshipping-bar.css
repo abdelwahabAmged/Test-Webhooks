@@ -1,0 +1,11 @@
+.free-shipping-bar meter {
+    @apply w-full h-1 border-0 text-[0];
+
+    &::-webkit-meter-bar {
+        @apply bg-[#d2d2d2] border-0 h-1;
+    }
+
+    &::-webkit-meter-optimum-value {
+        @apply bg-[#29a366];
+    }
+}

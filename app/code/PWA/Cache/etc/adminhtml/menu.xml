@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="PWA_Cache::cache" title="PWA Cache" module="PWA_Cache" sortOrder="10" parent="PWA_Base::pwa" action="pwa/cache" resource="PWA_Cache::cache" />
+    </menu>
+</config>

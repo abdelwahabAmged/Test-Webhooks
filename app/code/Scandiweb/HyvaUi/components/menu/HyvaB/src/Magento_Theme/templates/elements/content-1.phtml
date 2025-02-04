@@ -1,0 +1,71 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Slider;
+use Magento\Framework\View\Element\Template;
+
+/** @var ViewModelRegistry $viewModels */
+/** @var Slider $sliderViewModel */
+/** @var Template $block */
+
+$sliderViewModel = $viewModels->require(Slider::class);
+
+/**
+ * These items are examples. You could query products, categories, etc..
+ * Change the slider-item.phtml accordingly to display the correct properties.
+ */
+$items = [
+    [
+        'image_url'    => 'https://unsplash.com/photos/zlPmPfXfr4A/download?force=true&auto=format&fit=crop&w=1280&q=80',
+        'image_width'  => 1280,
+        'image_height'  => 853,
+        'text_small' => 'WINTER COLLECTION',
+        'text_large' => 'SHOW YOUR STYLE',
+        'url'          => $block->getUrl('home'),
+    ],
+    [
+        'image_url'    => 'https://unsplash.com/photos/X6jtULYJQz8/download?force=true&auto=format&fit=crop&w=1280&q=80',
+        'image_width'  => 1280,
+        'image_height'  => 853,
+        'text_small' => 'SALE',
+        'text_large' => '10% OFF, ONLY THIS WEEKEND',
+        'url'          => $block->getUrl('home'),
+    ],
+    [
+        'image_url'    => 'https://unsplash.com/photos/a1_DQQhtLVc/download?force=true&auto=format&fit=crop&w=1280&q=80',
+        'image_width'  => 1280,
+        'image_height' => 853,
+        'text_small'   => 'NEW ARRIVALS',
+        'text_large'   => '(TRACK)SUIT UP!',
+        'url'          => $block->getUrl('home'),
+    ],
+    [
+        'image_url'    => 'https://unsplash.com/photos/HyvE5SiKMUs/download?force=true&auto=format&fit=crop&w=1280&q=80',
+        'image_width'  => 1280,
+        'image_height' => 853,
+        'text_small'   => 'SUMMER COLLECTION',
+        'text_large'   => 'GET YOUR GEAR NOW',
+        'url'          => $block->getUrl('home'),
+    ],
+];
+
+?>
+<div class="my-20">
+    <?=
+        $sliderViewModel
+            ->getSliderForItems(
+                'Magento_Theme::elements/ui-slider/slider-item.phtml',
+                $items,
+                'Magento_Theme::elements/ui-slider/slider-php.phtml'
+            )
+            ->toHtml()
+    ?>
+</div>

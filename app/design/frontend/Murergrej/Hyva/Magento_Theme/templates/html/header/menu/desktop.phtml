@@ -1,0 +1,242 @@
+<?php
+/**
+ * @category  Murergrej
+ * @package   Murergrej_Hyva
+ * @author    Ernests Verins <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ * @license   http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\View\Element\Template;
+use Scandiweb\MenuOrganizer\ViewModel\MenuManager;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var MenuManager $viewModelMenuManager */
+$viewModelMenuManager = $viewModels->require(MenuManager::class);
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+$uniqueId = '_' . uniqid();
+$menuItems = $viewModelMenuManager->getMenuItems('main-menu');
+$currentHost = $block->getBaseUrl();
+$block->setData('cache_tags', $viewModelMenuManager->getIdentities());
+?>
+<div
+  x-data="initMenuDesktop<?= $escaper->escapeHtml($uniqueId) ?>()"
+  class="navigation hidden lg:flex mx-auto w-full p-0"
+>
+    <!-- desktop -->
+    <div class="justify-between items-center mx-auto w-full bg-primary-lighter">
+        <nav role="navigation" aria-label="Main menu" class="flex flex-wrap justify-center" @mouseleave="
+                isMenuOpened = false;
+                prevSubMenuHeight = 0;
+                currentSubMenuActive = 0;
+                currentSubMenuActive2 = 0;
+                clearTimeout(debounceMouseOver);
+            "
+        >
+            <?php foreach ($menuItems as $index => $itemLevel1): ?>
+                <?php
+                $childrens = $itemLevel1->getChildren();
+                $id = $itemLevel1->getId();
+                $childrenNodes = $itemLevel1->getChildren()->getNodes();
+                $firstChild = !empty($childrenNodes) ? reset($childrenNodes) : null;
+                $firstChildId = $firstChild ? $firstChild->getId() : null;
+                ?>
+
+                <div x-data="initSubCategoryItems(<?php echo count($childrens) ?>)"
+                     class="flex items-center group justify-center <?= $itemLevel1->getItemClass(); ?>"
+                     @mouseenter="
+                        handleEnterMouse();
+                        hoverTopPosition = $event.currentTarget.offsetTop + $event.currentTarget.offsetHeight;
+                        debounceMouseOver = setTimeout(
+                            () => {
+                                currentSubMenuActive = <?= count($childrens) ? $id : 0; ?>;
+                                isMenuOpened = !!<?= count($childrens) ? 1 : 0 ?>;
+                                currentSubMenuActive2 = <?= $firstChildId ? $firstChildId : 'null'; ?>;
+                            },
+                            200
+                        );
+                        isMenuOpened = !!<?= count($childrens) ? 1 : 0 ?>;
+                     "
+                     @mouseleave="handleLeaveMouse()"
+                     tabindex="0"
+                     role="menuitem"
+                     aria-expanded="false"
+                >
+                    <a href="<?= $escaper->escapeUrl($viewModelMenuManager->getFullUrl($itemLevel1)) ?>"
+                       title="<?= $escaper->escapeHtmlAttr($itemLevel1->getTitle()) ?>"
+                       class="
+                        cursor-pointer pb-3.5 text-base font-extrabold flex uppercase no-underline text-primary py-3.5
+                        px-6 hover:text-white hover:bg-primary"
+                    >
+                        <?= $escaper->escapeHtml($itemLevel1->getTitle()) ?>
+                    </a>
+
+                    <?php if ($itemLevel1->hasChildren()): ?>
+                        <!-- Second-Level Menu -->
+                        <div x-cloak class="absolute left-0 top-full z-30 mt-3 bg-white pointer-events-none group-hover:pointer-events-auto overflow-hidden"
+                             :style="{
+                                top: `${hoverTopPosition - 12}px`,
+                                height: currentSubMenuActive === <?= $id; ?> ? 'auto' : '0'
+                             }"
+                             :class="{'transition-[height] duration-200 ease-in-out': currentSubMenuActive === <?= $id; ?>}"
+                             aria-hidden="true"
+                        >
+                            <div class="flex flex-row w-screen" x-ref="list">
+                                <!-- Render second-level menu -->
+                                <ul class="list-none flex flex-col transition-opacity duration-500 py-6"
+                                    :class="{'opacity-100': currentSubMenuActive === <?= $id; ?>}"
+                                    role="menu"
+                                    aria-label="Second-level menu"
+                                >
+                                    <?php foreach ($childrens as $itemLevel2): ?>
+                                        <li class="px-10 py-2 hover:bg-secondary-lighter"
+                                            @mouseenter="currentSubMenuActive2 = <?= $itemLevel2->getId(); ?>"
+                                            role="menuitem"
+                                            tabindex="0"
+                                        >
+                                            <div class="flex justify-between items-center">
+                                                <a href="<?= $escaper->escapeUrl($viewModelMenuManager->getFullUrl($itemLevel2)) ?>"
+                                                   title="<?= $escaper->escapeHtmlAttr($itemLevel2->getTitle()) ?>"
+                                                   class="text-sm font-extrabold no-underline text-primary hover:text-primary-darker">
+                                                    <?= $escaper->escapeHtml($itemLevel2->getTitle()) ?>
+                                                </a>
+                                                <span class="w-5 h-5 flex justify-end items-center" aria-hidden="true">
+                                                    <?= $hyvaicons->renderHtml('chevron', '-rotate-90', 13, 13) ?>
+                                                </span>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+
+                                <!-- Third-Level Menu -->
+                                <div class="relative p-10 h-auto bg-secondary-lighter w-full">
+                                    <?php foreach ($childrens as $itemLevel2): ?>
+                                        <?php
+                                        $icon = $itemLevel2->getIcon();
+                                        ?>
+                                        <?php if ($itemLevel2->hasChildren() || $icon): ?>
+                                            <div class="z-40 pointer-events-auto overflow-hidden bg-secondary-lighter"
+                                                 :style="{
+                                                    height: currentSubMenuActive2 === <?= $itemLevel2->getId(); ?> ? 'auto' : '0',
+                                                    visibility: currentSubMenuActive2 === <?= $itemLevel2->getId(); ?> ? 'visible' : 'hidden',
+                                                 }"
+                                                 :class="{'transition-[height] duration-200 ease-in-out': currentSubMenuActive2 === <?= $itemLevel2->getId(); ?>}"
+                                                 aria-hidden="true"
+                                            >
+                                                <ul class="list-none grid grid-cols-4 gap-4" x-ref="thirdLevelList" role="menu">
+                                                    <?php if ($itemLevel2->hasChildren()): ?>
+                                                        <?php foreach ($itemLevel2->getChildren() as $itemLevel3): ?>
+                                                            <li class="p-4 bg-white" role="menuitem">
+                                                                <div class="flex justify-between items-start pb-1">
+                                                                    <a href="<?= $escaper->escapeUrl($viewModelMenuManager->getFullUrl($itemLevel3)) ?>"
+                                                                       title="<?= $escaper->escapeHtmlAttr($itemLevel3->getTitle()) ?>"
+                                                                       class="text-base font-extrabold no-underline text-primary hover:text-primary-darker"
+                                                                       style="word-break: break-word;"
+                                                                    >
+                                                                        <?= $escaper->escapeHtml($itemLevel3->getTitle()) ?>
+                                                                    </a>
+                                                                    <span class="w-6 h-6 flex justify-end items-center" aria-hidden="true">
+                                                                        <?= $heroicons->arrowHtml('', 24, 24); ?>
+                                                                    </span>
+                                                                </div>
+
+                                                                <!-- Fourth-Level Menu -->
+                                                                <?php if ($itemLevel3->hasChildren()): ?>
+                                                                    <?php
+                                                                        $childrenLevel4Nodes = $itemLevel3->getChildren()->getNodes();
+                                                                        $childrenLevel4Limited = array_slice($childrenLevel4Nodes, 0, 5);
+                                                                    ?>
+                                                                    <ul class="list-none transition-opacity duration-500">
+                                                                        <?php foreach ($childrenLevel4Limited as $itemLevel4): ?>
+                                                                            <li role="menuitem">
+                                                                                <a href="<?= $escaper->escapeUrl($viewModelMenuManager->getFullUrl($itemLevel4)) ?>"
+                                                                                   title="<?= $escaper->escapeHtmlAttr($itemLevel4->getTitle()) ?>"
+                                                                                   class="block text-sm font-bold no-underline text-primary py-1 hover:text-primary-darker">
+                                                                                    <?= $escaper->escapeHtml($itemLevel4->getTitle()) ?>
+                                                                                </a>
+                                                                            </li>
+                                                                        <?php endforeach; ?>
+                                                                    </ul>
+                                                                    <?php if (count($childrenLevel4Nodes) > 5): ?>
+                                                                        <a
+                                                                          href="<?= $escaper->escapeUrl($viewModelMenuManager->getFullUrl($itemLevel3)) ?>"
+                                                                          class="block text-sm pt-1"
+                                                                        >
+                                                                            <?= __('See all %1', $escaper->escapeHtmlAttr($itemLevel3->getTitle())) ?>
+                                                                        </a>
+                                                                    <?php endif; ?>
+                                                                <?php endif; ?>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                    <?php if ($icon): ?>
+                                                        <li class="col-span-2 row-start-1 row-end-4 col-start-3 flex items-start justify-end">
+                                                            <img src="/media/<?= $escaper->escapeUrl($icon) ?>"
+                                                                 alt="Icon for <?= $escaper->escapeHtmlAttr($itemLevel2->getTitle()) ?>"
+                                                                 class="w-full h-auto"
+                                                                 aria-hidden="true"
+                                                            />
+                                                        </li>
+                                                    <?php endif; ?>
+                                                </ul>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </nav>
+    </div>
+</div>
+<script>
+    function initMenuDesktop<?= $escaper->escapeHtml($uniqueId) ?>() {
+        return {
+            hoverTopPosition: '100%',
+            debounceMouseOver: null,
+            currentSubMenuActive: 0,
+            currentSubMenuActive2: null,
+            isMenuOpened: false,
+
+            handleEnterMouse() {
+                this.isMenuOpened = true;
+            },
+            handleLeaveMouse() {
+                this.isMenuOpened = false;
+                this.currentSubMenuActive = 0;
+                this.currentSubMenuActive2 = null;
+            }
+        }
+    }
+
+    function initSubCategoryItems(itemsCount) {
+        return {
+            isLinkHovered: false,
+            isClickedFirstTime: false,
+            isTablet: false,
+            containerHeight: 0,
+            itemsCount: itemsCount,
+
+            handleLeaveMouse() {
+                this.isLinkHovered = false;
+            },
+            handleEnterMouse() {
+                this.isLinkHovered = true;
+            }
+        }
+    }
+</script>

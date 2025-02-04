@@ -1,0 +1,27 @@
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Amr Osama <amr.osama@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<div attr="data.main.attributes"
+     css="data.main.css"
+     event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false">
+    <div ko-style="data.main.style" class="scandiweb-store-notice-container">
+        <span class="scandiweb-store-notice-link"  
+            attr="data.link.attributes"
+            ko-style="data.link.style"
+            css="data.link.css">
+
+            <span attr="data.content.attributes"
+                ko-style="data.content.style"
+                css="data.content.css"
+                data-bind="liveEdit: { field: 'content', placeholder: $t('Enter content') }">
+            </span>
+        </span>
+    </div>
+    
+    <render args="getOptions().template"/>
+</div>

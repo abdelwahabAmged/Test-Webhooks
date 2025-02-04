@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="before.body.end">
+            <block name="js.inclusion"
+                   template="DV_ProfitMetrics::js-inclusion.phtml">
+            </block>
+        </referenceContainer>
+    </body>
+</page>

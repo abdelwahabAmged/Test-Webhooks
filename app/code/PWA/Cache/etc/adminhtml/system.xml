@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="pwa" translate="label" sortOrder="999999">
+            <label>PWA</label>
+        </tab>
+        <section id="pwa_cache" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <tab>pwa</tab>
+            <label>PWA Cache</label>
+            <resource>PWA_Cache::config</resource>
+            <group id="general" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="cache_base_endpoint" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cache Base Endpoint</label>
+                    <comment>E.g. https://murergrej.dk/api/ext/remote-cache</comment>
+                </field>
+                <field id="key" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Secret key</label>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

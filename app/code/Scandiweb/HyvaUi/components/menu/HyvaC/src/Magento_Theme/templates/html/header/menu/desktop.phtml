@@ -1,0 +1,184 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scandiweb\MenuOrganizer\ViewModel\MenuManager;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var MenuManager $menuOrganizer */
+$menuOrganizer = $viewModels->require(MenuManager::class);
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+$uniqueId = '_' . uniqid();
+
+// Order is important here: 1. build the menu data, 2. then set the cache tags from the view model identities
+$menuItems = $menuOrganizer->getMenuItems('menu');
+
+$block->setData('cache_tags', $menuOrganizer->getIdentities());
+?>
+<div x-data="initMenuDesktop<?= $escaper->escapeHtml($uniqueId) ?>()"
+     class="z-20 order-2 sm:order-1 lg:order-2 navigation hidden lg:flex"
+>
+    <!-- desktop -->
+    <div x-ref="nav-desktop"
+         @load.window="setActiveMenu($root)"
+         class="justify-between items-center mx-auto w-full max-w-7xl"
+    >
+        <nav aria-label="<?= $escaper->escapeHtmlAttr(__('Main menu')) ?>">
+            <ul class="flex flex-wrap">
+                <?php
+                foreach ($menuItems as $index => $itemLevel1): ?>
+                    <?php
+                    $singleItems = []; ?>
+                    <li class="level-0 flex items-center p-1 mx-1 border-b-2 border-transparent transition transition-colors duration-500 group xl:p-2 xl:mx-2 hover:border-primary focus-within:border-primary"
+                        @mouseover.stop="hoverTopPosition = $event.currentTarget.offsetTop + $event.currentTarget.getBoundingClientRect().height"
+                    >
+                        <a href="<?= $escaper->escapeUrl($menuOrganizer->getFullUrl($itemLevel1)) ?>"
+                           @focus="hoverTopPosition = $event.currentTarget.parentNode.offsetTop + $event.currentTarget.parentNode.getBoundingClientRect().height"
+                           title="<?= $escaper->escapeHtmlAttr($itemLevel1->getTitle()) ?>"
+                           class="level-0 block p-2 text-base text-gray-700 whitespace-nowrap">
+                            <span><?= $escaper->escapeHtml($itemLevel1->getTitle()) ?></span>
+                            <?php
+                            if ($itemLevel1->hasChildren()): ?>
+                                <span class="inline items-center">
+                                    <?= $heroiconsSolid->chevronDownHtml(
+                                        'w-5 h-5 inline',
+                                        25,
+                                        25,
+                                        ['aria-hidden' => 'true']
+                                    ) ?>
+                                </span>
+                            <?php
+                            endif; ?>
+                        </a>
+                        <?php
+                        if ($itemLevel1->hasChildren()): ?>
+                            <div class="absolute left-0 top-full z-10 -mt-3 w-full bg-white opacity-0 transition-opacity ease-out pointer-events-none group-hover:opacity-100 focus-within:opacity-100 group-hover:pointer-events-auto"
+                                 :style="`margin-top: 0; top: ${hoverTopPosition}px;`"
+                            >
+                                <div class="flex justify-between mt-4 mb-8">
+                                    <div class="mx-auto">
+                                        <ul class="grid flex-1 grid-cols-4 gap-y-4 gap-x-8 p-4">
+                                            <?php
+                                            foreach ($itemLevel1->getChildren() as $itemLevel2): ?>
+                                                <?php
+                                                if (!$itemLevel2->hasChildren()): ?>
+                                                    <?php
+                                                    $singleItems[] = $itemLevel2 ?>
+                                                    <?php
+                                                    continue; ?>
+                                                <?php
+                                                endif; ?>
+                                                <li class="level-1 min-w-48">
+                                                    <a href="<?= $escaper->escapeUrl(
+                                                        $menuOrganizer->getFullUrl($itemLevel2)
+                                                    ) ?>"
+                                                       title="<?= $escaper->escapeHtmlAttr($itemLevel2->getTitle()) ?>"
+                                                       class="level-1 p-1 block text-base font-semibold leading-loose hover:underline">
+                                                        <?= $escaper->escapeHtml($itemLevel2->getTitle()) ?>
+                                                    </a>
+
+                                                    <ul class="z-10 w-full">
+                                                        <?php
+                                                        foreach ($itemLevel2->getChildren() as $itemLevel3): ?>
+                                                            <li class="level-2">
+                                                                <a href="<?= $escaper->escapeUrl(
+                                                                    $menuOrganizer->getFullUrl($itemLevel3)
+                                                                ) ?>"
+                                                                   title="<?= $escaper->escapeHtmlAttr(
+                                                                       $itemLevel3->getTitle()
+                                                                   ) ?>"
+                                                                   class="level-2 p-1 block text-lg md:text-sm hover:underline"><?= $escaper->escapeHtml(
+                                                                        $itemLevel3->getTitle()
+                                                                    ) ?></a>
+                                                            </li>
+                                                        <?php
+                                                        endforeach; ?>
+                                                    </ul>
+
+                                                </li>
+                                            <?php
+                                            endforeach; ?>
+                                            <?php
+                                            if ($singleItems): ?>
+                                                <li class="level-1 min-w-48">
+                                                    <?php
+                                                    foreach ($singleItems as $item): ?>
+                                                        <a href="<?= $escaper->escapeUrl(
+                                                            $menuOrganizer->getFullUrl($item)
+                                                        ) ?>"
+                                                           title="<?= $escaper->escapeHtmlAttr($item->getTitle()) ?>"
+                                                           class="level-1 p-1 block text-base font-semibold leading-loose hover:underline">
+                                                            <?= $escaper->escapeHtml($item->getTitle()) ?>
+                                                        </a>
+                                                    <?php
+                                                    endforeach; ?>
+                                                </li>
+                                            <?php
+                                            endif; ?>
+                                        </ul>
+                                    </div>
+                                    <?php
+                                    if ($menuOrganizer->getImageUrl($itemLevel1)): ?>
+                                        <div class="max-w-xs 2xl:block">
+                                            <div class="relative mr-4">
+                                                <a href="<?= $escaper->escapeUrl(
+                                                    $menuOrganizer->getFullUrl($itemLevel1)
+                                                ) ?>">
+                                                    <img src="<?= $menuOrganizer->getImageUrl($itemLevel1) ?>"/>
+                                                    <span class="text-2xl font-bold text-white"
+                                                          style="position: absolute; bottom:0; left: 50%; transform: translate(-50%, -50%);">
+                                                    <?= $escaper->escapeHtml($itemLevel1->getTitle()) ?>
+                                                </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    <?php
+                                    endif; ?>
+                                </div>
+                            </div>
+                        <?php
+                        endif; ?>
+                    </li>
+                <?php
+                endforeach; ?>
+            </ul>
+        </nav>
+    </div>
+
+</div>
+<script>
+    'use strict';
+
+    const initMenuDesktop<?= $escaper->escapeHtml($uniqueId) ?> = () => {
+        return {
+            hoverTopPosition: '100%',
+            setActiveMenu(menuNode) {
+                Array.from(menuNode.querySelectorAll('a')).filter(link => {
+                    return link.href && link.href !== "/" && link.href === window.location.href.split('?')[0];
+                }).map(item => {
+                    if (!item.classList.contains('level-0')) {
+                        item.classList.add('underline');
+                    }
+                    item.closest('div.level-0') &&
+                    item.closest('div.level-0').classList.add('border-secondary');
+                });
+            }
+        }
+    }
+</script>

@@ -1,0 +1,338 @@
+<?php
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb
+ */
+
+declare(strict_types=1);
+
+use Scandiweb\HyvaUi\Block\ScandiwebSliderVideo;
+use Scandiweb\HyvaUi\Helper\Decode as DecodeHelper;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+$swiperUniqueId = uniqid('__');  // Unique ID for the entire Swiper instance
+
+/** @var ScandiwebSliderVideo $block */
+/** @var DecodeHelper $decodeHelper */
+
+$decodeHelper = $this->helper(DecodeHelper::class);
+$cards = $block->getData('cards');
+$slides = $decodeHelper->decodeJSONHTMLEntity($cards);
+
+// Define YouTube API script URL and Vimeo API script URL
+$youtubeApiScript = "https://www.youtube.com/iframe_api";
+$vimeoJs = "https://player.vimeo.com/api/player.js";
+
+// Define Swiper JS and CSS paths
+$swiperUrl = $block->getViewFileUrl('Murergrej_CmsBlocks::js/swiper.min.js');
+$swiperCssUrl = $block->getViewFileUrl('Murergrej_CmsBlocks::css/swiper.min.css');
+?>
+
+<h3 class="text-center mt-6 mb-8 font-extrabold md:text-[32px] text-xl">
+    <?= $escaper->escapeHtml($block->getData('block_title')); ?>
+</h3>
+<?php if ($slides): ?>
+    <section
+        class="flex flex-col w-full h-full"
+        x-data="initSliderComponent_3('<?= $swiperUniqueId; ?>', '<?= $swiperUrl; ?>', '<?= $swiperCssUrl; ?>')"
+        x-init="init();"
+        role="group"
+        aria-roledescription="<?= $escaper->escapeHtmlAttr(__('Carousel')) ?>"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Carousel %1', $block->getData('block_title'))) ?>"
+    >
+        <div class="relative xl:ml-0 bg-white md:pb-[60px] pb-14">
+            <div class="flex items-center relative justify-between">
+                <!-- Swiper Wrapper -->
+                <div class="swiper swiper_<?= $swiperUniqueId ?> overflow-hidden flex-grow bg-white !pr-4 !pl-4 md:pr-0 relative 2xl:h-[276px] md:h-[215px] h-[160px]">
+                    <div class="swiper-wrapper flex ">
+                        <?php foreach ($slides as $slide): ?>
+                            <?php 
+                            $slideUniqueId = uniqid('_');  // Unique ID for each video
+                            $videoUrl = $slide['slide_video_url'] ?? '';
+                            $video_text=$slide['slide_img_title'] ?? '';
+                            $isYouTube = preg_match('/(youtube\.com|youtu\.be)/', $videoUrl);
+                            $isVimeo = preg_match('/(vimeo\.com)/', $videoUrl);
+
+                            if (!empty($videoUrl)) {
+                                if ($isYouTube) {
+                                    // Extract YouTube video ID
+                                    preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.+\?v=)|youtu\.be\/)([^\?&"\'<>]+)/', $videoUrl, $matches);
+                                    $youtubeId = $matches[1] ?? null;
+                                    if ($youtubeId): ?>
+                                        <div class="swiper-slide video-container paused"
+                                             x-data="initYouTubePlayer('<?= $slideUniqueId; ?>', '<?= $youtubeApiScript; ?>', '<?= $youtubeId; ?>')"
+                                             x-init="init()"
+                                             id="video-container-<?= $slideUniqueId ?>"
+                                          >
+                                            <?php if (!empty($slide['slide_img_src'][0]['url'])): ?>
+                                                <img id="thumbnail-<?= $slideUniqueId ?>" src="<?= $slide['slide_img_src'][0]['url'] ?>" alt="Thumbnail" 
+                                                    class="slider-video-thumbnail"
+                                                    style="position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1;" />
+                                            <?php endif; ?>
+                                            <!-- YouTube Player -->
+                                            <div class="w-full h-full" id="player-<?= $slideUniqueId ?>" ></div>
+                                            <!-- Play and Pause buttons overlaid, hidden initially -->
+                                            <div class="video-controls z-10" id="video-controls-<?= $slideUniqueId ?>">
+                                                <button id="play-button-<?= $slideUniqueId ?>" @click="playVideo()" class="video-control-button">
+                                                <?= $hyvaicons->renderHtml('play', '', 40, 40) ?>
+                                                </button>
+                                                <p class="watch-text font-extrabold text-white">Watch Video</p>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php } elseif ($isVimeo) {
+                                    // Extract Vimeo video ID
+                                    preg_match('/vimeo\.com\/(\d+)/', $videoUrl, $matches);
+                                    $vimeoId = $matches[1] ?? null;
+                                    if ($vimeoId): ?>
+                                        <div class="swiper-slide video-container paused relative  w-full"
+                                             id="video-container-<?= $slideUniqueId ?>">
+                                                <!-- Render the thumbnail image if it exists -->
+                                            <?php if (!empty($slide['slide_img_src'][0]['url'])): ?>
+                                                <img id="thumbnail-<?= $slideUniqueId ?>" src="<?= $slide['slide_img_src'][0]['url'] ?>" alt="Thumbnail" 
+                                                    class="slider-video-thumbnail"
+                                                    style="position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1;" />
+                                            <?php endif; ?>
+                                            <!-- Vimeo Player Container --> 
+                                            <div id="player-<?= $slideUniqueId ?>" style="width: 100%; height: 100%; z-index: 2;"></div>
+                                            <!-- Play and Pause buttons for Vimeo -->
+                                            <div class="video-controls" id="video-controls-<?= $slideUniqueId ?>" style="z-index: 3;">
+                                                <button id="play-button-<?= $slideUniqueId ?>" class="video-control-button">
+                                                    <?= $hyvaicons->renderHtml('play', '', 40, 40) ?>
+                                                </button>
+                                                <p class="watch-text font-extrabold text-white">Watch Video</p>
+                                            </div>
+                                        </div>
+                                        <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            loadVimeoAPI().then(() => {
+                                                const options = {
+                                                    id: <?= $vimeoId ?>,
+                                                    loop: false,
+                                                };
+                                                const player = new Vimeo.Player('player-<?= $slideUniqueId ?>', options);
+                                                player.setVolume(0);
+                                                const playButton = document.getElementById('play-button-<?= $slideUniqueId ?>');
+                                                const thumbnail = document.getElementById('thumbnail-<?= $slideUniqueId ?>');
+                                                playButton.addEventListener('click', function() {
+                                                    player.play().then(() => {
+                                                        if (thumbnail) {
+                                                            thumbnail.style.display = 'none';
+                                                        }
+                                                        playButton.style.display = 'none'; 
+                                                    }).catch(error => {
+                                                        console.error('Error playing the video:', error);
+                                                    });
+                                                });
+                                                player.on('play', function() {
+                                                    document.getElementById('video-container-<?= $slideUniqueId ?>').classList.remove('paused');
+                                                });
+
+                                                player.on('pause', function() {
+                                                    document.getElementById('video-container-<?= $slideUniqueId ?>').classList.add('paused');
+                                                    playButton.style.display = 'block'; 
+                                                });
+                                            });
+                                        });
+                                        function loadVimeoAPI() {
+                                            return new Promise((resolve, reject) => {
+                                                if (!window.Vimeo) {
+                                                    const script = document.createElement('script');
+                                                    script.src = "<?= $vimeoJs ?>";
+                                                    document.head.appendChild(script);
+                                                    script.onload = resolve;
+                                                    script.onerror = reject;
+                                                } else {
+                                                    resolve();
+                                                }
+                                            });
+                                        }
+                                        </script>
+                                    <?php endif; ?>
+                                <?php } else {
+                                    echo "Invalid video URL.";
+                                }
+                            }
+                            ?>
+                        <?php endforeach; ?>
+
+                    </div>
+                  
+                </div>
+
+            </div>
+            <div class="flex md:mt-6">
+            <div class="flex-shrink-0 mr-4 hidden xl:block">
+                    <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Previous slide')) ?>"
+                            class="swiper-prev_<?= $swiperUniqueId ?> border-2 p-3.5 bg-white flex items-center justify-center">
+                        <?= $hyvaicons->renderHtml('next', 'rotate-180', 24, 24) ?>
+                    </button>
+                </div>
+                <div class="swiper-scrollbar swiper-scrollbar_<?= $swiperUniqueId ?>"></div>
+                <div class="flex ml-4 hidden xl:block ">
+                    <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Next slide')) ?>"
+                            class="swiper-next_<?= $swiperUniqueId ?> border-2 p-3.5 bg-white flex items-center justify-center">
+                        <?= $hyvaicons->renderHtml('next', '', 24, 24) ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
+<script>
+let youtubePlayersQueue = []; // Queue to hold YouTube players that need to be initialized
+
+// Global onYouTubeIframeAPIReady function
+window.onYouTubeIframeAPIReady = function() {
+    youtubePlayersQueue.forEach((player) => {
+        player.initializeYouTubePlayer();
+    });
+    youtubePlayersQueue = []; // Clear the queue after initializing players
+};
+
+function initYouTubePlayer(uniqueId, youtubeApiScript, youtubeId) {
+    return {
+        player: null,
+        init() {
+            if (!window.YT || !window.YT.Player) {
+                this.addJsScript(youtubeApiScript, () => {
+                    youtubePlayersQueue.push(this); // Add player to queue to be initialized
+                });
+            } else {
+                this.initializeYouTubePlayer();
+            }
+        },
+        addJsScript(scriptUrl, callback) {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = scriptUrl;
+            script.async = true;
+            script.onload = () => {
+                if (callback) callback();
+            };
+            document.head.appendChild(script);
+        },
+        initializeYouTubePlayer() {
+            if (this.player) {
+                return; // If player is already initialized, skip
+            }
+            
+            this.player = new YT.Player(`player-${uniqueId}`, {
+                height: '100%',
+                width: '100%',
+                videoId: youtubeId,
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'iv_load_policy': 3,
+                    'showinfo': 0
+                },
+                events: {
+                    'onReady': this.onPlayerReady.bind(this),
+                    'onStateChange': this.onPlayerStateChange.bind(this)
+                }
+            });
+        },
+                onPlayerReady(event) {
+                    const playButton = document.getElementById(`play-button-${uniqueId}`);
+                    playButton.style.display = 'block';
+                    document.querySelector(`#video-container-${uniqueId}`).classList.add('paused');
+                 },
+        onPlayerStateChange(event) {
+            const playButton = document.getElementById(`play-button-${uniqueId}`);
+            const videoContainer = document.querySelector(`#video-container-${uniqueId}`);
+
+            if (event.data == YT.PlayerState.PLAYING) {
+                playButton.style.display = 'none';
+                videoContainer.classList.remove('paused');
+            } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
+                playButton.style.display = 'block';
+                videoContainer.classList.add('paused');
+            }
+        },
+        playVideo() {
+            if (this.player && this.player.playVideo) {
+                this.player.playVideo();
+            }
+        },
+        pauseVideo() {
+            if (this.player) {
+                this.player.pauseVideo();
+            }
+        }
+    };
+}
+</script>
+<!-- Swiper Initialization Script -->
+<script>
+function initSliderComponent_3(uniqueId, swiperJsUrl, swiperCssUrl) {
+    return {
+        init() {
+            if (!window.Swiper) {
+                this.addJsScript(swiperJsUrl);
+                this.addCss(swiperCssUrl);
+            } else {
+                this.initializeSwiper(uniqueId);
+            }
+        },
+        initializeSwiper(uniqueId) {
+            const swiperElement = document.querySelector('.swiper_' + uniqueId);
+
+            if (!swiperElement) {
+                return;
+            }
+
+            const swiper = new Swiper(swiperElement, {
+                slidesPerView: '1',
+                spaceBetween: 12,
+                draggable: true,
+                navigation: {
+                    nextEl: '.swiper-next_' + uniqueId,
+                    prevEl: '.swiper-prev_' + uniqueId,
+                },
+                scrollbar: {
+                    el: '.swiper-scrollbar_' + uniqueId, // Select the element for the scrollbar
+                    draggable: true,  // Make the scrollbar draggable
+                    snapOnRelease: true,  // Snap to slides after dragging the scrollbar
+                },
+                breakpoints: {
+                    768: {
+                        spaceBetween: 16,
+                        slidesPerView: 2.1,
+                    },
+                    1440: {
+                        spaceBetween: 16,
+                        slidesPerView: 3.5,
+                    },
+                    1700: {
+                        spaceBetween: 16,
+                        slidesPerView: 3.5,
+                    },
+                }
+            });
+        },
+        addJsScript(swiperJsUrl) {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.addEventListener('load', () => {
+                this.initializeSwiper(uniqueId);
+            });
+            script.src = swiperJsUrl;
+            document.head.appendChild(script);
+        },
+        addCss(swiperCssUrl) {
+            const link = document.createElement('link');
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            link.href = swiperCssUrl;
+            document.head.appendChild(link);
+        },
+    }
+}   
+</script>

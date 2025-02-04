@@ -1,0 +1,279 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentCategory;
+use Hyva\Theme\ViewModel\ProductListItem;
+use Hyva\Theme\ViewModel\ProductPage;
+use Magento\Catalog\Block\Product\ListProduct;
+use Magento\Framework\Escaper;
+use Magento\Catalog\Block\Product\ReviewRendererInterface;
+
+/** @var ListProduct $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var ProductPage $productViewModel */
+/** @var CurrentCategory $currentCategoryViewModel */
+
+$productViewModel         = $viewModels->require(ProductPage::class);
+$productListItemViewModel = $viewModels->require(ProductListItem::class);
+$currentCategoryViewModel = $viewModels->require(CurrentCategory::class);
+
+$eagerLoadImagesCount = (int) ($block->getData('eager_load_images_count') ?? 3);
+
+$productCollection = $block->getLoadedProductCollection()['collection'];
+$sortOptions = $block->getLoadedProductCollection()['sort_options'];
+$filters = $block->getLoadedProductCollection()['filters'];
+$viewModeCheck = $block->getMode() == 'grid' ? 'grid-view' : 'list-view';
+$totalCount = $block->totalCount ?? 0;
+$productsPerPage = $block->productsPerPage ?? 0;
+
+?>
+<?php if (!$productCollection->count()): ?>
+    <div class="message info empty">
+        <div>
+            <?= $escaper->escapeHtml(__('We can\'t find products matching the selection.')) ?>
+        </div>
+    </div>
+<?php else: ?>
+    <section
+      class="lg:pb-12 md:pt-6 lg:pt-12" id="product-list"
+      data-view-mode="<?= $viewModeCheck ?>"
+      aria-label="<?= $escaper->escapeHtmlAttr(__('Product list')) ?>"
+      tabindex="-1"
+    >
+        <?= $block->getAdditionalHtml() ?>
+        <?php
+        if ($block->getMode() == 'grid') {
+            $viewMode         = 'grid';
+            $imageDisplayArea = 'category_page_grid';
+            $showDescription  = false;
+            $templateType     = ReviewRendererInterface::SHORT_VIEW;
+        } else {
+            $viewMode         = 'list';
+            $imageDisplayArea = 'category_page_list';
+            $showDescription  = true;
+            $templateType     = ReviewRendererInterface::FULL_VIEW;
+        }
+        /**
+         * Position for actions regarding image size changing in vde if needed
+         */
+        $pos = $block->getPositioned();
+        ?>
+        <div
+          x-data="productLoader()"
+          class="products wrapper mode-<?= /* @noEscape */$viewMode ?> products-<?= /* @noEscape */$viewMode ?>"
+        >
+            <div class="flex">
+                <?php
+                $filtersBlock = $block->getChildBlock('category.filters.desktop');
+
+                if ($filtersBlock) {
+                    $filtersBlock->setData('filters', $filters);
+                }
+                ?>
+
+                <?= $block->getChildHtml('category.filters.desktop') ?>
+
+                <div class="flex flex-col w-full">
+                    <?php
+                    $toolbarBlock = $block->getChildBlock('toolbar');
+
+                    if ($toolbarBlock) {
+                        $toolbarBlock->setData(
+                          ['sortOptions' => $sortOptions, 'totalCount' => $totalCount, 'filters' => $filters]
+                        );
+                    }
+                    ?>
+
+                    <?= $block->getToolbarHtml() ?>
+
+                    <ul
+                      role="list"
+                      class="main-product-list mx-auto w-full pb-4 lg:pb-6 md:pb-9 grid lg:flex-wrap gap-4 grid-cols-1
+                       md:pt-6 <?= /* @noEscape */$viewMode === 'grid'
+                            ? 'lg:flex md:pl-8 md:pr-10 sm:grid-cols-2 xl:grid-cols-3 lg:flex lg:flex-wrap'
+                            : 'px-4 md:pl-8 md:pr-10' ?>"
+                    >
+                        <?php
+                        /** @var \Magento\Catalog\Model\Product $product */
+                        foreach (array_values($productCollection->getItems()) as $i => $product):
+                            if ($i < $eagerLoadImagesCount) {
+                                $product->setData('image_custom_attributes', ['loading' => 'eager', 'fetchpriority' => 'high']);
+                            }
+                            // Find tracking code by product number
+                            $trackingCode = '';
+
+                            foreach ($block->productSKUAndTrackingCode as $item) {
+                                if ($item['productNumber'] === $product->getSku()) {
+                                    $trackingCode = $item['trackingCode'];
+                                    break;
+                                }
+                            }
+                            ?>
+                            <li class="bg-white <?= /* @noEscape */$viewMode === 'grid' ? 'lg:w-[199px] 2xl:w-[214px]': ''?>">
+                                <div
+                                type="button"
+                                @click="
+                                    hrq = window.hrq || [];
+                                    hrq.push([
+                                        'trackClick',
+                                        '<?= $escaper->escapeHtmlAttr($trackingCode) ?>'
+                                ]);"
+                                >
+                                    <?= $productListItemViewModel->getItemHtml(
+                                        $product,
+                                        $block,
+                                        $viewMode,
+                                        $templateType,
+                                        $imageDisplayArea,
+                                        $showDescription
+                                    ); ?>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+
+            <div
+              class="flex gap-x-3 justify-center font-extrabold"
+              x-show="areButtonsVisible"
+              x-cloak
+            >
+                <button
+                  class="btn-primary px-[22px] md:px-6 uppercase w-[138px] md:w-[152px]"
+                  type="button"
+                  @click="loadMoreProducts"
+                >
+                    <?= /* @noEscape */ __('Load more') ?>
+                </button>
+                <button
+                  class="btn-secondary px-6 uppercase w-[138px] md:w-[152px]"
+                  type="button"
+                  @click="viewAllProducts"
+                >
+                    <?= /* @noEscape */ __('View all') ?>
+                </button>
+            </div>
+            <?php if ($totalCount): ?>
+                <div class="text-center mt-4 mb-4 lg:mb-6 product-count" x-cloak>
+                    <span x-text="displayedCount" class="font-extrabold"></span> /
+                    <span x-text="totalCount"></span> <?= __('products') ?>
+                </div>
+            <?php endif; ?>
+            <?= $block->getChildHtml('loading') ?>
+        </div>
+    </section>
+<?php endif; ?>
+<script>
+    function productLoader() {
+        const totalCount = <?= $totalCount ?>;
+        const productsPerPage = <?= $productsPerPage ?>;
+        const currentPage = <?= (int) $block->getRequest()->getParam('p', 1) ?>;
+        const maxPage = Math.ceil(totalCount / productsPerPage);
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewAll = urlParams.has('viewAll') && urlParams.get('viewAll') === '1';
+
+        return {
+            isLoading: false,
+            currentPage: currentPage,
+            totalCount: totalCount,
+            productsPerPage: productsPerPage,
+            categoryId: <?= $block->getCurrentCategoryId() ?>,
+            areButtonsVisible: !viewAll && currentPage < maxPage,
+            displayedCount: viewAll ? totalCount : Math.min(currentPage * productsPerPage, totalCount),
+
+            loadMoreProducts() {
+                this.currentPage++;
+                this.isLoading = true;
+                const currentParams = new URLSearchParams(window.location.search);
+
+                currentParams.set('p', this.currentPage);
+                currentParams.set('category_id', this.categoryId);
+
+                const requestUrl = `${BASE_URL}murergrej_helloretail/loadmore/index?${currentParams.toString()}`;
+
+                fetch(requestUrl)
+                  .then(response => {
+                      return response.json();
+                  })
+                  .then(data => {
+                      if (data.success) {
+                          const productList = document.querySelector('.products.wrapper .main-product-list');
+
+                          productList.innerHTML += data.products;
+                          this.displayedCount = Math.min(this.currentPage * this.productsPerPage, this.totalCount);
+
+                          if (this.currentPage * this.productsPerPage >= totalCount) {
+                              this.areButtonsVisible = false;
+                          }
+
+                          currentParams.set('p', this.currentPage);
+
+                          const newUrl = `${window.location.pathname}?${currentParams.toString()}`;
+                          window.history.pushState({ path: newUrl }, '', newUrl);
+
+                          this.isLoading = false;
+                      } else {
+                          console.error('Error loading products:', data.message);
+                      }
+                  })
+                  .catch(
+                    error => {
+                        console.error('Error fetching products:', error);
+                        this.isLoading = false;
+                    }
+                  );
+            },
+
+            viewAllProducts() {
+                const currentPage = <?= (int) $block->getRequest()->getParam('p', 1) ?>; // Current page from the URL
+                const start = (currentPage - 1 || 1) * this.productsPerPage;
+                this.isLoading = true;
+                const currentParams = new URLSearchParams(window.location.search);
+
+                currentParams.set('p', currentPage);
+                currentParams.set('category_id', this.categoryId);
+                currentParams.set('viewAll', '1');
+                currentParams.set('count', this.totalCount);
+                currentParams.set('start', start.toString());
+
+                const requestUrl = `${BASE_URL}murergrej_helloretail/loadmore/index?${currentParams.toString()}`;
+
+                // Call the controller to load the remaining products
+                fetch(requestUrl)
+                  .then(response => {
+                      return response.json();
+                  })
+                  .then(data => {
+                      if (data.success) {
+                          const productList = document.querySelector('.products.wrapper .main-product-list');
+
+                          productList.innerHTML += data.products;
+                          this.areButtonsVisible = false;
+                          this.displayedCount = this.totalCount;
+
+                          const newUrl = `${window.location.pathname}?${currentParams.toString()}`;
+                          window.history.pushState({ path: newUrl }, '', newUrl);
+
+                          this.isLoading = false;
+                      } else {
+                          console.error('Error loading products:', data.message);
+                      }
+                  })
+                  .catch(
+                    error => {
+                        console.error('Error fetching products:', error);
+                        this.isLoading = false;
+                    }
+                  );
+            }
+        };
+    }
+</script>

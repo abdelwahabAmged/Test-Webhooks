@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="admin_system_config_changed_section_profit_metrics">
+        <observer name="profit_metrics_config"
+                  instance="DV\ProfitMetrics\Observer\Config\Backend\Admin\AfterSaveProfitMetricsObserver" />
+    </event>
+</config>

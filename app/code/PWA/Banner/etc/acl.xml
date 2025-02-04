@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::content">
+                    <resource id="PWA_Cms::cms">
+                        <resource id="PWA_Banner::banner" title="Manage Banner" translate="title" sortOrder="10">
+                            <resource id="PWA_Banner::save" title="Save Banner Image" translate="title" sortOrder="10" />
+                            <resource id="PWA_Banner::delete" title="Delete Banner Image" translate="title" sortOrder="20" />
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

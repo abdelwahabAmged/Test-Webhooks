@@ -1,0 +1,96 @@
+/* .modal {} */
+
+.backdrop {
+    @apply fixed inset-0 flex bg-black opacity-40;
+}
+
+#modal-content-config {
+    .configurable-dropdown {
+        .text-swatch {
+            @apply px-3 py-2.5 border-primary;
+
+            > span {
+                @apply text-gray-darker;
+            }
+
+            /* Hover state */
+            /* Active state */
+            &.active,
+            &:hover {
+                @apply border-primary-darker;
+
+                > span {
+                    @apply text-primary-darker;
+                }
+
+            }
+        }
+
+        .dropdown-container {
+            select {
+                @apply px-4 py-3.5 text-primary font-bold border-secondary ring-0 ring-offset-0;
+
+                &:focus {
+                    @apply border-primary-darker;
+                }
+            }
+        }
+    }
+
+    .content::-webkit-scrollbar-track {
+        @apply mb-[30px];
+    }
+
+    .product-cart-quantity {
+        > div {
+            @apply border-primary;
+            grid-template-columns: 1fr 24px;
+
+            input:focus {
+                @apply outline-none shadow-none border-transparent;
+            }
+
+            button {
+                @apply m-0.5 w-fit hover:bg-primary-lighter;
+            }
+        }
+    }
+
+    .swatch-attribute-options {
+        .swatcher-option {
+            .swatcher-and-number {
+                @apply border-primary h-16 w-16;
+
+                &.swatcher-selected {
+                    @apply border-primary-darker;
+                }
+
+                .swatcher-label {
+                    > .swatch-option {
+                        @apply w-14 h-10 bg-white border-0 !bg-cover;
+
+                        [type='radio']:checked {
+                            @apply outline-none;
+                        }
+                    }
+                }
+
+                .swatch-code {
+                    @apply text-[10px];
+                }
+            }
+
+            .swatch-label {
+                @apply !leading-3 text-[9px];
+            }
+        }
+    }
+
+    .selected-swatch {
+        @apply !bg-cover;
+
+        .selected-option {
+            @apply gap-y-0.5 m-0.5 py-3 bg-white px-[0.563rem] h-[3.375rem];
+        }
+    }
+}

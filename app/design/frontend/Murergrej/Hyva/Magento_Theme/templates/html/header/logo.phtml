@@ -1,0 +1,61 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Theme\Block\Html\Header\Logo;
+use Hyva\Theme\ViewModel\Logo\LogoSizeResolver;
+
+/** @var Logo $block */
+/** @var Escaper $escaper */
+
+$storeName = $block->getThemeName();
+
+/** @var \Hyva\Theme\ViewModel\Logo\LogoPathResolver $logoPathResolver */
+$logoPathResolver = $block->getData('logoPathResolver');
+$logoSrc = $logoPathResolver && method_exists($logoPathResolver, 'getLogoSrc')
+    ? $logoPathResolver->getLogoSrc($block->getData('logo_file'))
+    : $block->getLogoSrc();
+$mobileLogoSrc = $logoPathResolver && method_exists($logoPathResolver, 'getMobileLogoSrc')
+    ? $logoPathResolver->getMobileLogoSrc($block->getData('mobile_logo_file')) // assuming you might pass specific mobile logo file names
+    : $block->getMobileLogoSrc();
+?>
+<div x-data="imageSizeControl()" class="order-1 sm:order-2 lg:order-1 w-full pl-4 sm:w-auto sm:pb-0">
+    <a
+      class="block items-center justify-center text-xl font-medium tracking-wide
+            no-underline hover:no-underline font-title lg:flex"
+      href="<?= $escaper->escapeUrl($block->getUrl('')) ?>"
+      aria-label="<?= $escaper->escapeHtmlAttr(__('Go to Home page')) ?>"
+    >
+        <picture>
+            <source srcset="<?= $escaper->escapeUrl($mobileLogoSrc) ?>" media="(max-width: 767px)">
+            <img
+              src="<?= $escaper->escapeUrl($logoSrc) ?>"
+              alt="<?= $escaper->escapeHtmlAttr($block->getLogoAlt() ? $block->getLogoAlt() : __('Store logo')) ?>"
+              x-init="updateWindowSize"
+              @resize.window="updateWindowSize"
+            />
+        </picture>
+        <?php if (!$logoSrc): ?>
+            <?= $escaper->escapeHtml($storeName) ?>
+        <?php endif; ?>
+    </a>
+</div>
+<script>
+    function imageSizeControl() {
+        return {
+            windowWidth: window.innerWidth,
+
+            updateWindowSize() {
+                this.windowWidth = window.innerWidth;
+            }
+        }
+    }
+</script>

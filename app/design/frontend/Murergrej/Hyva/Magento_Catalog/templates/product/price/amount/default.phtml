@@ -1,0 +1,80 @@
+<?php
+
+use Magento\Catalog\Model\Product\Type;
+use Magento\Framework\Pricing\Render\Amount;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Catalog\Pricing\Price\FinalPrice;
+use Magento\Catalog\Pricing\Price\RegularPrice;
+
+/** @var Amount $block */
+/** @var Escaper $escaper */
+/** @var ProductPrice $productPriceViewModel */
+/** @var ViewModelRegistry $viewModels */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+$regularPrice = $productPriceViewModel->getPriceValue(RegularPrice::PRICE_CODE, $block->getSaleableItem());
+$finalPrice = $productPriceViewModel->getPriceValue(FinalPrice::PRICE_CODE, $block->getSaleableItem());
+?>
+
+<script>
+    function initExistingComponent() {
+        return {
+            vatMode: sessionStorage.getItem('vatToggle') === 'incl' ? 'including' : 'excluding',
+            eventListeners: {
+                ['@vat-switch.window'](event) {
+                    this.vatMode = event.detail;
+                }
+            }
+        }
+    }
+</script>
+<span x-data="{
+    ...initExistingComponent(),
+    viewMode: document.querySelector('[data-view-mode]') ? document.querySelector('[data-view-mode]').getAttribute('data-view-mode') : null }" x-spread="eventListeners"
+    <?php if ($block->getPriceId()): ?>x-data x-id="['<?= $escaper->escapeJs($block->getPriceId()) ?>']"<?php endif; ?>
+    class="price-container <?= $escaper->escapeHtmlAttr($block->getAdjustmentCssClasses()) ?>"
+        <?= $block->getSchema() ? ' itemprop="offers" itemscope itemtype="http://schema.org/Offer"' : '' ?>>
+    <?php if ($block->getDisplayLabel()): ?>
+        <span class="price-label"><?= $escaper->escapeHtml($block->getDisplayLabel()) ?></span>
+    <?php endif; ?>
+    <span x-cloak x-show="vatMode == 'including'" <?php if ($block->getPriceId()): ?> :id="$id('<?= $escaper->escapeJs($block->getPriceId()) ?>')"<?php endif; ?>
+        <?= ($block->getPriceDisplayLabel()) ? 'data-label="' . $escaper->escapeHtmlAttr($block->getPriceDisplayLabel() . $block->getPriceDisplayInclExclTaxes()) . '"' : '' ?>
+        data-price-amount="<?= $escaper->escapeHtmlAttr($block->getDisplayValue()) ?>"
+        data-price-type="<?= $escaper->escapeHtmlAttr($block->getPriceType()) ?>"
+        class="price-wrapper flex 1xl:inline flex-col <?= $finalPrice < $regularPrice ? 'discount-red' : '' ?> <?= $escaper->escapeHtmlAttr($block->getPriceWrapperCss()) ?>"
+    >
+        <?php if ($block->getPriceType() == 'oldPrice'): ?>
+            <div class="flex flex-col-reverse lg:items-start" :class="{'lg:items-end': viewMode === 'list-view'}">
+            <span class="old-price"><?= $escaper->escapeHtml($block->formatCurrency($block->getDisplayValue(), (bool)$block->getIncludeContainer()), ['span']) ?></span>
+    <?php if ($block->getSaleableItem()->getTypeId() == Type::TYPE_SIMPLE): ?>
+    <span class="flex 1xl:block flex-col">
+        <span class="tax-included-with-special-price">
+            <?= $escaper->escapeHtml($block->formatCurrency($block->getPrice()->getAmount()->getValue(), (bool)$block->getIncludeContainer()), ['span']) ?>
+        </span>
+    </span>
+    <?php endif; ?>
+        </div>
+        <?php else: ?>
+            <?= $escaper->escapeHtml($block->formatCurrency($block->getDisplayValue(), (bool)$block->getIncludeContainer()), ['span']) ?>
+        <?php endif; ?>
+    </span>
+    <div x-cloak x-show="vatMode == 'excluding'">
+        <?php if ($block->getPriceType() == 'oldPrice'): ?>
+        <span class="price-including-tax">
+            <span class="old-price"><?= $escaper->escapeHtml($block->formatCurrency($block->getAmount()->getBaseAmount(), (bool)$block->getIncludeContainer()), ['span']) ?></span>
+        </span>
+        <?php endif; ?>
+           <?php if ($block->hasAdjustmentsHtml()): ?>
+           <div
+               class="flex flex-col 1xl:flex-row <?= $finalPrice < $regularPrice ? 'tax-included-with-special-price' : '' ?>"
+               :class="{'md:justify-end': viewMode === 'list-view'}">
+               <?= $block->getAdjustmentsHtml() ?>
+           </div>
+           <?php endif; ?>
+    </div>
+    <?php if ($block->getSchema()): ?>
+        <meta itemprop="price" content="<?= $escaper->escapeHtmlAttr($block->getDisplayValue()) ?>" />
+        <meta itemprop="priceCurrency" content="<?= $escaper->escapeHtmlAttr($block->getDisplayCurrencyCode()) ?>" />
+    <?php endif; ?>
+</span>

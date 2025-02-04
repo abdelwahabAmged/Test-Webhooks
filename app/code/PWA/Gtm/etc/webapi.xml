@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/gtm/mine/order-data-layer" method="GET">
+        <service class="PWA\Gtm\Api\CustomerGtmDataLayerInterface" method="getOrderDataLayer"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/gtm/:cartId/order-data-layer" method="GET">
+        <service class="PWA\Gtm\Api\GuestGtmDataLayerInterface" method="getOrderDataLayer"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+</routes>

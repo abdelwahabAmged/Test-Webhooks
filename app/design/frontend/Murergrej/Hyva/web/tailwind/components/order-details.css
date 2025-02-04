@@ -1,0 +1,104 @@
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ *
+ * This CSS file provides styles for the order details section on the order success page.
+ */
+
+@layer components {
+    .checkout-onepage-success {
+        .order-success-title {
+            @apply font-extrabold font-sans text-black text-xl leading-6;
+            @apply my-6 lg:mt-8 lg:text-[32px] lg:leading-10;
+        }
+    }
+    .order-additional {
+        @apply pt-8 pb-14 lg:px-10 lg:pt-10 lg:pb-[72px] lg:flex gap-8 bg-white;
+    }
+    .order-details {
+        @apply lg:w-3/4;
+    }
+
+    .order-details-heading {
+        @apply text-base font-extrabold font-sans my-4 mx-4 lg:text-2xl;
+    }
+
+    .order-details-heading-row{
+        @apply hidden lg:h-11 lg:px-6 lg:py-3 lg:bg-cream lg:grid lg:grid-cols-12 lg:gap-8 lg:font-sans;
+        @apply lg:font-extrabold lg:leading-tight lg:text-sm lg:w-full border-b-2 border-white;
+    }
+
+    .order-product-item {
+        @apply flex flex-row bg-cream mb-0.5 border-t-2 border-b-2 border-cream;
+        @apply lg:h-[165px] lg:grid lg:grid-cols-12 lg:bg-cream;
+    }
+
+    .order-product-image {
+        @apply flex flex-col justify-center items-center py-7 bg-white;
+        @apply lg:bg-cream lg:py-0 lg:col-span-2 lg:w-[110px];
+    }
+
+    .product-image-img {
+        @apply h-36 w-24 lg:h-[160px] lg:w-[110px] object-fill lg:ml-1;
+    }
+
+    .product-details {
+        @apply py-3 ml-3 pr-4 flex flex-col justify-start items-start gap-2 flex-1;
+        @apply lg:col-span-10 lg:grid lg:grid-cols-12 lg:ml-0 lg:pr-6 lg:pt-4 lg:pb-5 ;
+    }
+
+    .product-name {
+        @apply self-stretch text-primary text-sm font-extrabold font-sans leading-tight mb-2;
+        @apply lg:col-span-6 lg:content-center md:text-base ;
+    }
+
+    .product-quantity-row {
+        @apply self-stretch justify-start items-start gap-[3px] inline-flex mb-2;
+        @apply lg:col-span-2 lg:justify-center lg:items-center;
+    }
+
+    .product-quantity {
+        @apply text-gray-darker text-xs font-normal font-sans leading-none;
+    }
+
+    .product-quantity-value {
+        @apply text-gray-darker lg:text-primary text-xs font-extrabold font-sans leading-none lg:text-center md:text-base;
+    }
+
+    .price-section {
+        @apply self-stretch h-[46px] flex-col justify-start items-end gap-0.5 flex lg:self-auto lg:col-span-4 lg:my-auto;
+    }
+
+    .price-row {
+        @apply self-stretch justify-end items-baseline gap-1 inline-flex lg:self-auto;
+    }
+
+    .original-price {
+        @apply text-secondary text-sm font-extrabold font-sans line-through leading-tight text-nowrap;
+    }
+
+    .special-price {
+        @apply text-primary text-base font-extrabold font-sans leading-normal;
+    }
+
+    .highlighted-price {
+        @apply !text-red;
+    }
+
+    .switched-price {
+        @apply !text-base;
+    }
+
+    .regular-price {
+        @apply text-primary text-sm font-extrabold font-sans leading-normal;
+    }
+
+    .price-label {
+        @apply text-gray-darker text-xs font-bold font-sans leading-none text-nowrap;
+    }
+
+    .incl-tax-price {
+        @apply text-primary text-sm font-extrabold font-sans leading-tight;
+    }
+}

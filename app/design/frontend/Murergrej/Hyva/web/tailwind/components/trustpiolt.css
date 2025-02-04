@@ -1,0 +1,6 @@
+.trustpilot-widget .tp-widget-wrapper{
+    @apply bg-red;
+}
+.test .tp-widget-wrapper{
+    background-color: black;
+}

@@ -1,0 +1,16 @@
+<?php
+ /**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+?>
+<template x-if="segment.code === 'pallet_tax' && segment.value > 0.00">
+    <div class="pallets flex bg-cream lg:px-6 px-4 pb-1 text-sm lg:grid lg:grid-cols-2 lg:w-full border-container">
+        <div class="w-7/12 text-left lg:w-auto">
+            <span x-html="segment.title"></span>
+        </div>
+        <div class="w-5/12 text-right font-extrabold lg:w-auto" x-text="hyva.formatPrice(segment.value)"></div>
+    </div>
+</template>

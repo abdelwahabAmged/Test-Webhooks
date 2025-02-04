@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var SvgIcons $hyvaicons */
+
+// Get the SvgIcons view model
+$hyvaicons = $viewModels->require(SvgIcons::class);
+?>
+<script>
+    function deliveryModalHandler() {
+        return {
+            currentModal: null,
+
+            closeModal() {
+                this.currentModal = null;
+            },
+
+            openModal(modal) {
+                this.currentModal = modal;
+            }
+        };
+    }
+</script>
+
+<div x-data="deliveryModalHandler()" x-cloak>
+    <div class="delivery-and-returns grid">
+        <div class="flex justify-between">
+            <div class="flex gap-x-1 items-center">
+                <?= $hyvaicons->renderHtml('order', '', 16, 16); ?>
+                <span class="text-sm font-bold"><?= $escaper->escapeHtml(__('Fast delivery')) ?></span>
+            </div>
+            <div class="viewPopup flex items-center">
+                <button @click="openModal('fastDelivery')" class="text-sm"><?= $escaper->escapeHtml(__('VIEW')) ?></button>
+                <span @click="openModal('fastDelivery')" class="cursor-pointer">
+                    <?= $hyvaicons->renderHtml('open-in-new', '', 16, 16); ?>
+                </span>
+            </div>
+        </div>
+        <div class="flex justify-between">
+            <div class="flex gap-x-1 items-center">
+                <?= $hyvaicons->renderHtml('reload', '', 16, 16); ?>
+                <span class="text-sm font-bold"><?= $escaper->escapeHtml(__('Easy returns')) ?></span>
+            </div>
+            <div class="viewPopup flex items-center">
+                <button @click="openModal('easyReturns')" class="text-sm"><?= $escaper->escapeHtml(__('VIEW')) ?></button>
+                <span @click="openModal('easyReturns')" class="cursor-pointer">
+                    <?= $hyvaicons->renderHtml('open-in-new', '', 16, 16); ?>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <?=
+        $this->getLayout()
+            ->createBlock('Magento\Framework\View\Element\Template')
+            ->setTemplate('Magento_Catalog::product/delivery-returns-modal.phtml')
+            ->setData('modal_title', __('Delivery & pickup options'))
+            ->setData('modal_block_id', 'delivery_and_pickup')
+            ->setData('modal_name', 'fastDelivery')
+            ->toHtml();
+
+    ?>
+    <?=
+        $this->getLayout()
+            ->createBlock('Magento\Framework\View\Element\Template')
+            ->setTemplate('Magento_Catalog::product/delivery-returns-modal.phtml')
+            ->setData('modal_title', 'Returns')
+            ->setData('modal_block_id', 'returns')
+            ->setData('modal_name', 'easyReturns')
+            ->toHtml();
+
+    ?>
+</div>

@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+$testimonial_content_background_color = $block->getData('testimonial_content_background_color');
+?>
+<h3><?= $escaper->escapeHtml(__($block->getData('title'))) ?></h3>
+<div class="mt-2 p-6 rounded-xl lg:flex lg:gap-10 items-center"
+    style="<?= $escaper->escapeHtmlAttr($testimonial_content_background_color ? 'background-color: ' . $testimonial_content_background_color . ';' : ''); ?>"
+>
+
+    <div class="flex justify-center lg:mt-0">
+        <div class="rounded-full overflow-hidden w-36 h-36 lg:w-56 lg:h-56">
+            <img
+                alt="<?= $escaper->escapeHtmlAttr(__($block->getData('author_image_alt'))) ?>"
+                src="<?= $escaper->escapeHtmlAttr($block->getData('author_image_src')) ?>"
+                title="<?= $escaper->escapeHtmlAttr(__($block->getData('author_image_title'))) ?>"
+                width="240"
+                height="258"
+                loading="lazy"
+                class="object-cover w-full h-full"
+            />
+        </div>
+    </div>
+
+    <div class="mt-6 text-center lg:text-left">
+        <div class="relative">
+            <div class="text-[#CBD5E1] text-9xl font-bold absolute left-0 -top-8 lg:-ml-6">
+                “
+            </div>
+            <div class="relative text-gray-800 text-2xl font-medium max-w-4xl lg:pl- xl:text-3xl">
+                <?= $escaper->escapeHtml(__($block->getData('author_content'))) ?>
+            </div>
+        </div>
+        <div class="text-blue-600 text-lg leading-7 font-bold mt-4">
+            <?= $escaper->escapeHtml(__($block->getData('author'))) ?>
+        </div>
+        <div class="text-[#94A3B8] leading-6">
+            <?= $escaper->escapeHtml(__($block->getData('company'))) ?>
+        </div>
+    </div>
+
+</div>

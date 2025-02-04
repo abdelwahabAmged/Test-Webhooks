@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="PWA\Contact\Api\ContactSenderInterface" type="PWA\Contact\Model\ContactSender" />
+    <preference for="PWA\Contact\Api\Data\ContactFormInterface" type="PWA\Contact\Model\Data\ContactForm" />
+    <preference for="PWA\Contact\Api\BestilContactSenderInterface" type="PWA\Contact\Model\Bestil\ContactSender" />
+    <preference for="PWA\Contact\Model\Bestil\ConfigInterface" type="PWA\Contact\Model\Bestil\Config" />
+    <virtualType name="PWA\Contact\Model\Bestil\Mail" type="Magento\Contact\Model\Mail">
+        <arguments>
+            <argument name="contactsConfig" xsi:type="object">PWA\Contact\Model\Bestil\ConfigInterface</argument>
+        </arguments>
+    </virtualType>
+    <type name="PWA\Contact\Model\Bestil\ContactSender">
+        <arguments>
+            <argument name="mail" xsi:type="object">PWA\Contact\Model\Bestil\Mail</argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,43 @@
+.video-container {
+    @apply relative w-full h-full;
+}
+.video-container.paused:hover::before {
+    @apply opacity-100;
+}
+.video-controls {
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition */
+    @apply absolute top-1/2 left-1/2 transform  -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pt-6;
+}
+.video-container.paused::before {
+    transition: opacity 0.3s ease;
+    @apply absolute top-0 left-0 w-full h-full opacity-0 z-[1] bg-zinc-950 bg-opacity-40;
+    @apply [content:""];
+}
+.video-container iframe {
+    @apply absolute top-0 left-0 w-full h-full;
+} 
+.video-control-button {
+    transition: all 0.3s ease; /* Smooth translation */
+    @apply text-white border-0 cursor-pointer translate-y-0 translate-x-0;
+}
+.watch-text {
+    transition: all 0.3s ease;
+    @apply text-center z-[3] opacity-0 -translate-y-1/4;
+}
+.video-container.paused:hover .video-controls {
+    @apply opacity-100 visible;
+}
+.video-container.paused:hover .video-control-button {
+    @apply translate-y-[-10px];
+}
+.video-container.paused:hover .watch-text {
+    @apply block opacity-100 translate-y-0;
+}
+
+.slider-video-thumbnail {
+    @apply hidden;
+}
+
+.video-container.paused .slider-video-thumbnail {
+    @apply block;
+}

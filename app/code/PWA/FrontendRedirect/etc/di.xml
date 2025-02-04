@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="PWA\FrontendRedirect\Model\App\FrontController\FrontendRedirectPlugin">
+        <arguments>
+            <argument name="routers" xsi:type="array">
+                <item name="custom" xsi:type="object">PWA\FrontendRedirect\Model\Router\CustomRedirectsRouter</item>
+                <item name="url_rewrite" xsi:type="object">PWA\FrontendRedirect\Model\Router\UrlRewriteRouter</item>
+                <item name="cms" xsi:type="object">PWA\FrontendRedirect\Model\Router\CmsRouter</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

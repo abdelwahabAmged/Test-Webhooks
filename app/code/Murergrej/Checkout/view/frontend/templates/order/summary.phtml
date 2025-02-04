@@ -1,0 +1,61 @@
+<?php
+/**
+ * Order Summary Template
+ *
+ * This template file is used to render the order summary section on the order success page.
+ *
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ * @license     https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Murergrej\Checkout\Block\Onepage\OrderSummary;
+/** @var OrderSummary $block */
+
+$orderData = $block->getOrderData();
+?>
+<script>
+    window.orderData = <?= json_encode($orderData, JSON_THROW_ON_ERROR) ?>;
+</script>
+
+<div class="order-summary-wrapper">
+    <h2><?= __('Order Summary') ?></h2>
+    <div x-data="window.orderData" class="order-summary">
+        <div class="order-summary-details lg:px-6 lg:py-3">
+            <div class="order-summary-item">
+                <span class="label"><?= __('Subtotal') ?></span>
+                <span class="value" x-text="hyva.formatPrice(subtotal)"></span>
+            </div>
+            <div class="order-summary-item">
+                <span class="label"><?= __('Shipping') ?></span>
+                <span class="value" x-text="hyva.formatPrice(shipping)"></span>
+            </div>
+            <div class="order-summary-item" x-show="palletCost > 0">
+                <span class="label"><strong class="mr-1" x-text="palletCount.toFixed(2)"></strong><?= __('Pallet(s)')?></span>
+                <span class="value" x-text="hyva.formatPrice(palletCost)"></span>
+            </div>
+            <div class="order-summary-item mb-2">
+                <span class="label"><?= __('Tax') ?></span>
+                <span class="value" x-text="hyva.formatPrice(tax)"></span>
+            </div>
+        </div>
+        <hr class="lg:hidden">
+        <div class="lg:px-6 lg:py-3 lg:border-t-2 lg:border-white">
+            <div class="order-summary-item">
+                <span class="label"><?= __('Order Total')?></span>
+                <span class="value" x-text="hyva.formatPrice(grandTotal)"></span>
+            </div>
+        </div>
+        <hr class="lg:hidden">
+        <div class="lg:px-6 lg:py-3  lg:border-t-2 lg:border-white">
+            <h3><?= __('Delivery information')?>:</h3>
+            <p>
+                <span x-text="name"></span> <br>
+                <span x-text="address"></span>
+            </p>
+        </div>
+    </div>
+</div>

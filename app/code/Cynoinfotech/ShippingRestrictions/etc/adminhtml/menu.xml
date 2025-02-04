@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author CynoInfotech Team
+ * @package Cynoinfotech_ShippingRestrictions
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+	
+		<add id="Cynoinfotech_ShippingRestrictions::shippingrestrictions" title="Shipping Restrictions" translate="title" module="Cynoinfotech_ShippingRestrictions" sortOrder="22" parent="Magento_Sales::sales" resource="Cynoinfotech_ShippingRestrictions::shippingrestrictions"/>		
+		
+		<add id="Cynoinfotech_ShippingRestrictions::shippingrestrictions_manage" title="Shipping Restrictions Manage" translate="title" module="Cynoinfotech_ShippingRestrictions" sortOrder="10" parent="Cynoinfotech_ShippingRestrictions::shippingrestrictions" action="shippingrestrictions/index/index" resource="Cynoinfotech_ShippingRestrictions::shippingrestrictions_manage"/>
+			
+		<add id="Cynoinfotech_ShippingRestrictions::shippingrestrictions_setting" title="Shipping Restrictions Setting" translate="title" module="Cynoinfotech_ShippingRestrictions" sortOrder="11" parent="Cynoinfotech_ShippingRestrictions::shippingrestrictions" action="adminhtml/system_config/edit/section/cynoinfotech_shippingrestrictions" resource="Cynoinfotech_ShippingRestrictions::shippingrestrictions_setting"/>	
+		
+    </menu>
+</config>

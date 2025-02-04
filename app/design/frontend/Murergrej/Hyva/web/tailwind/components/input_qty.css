@@ -1,0 +1,53 @@
+
+/* Remove default spinner arrows in WebKit browsers (Chrome, Safari, Edge, Opera) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+/* Remove default spinner arrows in Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+
+    &:invalid {
+        @apply ring-0;
+    }
+}
+
+.product-qty-wrapper {
+    .product-qty-buttons {
+        @apply lg:hidden;
+    }
+
+    &:hover {
+        .product-qty-buttons {
+            @apply flex;
+        }
+    }
+}
+
+/* Custom spinner container */
+.custom-spinner {
+    @apply relative w-[100px];
+
+    &:hover {
+        .spinner-buttons {
+            @apply flex;
+        }
+    }
+}
+/* Input field styling */
+.custom-spinner input[type="number"] {
+    @apply w-full  bg-white text-center;
+}
+/* Spinner buttons container */
+.spinner-buttons {
+    @apply absolute top-0 right-0 h-[80%] flex flex-col justify-between bg-white hidden;
+}
+/* Spinner buttons styling */
+.spinner-buttons button {
+    @apply bg-white border-0 cursor-pointer p-0 h-1/2  flex items-center justify-center;
+}
+input:disabled {
+   @apply bg-secondary;
+}

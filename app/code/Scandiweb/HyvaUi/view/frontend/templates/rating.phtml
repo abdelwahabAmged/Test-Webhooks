@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+$rating = $block->getData('rating');
+$product = $block->getData('product');
+$ratingSteps = $block->getData('ratingSteps') ?? 5;
+$totalStar = $block->getData('totalStar') ?? ($rating / 100 * $ratingSteps);
+$starWidth = 16;
+$starHeight = 16;
+$viewBox = "1 1 {$starWidth} {$starHeight}";
+$blackHex = '#0B0715';
+$greyHex = '#cbd5e0';
+$starStyle = 'w-4 h-4';
+?>
+
+<?php if ($rating): ?>
+    <?php if ($totalStar >= 4.5): ?>
+        <svg class="<?= $starStyle; ?>" viewBox="<?= $viewBox; ?>" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M7.56309 2.71746C7.70061 2.29421 8.29938 2.29421 8.4369 2.71745L9.44395 5.81683C9.50545 6.0061 9.68183 6.13426 9.88085 6.13426H13.1397C13.5847 6.13426 13.7698 6.70372 13.4097 6.9653L10.7733 8.88082C10.6123 8.9978 10.5449 9.20515 10.6064 9.39443L11.6134 12.4938C11.7509 12.917 11.2665 13.269 10.9065 13.0074L8.27002 11.0919C8.10901 10.9749 7.89098 10.9749 7.72997 11.0919L5.09349 13.0074C4.73346 13.269 4.24904 12.917 4.38656 12.4938L5.39361 9.39443C5.45511 9.20515 5.38773 8.9978 5.22672 8.88082L2.59024 6.9653C2.23021 6.70372 2.41524 6.13426 2.86026 6.13426H6.11914C6.31816 6.13426 6.49454 6.0061 6.55604 5.81683L7.56309 2.71746Z"
+                fill="<?= /** @noEscape */ $blackHex ?>" />
+            <g clip-path="url(#clip0_17134_8538)">
+                <path
+                    d="M7.56309 2.71746C7.70061 2.29421 8.29938 2.29421 8.4369 2.71745L9.44395 5.81683C9.50545 6.0061 9.68183 6.13426 9.88085 6.13426H13.1397C13.5847 6.13426 13.7698 6.70372 13.4097 6.9653L10.7733 8.88082C10.6123 8.9978 10.5449 9.20515 10.6064 9.39443L11.6134 12.4938C11.7509 12.917 11.2665 13.269 10.9065 13.0074L8.27002 11.0919C8.10901 10.9749 7.89098 10.9749 7.72997 11.0919L5.09349 13.0074C4.73346 13.269 4.24904 12.917 4.38656 12.4938L5.39361 9.39443C5.45511 9.20515 5.38773 8.9978 5.22672 8.88082L2.59024 6.9653C2.23021 6.70372 2.41524 6.13426 2.86026 6.13426H6.11914C6.31816 6.13426 6.49454 6.0061 6.55604 5.81683L7.56309 2.71746Z"
+                    fill="<?= /** @noEscape */ $blackHex ?>" />
+            </g>
+            <defs>
+                <clipPath id="clip0_17134_8538">
+                    <rect width="10.4" height="16" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+    <?php elseif ($totalStar > 0 && $totalStar < 4.5): ?>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="<?= $viewBox; ?>" fill="currentColor"
+            class="<?= $starStyle; ?>" aria-hidden="true">
+            <defs>
+                <linearGradient id="partialFill<?= /* @noEscape */ $product->getId() ?>">
+                    <stop offset="0%" stop-color="<?= /** @noEscape */ $blackHex ?>" />
+                    <stop offset="<?= $rating ?>%"
+                        stop-color="<?= /** @noEscape */ $blackHex ?>" />
+                    <stop offset="<?= $rating ?>%"
+                        stop-color="<?= /** @noEscape */ $greyHex ?>" />
+                    <stop offset="100%" stop-color="<?= /** @noEscape */ $greyHex ?>" />
+                </linearGradient>
+            </defs>
+            <g fill="url(#partialFill<?= (int) $product->getId() ?>)">
+                <path
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969
+                    0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54
+                    1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1
+                    0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </g>
+        </svg>
+    <?php elseif ($totalStar === 0): ?>
+        <svg xmlns="http://www.w3.org/2000/svg" class="<?= $starStyle; ?>"
+            style="color: <?= /** @noEscape */ $greyHex ?>" viewBox="<?= $viewBox; ?>"
+            fill="currentColor" aria-hidden="true">
+            <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0
+                1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54
+                1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1
+                1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+    <?php endif; ?>
+<?php else: ?>
+    <svg xmlns="http://www.w3.org/2000/svg" class="text-gray-200 <?= $starStyle; ?>"
+        viewBox="<?= $viewBox; ?>" fill="currentColor" aria-hidden="true">
+        <path
+            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371
+            1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54
+            1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1
+            1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+    </svg>
+<?php endif; ?>
+
+<strong class="text-sm">
+    <?= $totalStar; ?>
+</strong>

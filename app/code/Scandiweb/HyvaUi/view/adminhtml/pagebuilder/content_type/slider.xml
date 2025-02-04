@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Scandiweb
+ * @author      Scandiweb <info@scandiweb.com>
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_PageBuilder:etc/content_type.xsd">
+    <type name="slider">
+        <appearances>
+            <appearance name="default"
+                master_template="Scandiweb_HyvaUi/content-type/slider/default/master"
+            >
+                <elements>
+                    <element name="main">
+                        <attribute name="lazy_load_first_image" source="data-lazy-load-first-image"/>
+                    </element>
+                </elements>
+            </appearance>
+        </appearances>
+    </type>
+</config>

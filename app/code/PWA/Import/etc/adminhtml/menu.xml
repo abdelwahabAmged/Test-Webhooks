@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="PWA_Import::import" title="PWA Import" module="PWA_Import" sortOrder="10" parent="PWA_Base::pwa" action="pwa/import" resource="PWA_Import::import" />
+    </menu>
+</config>

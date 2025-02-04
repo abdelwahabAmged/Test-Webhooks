@@ -1,0 +1,44 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Magento_Catalog
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Catalog\Block\Product\ListProduct;
+use Magento\Framework\Escaper;
+
+/** @var ListProduct $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+?>
+<div
+    x-cloak
+    x-data="{ isMobile: window.innerWidth <= 1024, activeFiltersOpen: true }"
+    x-show="!isMobile"
+    @resize.window="isMobile = window.innerWidth <= 1024"
+>
+    <h4 class="md:pt-5 md:mb-[30px] md:ml-10"><?= $escaper->escapeHtml(__('Filter')) ?></h4>
+
+    <?php
+    $filtersBlock = $block->getChildBlock('category.filters');
+
+    if ($filtersBlock) {
+        $filtersBlock->setData('filters', $block->getData('filters'));
+    }
+    ?>
+
+    <?= $block->getChildHtml('category.filters') ?>
+</div>

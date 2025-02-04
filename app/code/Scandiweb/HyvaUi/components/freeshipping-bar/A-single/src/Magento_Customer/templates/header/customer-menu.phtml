@@ -1,0 +1,101 @@
+<?php
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Customer\Block\Account\Customer;
+use Magento\Customer\Model\Account\Redirect;
+use Hyva\Theme\ViewModel\CustomerRegistration;
+use Magento\Cms\Block\BlockByIdentifier as CmsBlock;
+
+/** @var Customer $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var CustomerRegistration $customerRegistration */
+$customerRegistration = $viewModels->require(CustomerRegistration::class);
+?>
+
+<div x-data="{ open: false }" class="relative hidden sm:block">
+    <a
+        href="<?= $escaper->escapeHtmlAttr($escaper->escapeUrl($block->getUrl('customer/account'))) ?>"
+        id="customer-menu"
+        class="block text-gray-700 hover:text-black"
+        @click.prevent="open = true"
+        :aria-expanded="open ? 'true' : 'false'"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('My Account')) ?>"
+    >
+        <?= $heroicons->userCircleHtml('h-6 w-6', 32, 32, ['aria-hidden' => 'true']); ?>
+    </a>
+    <div class="absolute lg:block"
+        x-cloak x-show="open"
+        @click.outside="open = false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="16" viewBox="0 0 28 12" fill="white">
+            <path d="M0 12L8.09081 2.84968C11.2971 -0.776456 16.9639 -0.746897 20.1321 2.91249L28 12H0.294737H0Z"></path>
+        </svg>>
+    </div>
+    <nav class="absolute right-0 z-20 w-40 mt-2 -mr-4 overflow-auto origin-top-right rounded-lg
+        shadow-lg sm:w-48 lg:mt-3 bg-container-lighter
+        <?= !$block->customerLoggedIn() ? 'min-w-[428px]' : '' ?>"
+         x-cloak x-show="open"
+         @click.outside="open = false"
+         aria-labelledby="customer-menu"
+    >
+        <?php if ($block->customerLoggedIn()): ?>
+            <a class="block px-4 py-2 lg:px-5 lg:py-2 hover:bg-gray-100"
+               href="<?= $escaper->escapeUrl($block->getUrl('customer/account')) ?>"
+            >
+                <?= $escaper->escapeHtml(__('My Account')); ?>
+            </a>
+            <a class="block px-4 py-2 lg:px-5 lg:py-2 hover:bg-gray-100"
+               href="<?= $escaper->escapeUrl($block->getUrl('wishlist')) ?>"
+            >
+                <?= $escaper->escapeHtml(__('My Wish List')); ?>
+            </a>
+            <a class="block px-4 py-2 lg:px-5 lg:py-2 hover:bg-gray-100"
+               href="<?= $escaper->escapeUrl($block->getUrl('sales/order/history')) ?>"
+            >
+                <?= $escaper->escapeHtml(__('My Orders')); ?>
+            </a>
+            <a class="block px-4 py-2 lg:px-5 lg:py-2 hover:bg-gray-100"
+               href="<?= $escaper->escapeUrl($block->getUrl('customer/address')) ?>"
+            >
+                <?= $escaper->escapeHtml(__('Address Book')); ?></a>
+            <a class="block px-4 py-2 lg:px-5 lg:py-2 hover:bg-gray-100"
+               href="<?= $escaper->escapeUrl($block->getUrl('customer/account/logout')) ?>"
+            >
+                <?= $escaper->escapeHtml(__('Sign Out')); ?>
+            </a>
+        <?php else: ?>
+        <div class="m-4 lg:m-[30px]">
+            <div class="mb-[30px]">
+                <?= $this->getLayout()
+                    ->createBlock(CmsBlock::class)
+                    ->setData('identifier', 'login-registration-content')
+                    ->toHtml(); ?>
+            </div>
+            <?php if ($customerRegistration->isAllowed()): ?>
+                <a class="auth-btn-primary w-full text-md-ui block mb-4 text-center outline-none"
+                   href="<?= $escaper->escapeUrl($block->getUrl('customer/account/create')) ?>"
+                >
+                    <?= $escaper->escapeHtml(__('Create an Account')); ?>
+                </a>
+            <?php endif; ?>
+            <a class="auth-btn-secondary w-full text-md-ui block text-center outline-none"
+               onclick="hyva.setCookie && hyva.setCookie(
+                   '<?= /** @noEscape */ Redirect::LOGIN_REDIRECT_URL ?>',
+                   window.location.href,
+                   1
+               )"
+               href="<?= $escaper->escapeUrl($block->getUrl('customer/account/index')) ?>">
+                <?= $escaper->escapeHtml(__('Log in')); ?>
+            </a>
+        </div>
+        <?php endif; ?>
+    </nav>
+</div>

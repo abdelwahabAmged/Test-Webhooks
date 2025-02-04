@@ -1,0 +1,319 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Cart\CheckoutConfig;
+use Magento\Checkout\Block\Cart;
+use Hyva\Theme\ViewModel\Slider;
+use Magento\Framework\Escaper;
+
+/** @var Cart $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+?>
+
+<?php
+/** @var CheckoutConfig $checkoutConfigViewModel */
+$checkoutConfigViewModel = $viewModels->require(CheckoutConfig::class);
+$serializedCheckoutConfig = $block->getItemsCount() ? $checkoutConfigViewModel->getSerializedCheckoutConfig() : 'false';
+
+/** @var Slider $sliderViewModel */
+$sliderViewModel = $viewModels->require(Slider::class);
+
+$topProducts = $block->getRecommendedProducts();
+$topProductsCollection = $topProducts[0]['collection'] ?? [];
+$productTrackingCodes = $topProducts[0]['products'] ?? [];
+$topProductsSliderHtml = '';
+
+$containerTemplate = 'Murergrej_HelloRetail::product/slider/hello_retail_products_slider.phtml';
+
+if ($topProductsCollection && $topProductsCollection->getSize() > 0) {
+    $topProductsSliderHtml = $sliderViewModel->getSliderForItems(
+        'Magento_Catalog::product/list/item.phtml',
+        $topProductsCollection,
+        $containerTemplate
+    )
+        ->setData('hide_details', false)
+        ->setData('hide_rating_summary', false)
+        ->setData('title', __('You may also like'))
+        ->setData('item_relation_type', 'generic')
+        ->setData('heading_tag', 'h3')
+        ->setData('product_tracking_codes', $productTrackingCodes)
+        ->setData('slide_count_desktop', 3.25)
+        ->setData('slide_count_large_desktop', 5)
+        ->setData('display_arrows', true)
+        ->setData('slides_gap', 16)
+        ->toHtml();
+}
+
+$freeShippingMethods = json_encode($block->getFreeShippingMethods());
+?>
+<script>
+    window.checkoutConfig = <?= /* @noEscape  */ $serializedCheckoutConfig ?>;
+    window.customerData = window.checkoutConfig.customerData;
+    window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+</script>
+
+<script>
+    'use strict';
+    (function( hyva, undefined ) {
+
+        let controller = new AbortController();
+
+        /**
+         * Takes a form element and submits it through fetch,
+         * then replaces the result into the document without
+         * refreshing the page
+         */
+        hyva.postCart = (form) => {
+            if (!form.action) {
+                return;
+            }
+            controller.abort();
+            controller = new AbortController();
+
+            const action = form.action;
+            const formData = new FormData(form);
+
+            if (!formData.uenc) {
+                formData.append('uenc', hyva.getUenc());
+            }
+
+            formData.append('form_key', hyva.getFormKey());
+
+            window.fetch(action, {
+                method: 'POST',
+                body: formData,
+                signal: controller.signal
+            }).then((result) => {
+                return result.text()
+            }).then((content) => {
+
+                hyva.replaceDomElement('#maincontent', content)
+
+            }).catch((error) => {
+                if (error.name !== 'AbortError') {
+                    console.error(error);
+                    typeof window.dispatchMessages !== "undefined" && window.dispatchMessages(
+                        [{
+                            type: "error",
+                            text: "<?= $escaper->escapeJs(__("Something went wrong. Please try again.")) ?>"
+                        }], 10000
+                    );
+                }
+            })
+        }
+    }( window.hyva = window.hyva || {} ));
+</script>
+
+<script>
+    function initCartForm(){
+        return {
+            cartIsEmpty: !!window.checkoutConfig,
+            cart: {},
+            itemsCount: window.checkoutConfig && window.checkoutConfig.quoteData.items_qty || 0,
+            cartItems: [],
+            updatedQuantities: {},
+            item: {},
+            freeShippingLimit: 0,
+            freeShippingMethods: <?= $freeShippingMethods ?>,
+            isLoading: false,
+            vatMode: sessionStorage.getItem('vatToggle') === 'incl' ? 'including' : 'excluding',
+            eventListeners: {
+                ['@vat-switch.window'](event) {
+                    this.vatMode = event.detail;
+                }
+            },
+            setCartItems(data) {
+                this.cartItems = data.cart.items;
+            },
+            isDataStable(item) {
+                return (parseFloat(item.row_total) === parseFloat(item.qty * item.base_final_price)) || (item.base_final_price > item.price_excl_tax);
+            },
+            updateQuantity(itemId, qty) {
+                this.updatedQuantities[itemId] = qty;
+                this.sendUpdateCart(itemId, qty);
+            },
+            sendUpdateCart(itemId, qty) {
+                this.isLoading = true;
+
+                const formKey = hyva.getFormKey();
+                const postUrl = BASE_URL + 'checkout/sidebar/updateItemQty/';
+
+                fetch(postUrl, {
+                    "headers": {
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    },
+                    "body": "form_key=" + formKey + "&item_id=" + itemId + "&item_qty=" + qty,
+                    "method": "POST",
+                    "mode": "cors",
+                    "credentials": "include"
+                }).then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else if (response.ok) {
+                        return response.json();
+                    } else {
+                        window.dispatchMessages && window.dispatchMessages([{
+                            type: 'warning',
+                            text: '<?= $escaper->escapeJs(__('Could not update item from quote.')) ?>'
+                        }]);
+                    }
+                }).then(result => {
+                    window.dispatchMessages && window.dispatchMessages([{
+                        type: result.success ? 'success' : 'error',
+                        text: result.success
+                          ? '<?= $escaper->escapeJs(__('You updated the item.')) ?>'
+                          : result.error_message
+                    }], result.success ? 5000 : 0);
+                    window.dispatchEvent(new CustomEvent('reload-customer-section-data'));
+                    this.$dispatch('update-totals', {data: result.checkoutConfig.totalsData});
+                }).finally(() => {
+                    this.isLoading = false;
+                });
+            },
+            deleteItemFromCart(itemId) {
+                this.isLoading = true;
+
+                const formKey = hyva.getFormKey();
+                const postUrl = BASE_URL + 'checkout/sidebar/removeItem/';
+
+                fetch(postUrl, {
+                    "headers": {
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    },
+                    "body": "form_key=" + formKey + "&item_id=" + itemId,
+                    "method": "POST",
+                    "mode": "cors",
+                    "credentials": "include"
+                }).then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else if (response.ok) {
+                        return response.json();
+                    } else {
+                        window.dispatchMessages && window.dispatchMessages([{
+                            type: 'warning',
+                            text: '<?= $escaper->escapeJs(__('Could not remove item from quote.')) ?>'
+                        }]);
+                    }
+                }).then(result => {
+                    window.dispatchMessages && window.dispatchMessages([{
+                        type: result.success ? 'success' : 'error',
+                        text: result.success
+                          ? '<?= $escaper->escapeJs(__('You removed the item.')) ?>'
+                          : result.error_message
+                    }], result.success ? 5000 : 0);
+                    window.dispatchEvent(new CustomEvent('reload-customer-section-data'));
+                    this.$dispatch('update-totals', {data: result.checkoutConfig.totalsData});
+                }).catch(error => {
+                    console.error('Error removing product from cart:', error);
+                    this.isLoading = false;
+                }).finally(() => {
+                    this.isLoading = false;
+                });
+            },
+            checkCartShouldUpdate(data) {
+                const cart = data.cart;
+
+                this.setCartItems(data);
+
+                this.cartValForFreeShipping = parseFloat(data.cart.subtotalAmount);
+                this.freeShippingMethods.map(({condition_from_value, condition_to_value, order_total}) => {
+                    if (condition_from_value <= data.cart.total_weight && condition_to_value >= data.cart.total_weight) {
+                        this.freeShippingLimit = parseFloat(order_total);
+                    }
+                });
+
+                if (this.cartIsEmpty !== !!window.checkoutConfig) {
+                    this.cartIsEmpty = !!window.checkoutConfig;
+                    this.reloadCartContent();
+                    return;
+                }
+
+                if (cart) {
+                    this.itemsCount = cart.items && data.cart.items.length || 0;
+
+                    if (!window.checkoutConfig) {
+                        if (cart.items.length) {
+                            this.reloadCartContent();
+                        }
+                        return;
+                    }
+
+                    const roundUp = (number) => {
+                        return Math.round(number * 100);
+                    }
+
+                    const decimalNumbersAreEqual = (number1, number2) => {
+                        return roundUp(number1) === roundUp(number2);
+                    }
+
+                    if (window.checkoutConfig && cart) {
+                        if (decimalNumbersAreEqual(
+                            cart.items.reduce((totalQty, cartItem) => totalQty + cartItem.qty, 0),
+                                window.checkoutConfig.quoteData.items_qty
+                            ) &&
+                            decimalNumbersAreEqual(
+                                cart.subtotalAmount,
+                                window.checkoutConfig.totalsData.total_segments
+                                  .find((segment) => segment.code === "subtotal").value
+                            )
+                        ) {
+                            return;
+                        }
+                    }
+                }
+            },
+            reloadCartContent() {
+                window.fetch(window.location.href, {
+                    method: "GET"
+                }).then((result) => {
+                    return result.text()
+
+                }).then((body) => {
+                    hyva.setCookie('mage-cache-sessid', '', -1, true);
+                    window.checkoutConfig = null;
+                    hyva.replaceDomElement('#maincontent', body)
+
+                }).catch((error) => {
+                    console.error(error);
+                    window.location.reload()
+                })
+            },
+            onStorageChange(event) {
+                if (event.key === 'private_content_version') {
+                    window.dispatchEvent(new CustomEvent("reload-customer-section-data"));
+                }
+            }
+        }
+    }
+</script>
+<div x-data="initCartForm()"
+     class="cart-form clearfix"
+     @private-content-loaded.window="checkCartShouldUpdate($event.detail.data)"
+     @storage.window="onStorageChange($event)"
+     x-cloak
+>
+    <?php if ($block->getItemsCount()): ?>
+        <div x-show="itemsCount">
+            <?= $block->getChildHtml('with-items') ?>
+        </div>
+    <?php endif; ?>
+    <div x-show="!itemsCount">
+        <?= $block->getChildHtml('no-items') ?>
+    </div>
+    <?= $block->getChildHtml('loading') ?>
+</div>
+<?php if ($topProductsSliderHtml): ?>
+    <div class="product-slider-1 md:pt-[72px] pt-14 pb-[52px]">
+        <?= /* @noEscape */ $topProductsSliderHtml ?>
+    </div>
+<?php endif; ?>

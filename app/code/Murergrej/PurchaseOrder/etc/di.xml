@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\OfflinePayments\Block\Info\Purchaseorder" type="Murergrej\PurchaseOrder\Block\Info\Purchaseorder"/>
+    <preference for="Magento\Sales\Model\Order\Pdf\Shipment" type="Murergrej\PurchaseOrder\Model\Order\Pdf\Shipment"/>
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="set_credit_limit" type="Murergrej\PurchaseOrder\Plugin\OrderRepository"/>
+    </type>
+</config>

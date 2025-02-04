@@ -1,0 +1,69 @@
+<?php
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+
+use Magento\Catalog\Block\Category\View;
+use Magento\Catalog\Helper\Output;
+use Magento\Framework\Escaper;
+
+/**
+ * @var $block View
+ * @var $escaper Escaper
+ */
+
+$_description = $block->getCurrentCategory()->getData('top_description');
+?>
+<?php if ($_description) : ?>
+<?php
+    // Prepare the translated strings
+    $showLessText = $escaper->escapeJs(__('Show less'));
+    $showMoreText = $escaper->escapeJs(__('Show more'));
+
+    // Use the Output helper to get the description HTML
+    $fullContent = $this->helper(Output::class)->categoryAttribute(
+        $block->getCurrentCategory(),
+        $_description,
+        'top_description'
+    );
+
+    // Remove HTML tags for word counting (but keep HTML for the full content)
+    $allWords = explode('</style>',$fullContent);
+    $allWords = end($allWords);
+    $allWords = trim(strip_tags($allWords));
+
+    // Split into words
+    $words = explode(' ', $allWords);
+    $contentWordCount = count($words);
+    $truncatedContent = $fullContent;
+    if ($contentWordCount > 100) {
+        $truncatedContent = implode(' ', array_slice($words, 0, 100)) . '...';
+    }
+?>
+
+<div
+    class="category-description-container bg-white"
+    x-data="{
+        isCollapsed: <?= $contentWordCount > 100 ? 'true' : 'false' ?>,
+        moreContent: <?= $contentWordCount > 100 ? 'true' : 'false' ?>
+    }"
+    x-init="$nextTick(() => { isCollapsed = <?= $contentWordCount > 100 ? 'true' : 'false' ?> })">
+    <div class="bg-white px-4 md:px-14 lg:px-28 1xl:px-[272px] pb-4">
+        <!-- Display truncated content, initially visible if collapsed -->
+        <span class="description-content" x-show="isCollapsed">
+        <?= $truncatedContent ?>
+    </span>
+        <!-- Display full content, initially hidden -->
+        <span class="description-content" x-show="!isCollapsed" x-cloak>
+        <?= $fullContent ?>
+    </span>
+        <button
+            x-show="moreContent"
+            @click="isCollapsed = !isCollapsed"
+            x-text="isCollapsed ? '<?= $showMoreText ?>' : '<?= $showLessText ?>'"
+            class="cursor-pointer underline text-blue font-supreme text-base font-extrabold md:ml-1"
+            x-cloak>
+        </button>
+    </div>
+</div>
+
+<?php endif; ?>
+

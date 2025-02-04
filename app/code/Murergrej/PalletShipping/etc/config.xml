@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <dsv>
+                <active>0</active>
+                <sallowspecific>0</sallowspecific>
+                <include_virtual_price>1</include_virtual_price>
+                <model>Murergrej\PalletShipping\Model\Carrier\DSV</model>
+                <name>DSV</name>
+                <title>DSV</title>
+                <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
+                <handling_type>F</handling_type>
+                <remove_shipping_methods_weight>250</remove_shipping_methods_weight>
+                <pallet_weight>1200</pallet_weight>
+                <pallet_allowed_overweight>10</pallet_allowed_overweight>
+                <summar_allowed_overweight>10</summar_allowed_overweight>
+                <free_shipping_order_total>2500</free_shipping_order_total>
+            </dsv>
+            <hcs>
+                <active>0</active>
+                <sallowspecific>0</sallowspecific>
+                <include_virtual_price>1</include_virtual_price>
+                <model>Murergrej\PalletShipping\Model\Carrier\HCS</model>
+                <name>HCS</name>
+                <title>HCS</title>
+                <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
+                <handling_type>F</handling_type>
+                <truck_cost_to15>250</truck_cost_to15>
+                <truck_cost_from16>450</truck_cost_from16>
+                <remove_shipping_methods_weight>250</remove_shipping_methods_weight>
+                <pallet_weight>1200</pallet_weight>
+                <pallet_allowed_overweight>10</pallet_allowed_overweight>
+                <summar_allowed_overweight>10</summar_allowed_overweight>
+                <free_shipping_order_total>0</free_shipping_order_total>
+            </hcs>
+        </carriers>
+    </default>
+</config>

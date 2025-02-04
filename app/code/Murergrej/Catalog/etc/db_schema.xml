@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 Schema Setup Declaration
+ *
+ * This XML file is used to modify the database schema for the catalog_product_entity_tier_price table.
+ * The file adds a new column 'ean' to store the EAN (European Article Number) for tier pricing.
+ *
+ * @category   Custom Module
+ * @package    Murergrej_Catalog
+ * @author     Abanoub Youssef
+ * @license    Open Software License (OSL 3.0)
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="catalog_product_entity_tier_price" resource="default" engine="innodb" comment="Product Tier Price">
+        <column xsi:type="varchar" name="ean" nullable="true" length="255" comment="EAN"/>
+    </table>
+</schema>

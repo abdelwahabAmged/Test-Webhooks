@@ -1,0 +1,168 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\Store;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaicons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var Store $viewModelStore */
+$viewModelStore = $viewModels->require(Store::class);
+
+/** @var SwatchItemRenderer $swatchItemRenderer */
+$swatchItemRenderer = $block->getLayout()->getBlock('swatch.item.template');
+
+$productId            = $block->getData('product_id');
+
+$layout = $block->getLayout();
+$swatchItemBlock = $layout->getBlock('product.swatch.item');
+$swatchItemBlock->setData('product_id', $productId);
+
+$uniqueId = uniqid('_');
+$title = (string) $block->getTitle();
+$headingTag = $block->getData('heading_tag') ?: 'h3';
+$options = $block->getData('options_config');
+$attributeId = $block->getData('attribute_id');
+
+if (is_object($options) && $options instanceof Iterator) {
+    $options = iterator_to_array($options);
+}
+
+if (!$optionCount = count($options)) {
+    return '';
+}
+
+$sliderIndex = 1;
+$maxVisibleSlides = $block->getData('max_visible') ?? 5;
+$sliderSectionClasses = $block->getData('maybe_purged_tailwind_section_classes') ?? 'bg-white-smoke py-14';
+$slideItemClasses = $block->getData('maybe_purged_tailwind_slide_item_classes') ?? '';
+
+$swiperUrl = $block->getViewFileUrl('js/swiper.min.js');
+$swiperCssUrl = $block->getViewFileUrl('css/swiper.min.css');
+
+?>
+<script>
+  function initSliderComponent(uniqueId) {
+    return {
+        init() {
+            if (!window.Swiper) {
+                this.addJsScript();
+                this.addCss();
+            } else {
+                this.initializeSwiper(uniqueId);
+            }
+        },
+        initializeSwiper(uniqueId) {
+            const swiperElement = this.$el.querySelector('.swiper_' + uniqueId);
+
+            if (!swiperElement) {
+                return;
+            }
+
+            const swiper = new Swiper(swiperElement, {
+                slidesPerView: 'auto',
+                spaceBetween: 8,
+                draggable: true,
+                touchEventsTarget: 'container',
+                navigation: {
+                    nextEl: '.swiper-next_' + uniqueId,
+                    prevEl: '.swiper-prev_' + uniqueId,
+                },
+                scrollbar: {
+                    el: '.swiper-scrollbar_' + uniqueId,
+                    draggable: true,
+                }
+            });
+        },
+        addJsScript() {
+            const self = this;
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.addEventListener('load', () => {
+                self.initializeSwiper(uniqueId);
+            });
+            script.src = '<?= $escaper->escapeJs($escaper->escapeHtml($swiperUrl)) ?>';
+            document.head.appendChild(script);
+        },
+        addCss() {
+            const link = document.createElement('link');
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            link.href = '<?= $escaper->escapeJs($escaper->escapeHtml($swiperCssUrl)) ?>';
+            document.head.appendChild(link);
+        },
+    }
+}
+</script>
+
+<section
+    class="flex flex-col"
+    x-data="initSliderComponent('<?= $uniqueId; ?>')"
+    x-init="init();"
+    role="group"
+    aria-roledescription="<?= $escaper->escapeHtmlAttr(__('Carousel')) ?>"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Carousel %1', $title)) ?>"
+>
+
+<?php if ($options): ?>
+    <div class="relative">
+        <?php if ($title): ?>
+            <div class="flex justify-center mb-6">
+                <<?= $headingTag ?> class="text-2xl font-extrabold text-center">
+                    <?= $escaper->escapeHtml($title); ?>
+                </<?= $headingTag ?>>
+            </div>
+        <?php endif; ?>
+
+        <div class="flex items-center justify-between">
+            <div class="flex-shrink-0 hidden xl:block mr-2">
+                <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Previous slide')) ?>"
+                        class="swiper-prev_<?= $uniqueId ?> bg-transparent flex items-center justify-center">
+                        <?= $hyvaIcons->renderHtml('arrow-left', '', 24, 24) ?>
+                </button>
+            </div>
+
+            <!-- Swiper Slider -->
+            <div class="swiper swiper_<?= $uniqueId ?> overflow-hidden flex-grow mx-2">
+                <div class="swiper-wrapper flex max-lg:max-h-[650px]">
+                    <?php foreach ($options as $index => $option): ?>
+                        <div class="swiper-slide<?= $escaper->escapeHtmlAttr($slideItemClasses) ?>"
+                             role="group"
+                             aria-label="<?= $escaper->escapeHtmlAttr(__('Item %1', $sliderIndex++)) ?>"
+                             :aria-describedby="'slide-desc-' + <?= $escaper->escapeHtmlAttr($option['id']) ?> + '-' + $id('slider-id')"
+                             style="width: 64px"
+                        >
+                        <?= /* @noEscape */ $swatchItemBlock->setData('attribute_id', $attributeId)->setData('item', $option)->toHtml(); ?>
+
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="swiper-scrollbar swiper-scrollbar_<?= $uniqueId ?>"></div>
+            </div>
+
+            <div class="flex-shrink-0 hidden xl:block ml-2">
+                <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Next slide')) ?>"
+                        class="swiper-next_<?= $uniqueId ?> bg-transparent flex items-center justify-center">
+                        <?= $hyvaIcons->renderHtml('arrow-right', '', 24, 24) ?>
+                </button>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+</section>

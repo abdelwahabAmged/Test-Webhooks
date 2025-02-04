@@ -1,0 +1,163 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Search\Helper\Data as SearchHelper;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var SearchHelper $helper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$helper = $this->helper(SearchHelper::class);
+?>
+<script>
+    'use strict';
+
+    function initMiniSearch() {
+        return {
+            minSearchLength: <?= (int) $helper->getMinQueryLength() ?>,
+            suggestions: [],
+            isFocused: false,
+            isMobile: window.innerWidth < 1024,
+            suggest() {
+                const search = this.$refs.searchInput;
+                if (search.value.length >= this.minSearchLength) {
+                    search.setCustomValidity('');
+                    search.reportValidity();
+                    this.fetchSuggestions(search.value);
+                } else {
+                    this.suggestions = [];
+                }
+            },
+            fetchSuggestions(term) {
+                fetch(
+                  window.BASE_URL + 'search/ajax/suggest?' + new URLSearchParams({q: term}),
+                  {
+                      headers: {
+                          'X-Requested-With': 'XMLHttpRequest'
+                      }
+                  }
+                )
+                  .then(response => response.json())
+                  .then(result => this.suggestions = result);
+            },
+            search(term) {
+                const search = this.$refs.searchInput;
+                term = term || search.value;
+                if (term.length < this.minSearchLength) {
+                    search.setCustomValidity('<?= $escaper->escapeJs(
+                        __('Minimum Search query length is %1', $helper->getMinQueryLength())
+                    ) ?>');
+                    search.reportValidity();
+                } else {
+                    search.setCustomValidity('');
+                    search.value = term;
+                    this.$refs.form.submit();
+                }
+            },
+            focusElement(element) {
+                if (element && element.nodeName === "DIV") {
+                    element.focus();
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            handleFocus() {
+                this.isFocused = true; // Set focus state to true when focused
+            },
+            handleBlur() {
+                this.isFocused = false; // Reset focus state when the input is blurred
+            },
+            clearSearch() {
+                this.$refs.searchInput.value = ''; // Clear search field
+                this.suggestions = []; // Clear suggestions
+                this.$refs.searchInput.focus(); // Focus back to the input
+            }
+        }
+    }
+</script>
+
+<div
+  class="order-2 grow p-0 mx-auto text-black"
+  x-data="initMiniSearch()"
+  :class="{'absolute z-30 w-full': isFocused && isMobile}"
+>
+    <form class="form relative minisearch" id="search_mini_form" x-ref="form" method="get" role="search"
+          onsubmit="return false;">
+        <label class="hidden" for="search" data-role="minisearch-label">
+            <span><?= $escaper->escapeHtml(__('Search')) ?></span>
+        </label>
+        <input id="search"
+               x-ref="searchInput"
+               type="search"
+               autocomplete="off"
+               name="<?= $escaper->escapeHtmlAttr($helper->getQueryParamName()) ?>"
+               value="<?= /** @noEscape */ $helper->getEscapedQueryText() ?>"
+               placeholder="<?= $escaper->escapeHtmlAttr(__('Search entire store here...')) ?>"
+               maxlength="<?= $escaper->escapeHtmlAttr($helper->getMaxQueryLength()) ?>"
+               class="form-input max-h-[52px] w-full pl-4 pr-[52px] py-3.5 leading-normal transition focus:ring-0
+               appearance-none text-base border-x-0 lg:border-x-2 lg:pl-5 lg:pr-14 focus:border-x-0 lg:focus:border-x-2"
+               @focus="handleFocus"
+               @blur="handleBlur"
+        />
+<!--               Comment these out to not interfere with Hello Retail search -->
+<!--               @focus.once="suggest"-->
+<!--               @input.debounce.300="suggest"-->
+<!--               @keydown.arrow-down.prevent="focusElement($root.querySelector('[tabindex]'))"-->
+<!--               @search-open.window.debounce.10="-->
+<!--                    $el.focus()-->
+<!--                    $el.select()-->
+<!--               "-->
+        <!-- Toggle between search and x icons based on focus -->
+        <div x-show="!isFocused" class="absolute top-3.5 right-4 md:right-5 cursor-pointer">
+            <?= $heroicons->searchHtml("top-3.5 right-4 md:right-5", 24, 24, ["aria-hidden" => "true"]) ?>
+        </div>
+        <div x-cloak x-show="isFocused" class="absolute z-50 top-3.5 right-4 md:right-5 cursor-pointer" @mousedown="clearSearch">
+            <?= $heroicons->xHtml("top-3.5 right-4 md:right-5", 24, 24, ["aria-hidden" => "true"]) ?>
+        </div>
+
+        <template x-if="suggestions.length > 0">
+            <div class="w-full leading-normal transition appearance-none text-grey-800 flex flex-col mt-1">
+                <template x-for="suggestion in suggestions">
+                    <div class="flex justify-between p-2 bg-container-lighter even:bg-container mb-1 cursor-pointer
+                                 border border-container hover:bg-container-darker"
+                         tabindex="0"
+                         @click="search(suggestion.title)"
+                         @keydown.enter="search(suggestion.title)"
+                         @keydown.arrow-up.prevent="
+                              focusElement($event.target.previousElementSibling) || $refs.searchInput.focus()
+                          "
+                         @keydown.arrow-down.prevent="focusElement($event.target.nextElementSibling)"
+                    >
+                        <span x-text="suggestion.title"></span>
+                        <span x-text="suggestion.num_results"></span>
+                    </div>
+                </template>
+            </div>
+        </template>
+<!--        Comment these out to not interfere with Hello Retail search -->
+<!--        <button type="submit"-->
+<!--                title="--><?php //= $escaper->escapeHtml(__('Search')) ?><!--"-->
+<!--                class="action search sr-only"-->
+<!--                aria-label="Search"-->
+<!--        >-->
+<!--            --><?php //= $escaper->escapeHtml(__('Search')) ?>
+<!--        </button>-->
+    </form>
+</div>

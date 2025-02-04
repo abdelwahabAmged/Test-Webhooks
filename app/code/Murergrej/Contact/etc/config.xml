@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <contact>
+            <confirmation_email>
+                <enabled>0</enabled>
+                <sender_email_identity>custom2</sender_email_identity>
+                <email_template>contact_confirmation_email_email_template</email_template>
+            </confirmation_email>
+        </contact>
+    </default>
+</config>

@@ -1,0 +1,325 @@
+<?php
+
+/**
+ * Tier Prices Template
+ *
+ * This template is used to display tier prices for products on the PDP.
+ *
+ * @category    Murergrej
+ * @package     Murergrej_Catalog
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Magento\Catalog\Pricing\Price\TierPrice;
+use Magento\Catalog\Pricing\Render\PriceBox;
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Magento\Catalog\Pricing\Price\FinalPrice;
+use Magento\Catalog\Pricing\Price\RegularPrice;
+use Hyva\Theme\ViewModel\ProductPage;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var PriceBox $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var TierPrice $tierPriceModel */
+$tierPriceModel = $block->getPrice();
+$tierPrices = $tierPriceModel->getTierPriceList();
+$product = $block->getSaleableItem();
+
+/** @var ProductPrice $productPriceViewModel */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+
+$finalPrice = $productPriceViewModel->getPriceValueExclTax(FinalPrice::PRICE_CODE, $product);
+$finalPriceInclTax = $productPriceViewModel->getPriceValue(FinalPrice::PRICE_CODE, $product);
+$regularPrice = $productPriceViewModel->getPriceValue(RegularPrice::PRICE_CODE, $product);
+$regularPriceExclTax = $regularPrice;
+if ($productPriceViewModel->displayPriceInclAndExclTax()) {
+    $regularPriceExclTax = $productPriceViewModel->getPriceValueExclTax(RegularPrice::PRICE_CODE, $product);
+}
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+$productWeight = (float)$product->getWeight();
+
+$tierPriceData = [];
+foreach ($tierPrices as $tierPrice) {
+    $discount = 0;
+
+    if ($tierPrice['percentage_value']) {
+        // If percentage is defined, use it
+        $discount = (int)$tierPrice['percentage_value'] / 100;
+    } else {
+        // If percentage is not defined, calculate the discount from the fixed price
+        $discount = 1 - ($tierPrice['price']->getBaseAmount() / $regularPriceExclTax);
+    }
+
+    $tierPriceData[] = [
+        'qty' => (int)$tierPrice['price_qty'],
+        'discount' => $discount,
+        'priceExclTax' => $tierPrice['price']->getBaseAmount(),
+        'priceInclTax' => $tierPrice['price']->getBaseAmount() + $tierPrice['price']->getTotalAdjustmentAmount(),
+        'defaultTotalExclTax' => $tierPrice['price']->getBaseAmount() * (int)$tierPrice['price_qty'],
+        'defaultTotalInclTax' => ($tierPrice['price']->getBaseAmount() + $tierPrice['price']->getTotalAdjustmentAmount()) * (int)$tierPrice['price_qty'],
+        'is_fixed' => !$tierPrice['percentage_value']
+    ];
+}
+?>
+<?php if (count($tierPrices)): ?>
+    <div class="py-4 md:py-5 bg-secondary-lighter border-t-2 border-white"
+         x-data="{ open: true ,vatMode: sessionStorage.getItem('vatToggle') === 'incl' ? 'including' : 'excluding',tierPrice:tierPriceData}">
+    <div class="cursor-pointer flex justify-between items-center" @click="open = !open">
+        <div class="flex items-baseline flex-col sm:flex-row">
+            <span class="font-extrabold text-base"><?= $escaper->escapeHtml(__('Buy more, save more')) ?></span>
+            <span class="ml-1 text-sm text-primary-lighter"><?= $escaper->escapeHtml(__('(select quantity)')) ?></span>
+        </div>
+        <span class="self-start mt-1" x-show="!open">
+            <?= $heroicons->plusHtml('', 16, 16, ["aria-hidden" => "true"]) ?>
+        </span>
+        <span class="self-start mt-1" x-cloak x-show="open">
+            <?= $heroicons->minusHtml('', 16, 16, ["aria-hidden" => "true"]) ?>
+        </span>
+    </div>
+    <div x-show="open" x-data="initQtyTable" class="pt-3">
+        <table x-cloak id="tierPriceTable" class="w-full text-left">
+            <thead>
+            <tr>
+                <th class="font-normal text-xs pb-2"><?= $escaper->escapeHtml(__('Quantity')) ?></th>
+                <th class="font-normal text-xs pb-2"><?= $escaper->escapeHtml(__('Price/Item')) ?></th>
+                <th class="font-normal text-xs pb-2 text-right"><?= $escaper->escapeHtml(__('Total')) ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($tierPriceData as $index => $tierPrice) : ?>
+                <?php
+                $bagCount = (int)$tierPrice['qty'];
+                $isFixed = $tierPrice['is_fixed'];
+                $discount = $tierPrice['discount'];
+                $quantityId = "qty_" . $index;
+                $totalWeight = (int)$productWeight * $bagCount;
+                $palletCount = $totalWeight >= 65 ? ceil($totalWeight / 1210) . ' pallet(s)' : '';
+                ?>
+                <tr class="relative border-t border-primary">
+                    <td class="py-2 pb-8 sm:pb-2">
+                        <div class="product-cart-quantity flex flex-col sm:flex-row">
+                            <div class="product-qty-wrapper grid items-center w-[80px] h-[52px] bg-white border-2">
+                                <label for="qty[<?= $quantityId ?>]" class="sr-only"><?= $escaper->escapeHtml(__('Quantity')) ?></label>
+                                <input
+                                  name="qty"
+                                  id="qty_<?= $index ?>"
+                                  type="number"
+                                  value="0"
+                                  min="0"
+                                  class="form-input pl-4 py-[10px] pr-2 text-center w-full font-semibold border-0"
+                                  onchange="updateTotal(<?= $index ?>)"
+                                >
+                                <div class="product-qty-buttons flex flex-col justify-between">
+                                    <button
+                                      type="button"
+                                      class="up hover:bg-sky-blue"
+                                      onclick="stepUpQty( <?= $index ?>)"
+                                    >
+                                        <?= $hyvaIcons->renderHtml('up', '', 12, 12) ?>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      class="down hover:bg-sky-blue"
+                                      onclick="stepDownQty(<?= $index ?>)"
+                                    >
+                                        <?= $hyvaIcons->renderHtml('down', '', 12, 12) ?>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex flex-row items-center mt-1 sm:flex-col absolute top-[53px] sm:relative sm:top-0 sm:items-start sm:mt-0 sm:ml-3">
+                                <span class="block mt-2 text-sm"><?= $bagCount ?> <?= $escaper->escapeHtmlAttr(__('bag(s)')) ?></span>
+                                <span
+                                  id="palletCount_<?= $index ?>"
+                                  class="block ml-1 mt-2 text-xs text-primary-lighter sm:ml-0 sm:mt-0"
+                                >
+                                    <?= $palletCount ?>
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-2">
+                        <div class="flex flex-col pb-7 sm:pb-0">
+                            <span class="text-sm font-extrabold price-item" id="price_<?= $index ?>" x-text="vatMode === 'including'
+                          ? hyva.formatPrice(tierPrice[<?= $index ?>].priceInclTax)
+                          : hyva.formatPrice(tierPrice[<?= $index ?>].priceExclTax)">
+                            </span>
+                            <span class="text-green text-xs discount-item">
+                                <?= $escaper->escapeHtml(__('save')) ?>
+                                <span class="text-green" id="discount_<?= $index ?>">
+                                    <?= $isFixed ? '-' . round((1 - ($tierPrice['priceExclTax'] / $regularPriceExclTax)) * 100) : '-' . ($discount * 100) ?>%
+                                </span>
+                            </span>
+                        </div>
+                    </td>
+                    <td class="py-2 text-sm text-right font-extrabold align-top">
+                        <span class="block mt-2" id="total_<?= $index ?>" x-text="vatMode === 'including'
+                          ? hyva.formatPrice(tierPrice[<?= $index ?>].priceInclTax * tierPrice[<?= $index ?>].qty)
+                          : hyva.formatPrice(tierPrice[<?= $index ?>].priceExclTax * tierPrice[<?= $index ?>].qty)">
+                        </span>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+    <script>
+        const tierPriceData = <?php echo json_encode($tierPriceData); ?>;
+        const regularPriceExclTax = <?= json_encode($regularPriceExclTax) ?>;
+        const finalPrice = <?= json_encode($finalPriceInclTax) ?>;
+        const productWeight = <?= json_encode($product->getWeight()) ?>;
+
+        function initQtyTable() {
+            const currentContainerDetails = document.getElementById("currentContainerDetails");
+
+            if (currentContainerDetails) {
+                currentContainerDetails.style.display = 'block';
+            }
+
+            disableMainProductQty();
+        }
+
+        function disableMainProductQty() {
+            const mainProductQty = document.getElementById("qty_<?= $product->getId() ?>");
+
+            if (mainProductQty) {
+                const qtyButtons = mainProductQty.closest('.product-qty-wrapper')?.querySelector('.product-qty-buttons');
+
+                mainProductQty.style.pointerEvents = 'none';
+                mainProductQty.style.cursor = 'not-allowed';
+
+                if (qtyButtons) {
+                    qtyButtons.remove();
+                }
+            }
+        }
+
+        function updateTotal(index) {
+            const vatMode = sessionStorage.getItem('vatToggle') === 'incl' ? 'including' : 'excluding';
+            const tierData = tierPriceData[index];
+            const qtyField = document.getElementById('qty_' + index);
+            const qty = parseInt(qtyField.value) || 0;
+            let pricePerItem, total;
+            if (qty > 0) {
+                pricePerItem = vatMode === 'including' ? tierData.priceInclTax : tierData.priceExclTax;
+                total = qty * tierData.qty * pricePerItem;
+            } else {
+                // Restore default values when quantity is 0
+                pricePerItem = vatMode === 'including' ? tierData.priceInclTax : tierData.priceExclTax;
+                total = vatMode === 'including' ? tierData.defaultTotalInclTax : tierData.defaultTotalExclTax;
+            }
+
+            // Update the Total for this row
+            const totalElement = document.getElementById('total_' + index);
+            totalElement.innerText = hyva.formatPrice(total);
+
+            // Update the Price/Item for this row
+            const priceElement = document.getElementById('price_' + index);
+            priceElement.innerText = hyva.formatPrice(pricePerItem);
+
+            // Update discount display
+            const discountElement = document.getElementById('discount_' + index);
+            discountElement.innerText = tierData.is_fixed
+                ? '-' + Math.round((1 - (tierData.priceExclTax / regularPriceExclTax)) * 100) + '%'
+                : '-' + Math.round(tierData.discount * 100) + '%';
+
+            // Update Grand Total and other related fields
+            updateGrandTotal(vatMode);
+        }
+
+        function updateGrandTotal(vatMode) {
+            const grandTotalElement = document.getElementById('grandTotal');
+            const totalSavedElement = document.getElementById('totalSaved');
+            const discountPercentageElement = document.getElementById('discountPercentage');
+            let grandTotal = 0;
+            let totalSaved = 0;
+            let discountPercentage = 0;
+            let totalBags = 0;
+            let totalWeight = 0;
+            let OriginalGrandTotal = vatMode === 'including' ? <?= json_encode($regularPrice) ?> : <?= json_encode($finalPrice) ?>;
+
+            tierPriceData.forEach(function (tierData, index) {
+                const qty = parseInt(document.getElementById('qty_' + index).value) || 0;
+
+                if (qty > 0) {
+                    const pricePerItem = vatMode === 'including' ? tierData.priceInclTax : tierData.priceExclTax;
+                    const rowTotal = qty * tierData.qty * pricePerItem;
+                    grandTotal += rowTotal;
+
+                    // Calculate fullPriceTotal based on isFixed and vatMode
+                    let fullPriceTotal;
+                    if (tierData.isFixed) {
+                        fullPriceTotal = regularPriceExclTax * qty * tierData.qty;
+                    } else {
+                        fullPriceTotal = (vatMode === 'including' ? finalPrice : regularPriceExclTax) * qty * tierData.qty;
+                    }
+                    totalSaved += fullPriceTotal - rowTotal;
+                    console.log('isfixed', tierData.isFixed, 'fullprice', fullPriceTotal, 'rowtotal', rowTotal, 'totalSaved', totalSaved);
+                    discountPercentage = Math.max(discountPercentage, tierData.discount * 100);
+                } else {
+                    // Add default total when quantity is 0
+                    document.getElementById('grandTotal').innerText = hyva.formatPrice(OriginalGrandTotal);
+                }
+
+                totalBags += qty * tierData.qty;
+                totalWeight += productWeight * (qty * tierData.qty);
+            });
+
+            if (totalBags === 0) {
+                grandTotalElement.innerText = hyva.formatPrice(OriginalGrandTotal);
+                document.getElementById('percentageData').classList.add('hidden');
+            } else {
+                document.getElementById('percentageData').classList.remove('hidden');
+                grandTotalElement.innerText = hyva.formatPrice(grandTotal);
+                totalSavedElement.innerText = hyva.formatPrice(totalSaved);
+                discountPercentageElement.innerText = discountPercentage.toFixed(2);
+            }
+
+            // Update pallet count
+            const totalPalletCount = totalWeight >= 65 ? Math.ceil(totalWeight / 1210) : 0;
+            const palletCountTotalWrapper = document.getElementById('palletCountTotalWrapper');
+            const totalPalletCountElement = document.getElementById('totalPalletCount');
+
+            if (totalPalletCount > 0) {
+                totalPalletCountElement.innerText = totalPalletCount;
+                palletCountTotalWrapper.classList.remove('hidden');
+            } else {
+                palletCountTotalWrapper.classList.add('hidden');
+            }
+
+            const mainProductQty = document.getElementById("qty[<?= $product->getId() ?>]");
+            mainProductQty.value = totalBags || 1;
+        }
+
+        function stepUpQty(index) {
+            const input = document.getElementById('qty_' + index);
+            input.stepUp();
+            updateTotal(index);
+        }
+
+        function stepDownQty(index) {
+            const input = document.getElementById('qty_' + index);
+            input.stepDown();
+            updateTotal(index);
+        }
+
+        // Initialize the table on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            initQtyTable();
+        });
+    </script>
+<?php endif; ?>

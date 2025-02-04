@@ -1,0 +1,260 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Checkout\Block\Cart\Sidebar;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+$showMiniCart = $storeConfig->getStoreConfig(Sidebar::XML_PATH_CHECKOUT_SIDEBAR_DISPLAY);
+?>
+<script>
+    function initHeader () {
+        return {
+            searchOpen: false,
+            cart: {},
+            getData(data) {
+                if (data.cart) { this.cart = data.cart }
+            }
+        }
+    }
+    function initCompareHeader() {
+        return {
+            compareProducts: null,
+            itemCount: 0,
+            receiveCompareData(data) {
+                if (data['compare-products']) {
+                    this.compareProducts = data['compare-products'];
+                    this.itemCount = this.compareProducts.count;
+                }
+            }
+        }
+    }
+</script>
+<div id="header"
+     class="relative mb-4"
+     x-data="initHeader()"
+     @keydown.window.escape="searchOpen = false;"
+     @private-content-loaded.window="getData(event.detail.data)"
+>
+    <div class="container flex items-center w-full px-6 pt-3 mx-auto mt-0">
+        <!--Logo-->
+        <div class="text-center flex-1 lg:flex-none">
+            <?= $block->getChildHtml('logo'); ?>
+        </div>
+
+        <!--Main Navigation-->
+        <div class="order-first lg:flex-1 lg:order-none">
+            <?= $block->getChildHtml('topmenu') ?>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!--Compare Icon-->
+            <a id="compare-link"
+               class="relative inline-block no-underline hover:text-black"
+               x-show="itemCount > 0"
+               x-cloak
+               href="<?= $escaper->escapeUrl($block->getUrl('catalog/product_compare/index')) ?>"
+               title="<?= $escaper->escapeHtml(__('Compare Products')) ?>"
+               x-data="initCompareHeader()"
+               @private-content-loaded.window="receiveCompareData($event.detail.data)"
+            >
+                <?= $heroicons->scaleHtml(
+                    "h-6 w-6 hover:text-black",
+                    25,
+                    25
+                ) ?>
+
+                <span class="sr-only label">
+                   <?= $escaper->escapeHtml(__('Compare Products')) ?>
+                </span>
+
+                <span class="absolute top-0 right-0 h-5 px-2 py-1 -mt-5 -mr-4 text-xs font-semibold
+                        leading-none text-center text-gray-700 uppercase transform -translate-x-1
+                        translate-y-1/2 rounded-[10px] bg-blue-200"
+                >
+                    <span x-text="itemCount"></span>
+                    <span x-show="itemCount === 1" class="sr-only">
+                        <?= $escaper->escapeHtml(__('item')) ?>
+                    </span>
+                    <span x-show="itemCount > 1" class="sr-only">
+                        <?= $escaper->escapeHtml(__('items')) ?>
+                    </span>
+                </span>
+            </a>
+
+            <div class="hidden lg:block">
+                <?= $block->getChildHtml('store-language-switcher'); ?>
+            </div>
+
+            <!--Search Icon-->
+            <button id="menu-search-icon"
+                    class="hidden no-underline sm:inline-block hover:text-black"
+                    @click.prevent="
+                        searchOpen = !searchOpen;
+                        $nextTick(() => {
+                         const searchInput = document.querySelector('#search');
+                         searchInput.focus();
+                         searchInput.select();
+                     });
+                    "
+            >
+                <span class="sr-only label">
+                    <?= $escaper->escapeHtml(__('Search')) ?>
+                </span>
+
+                <?= $heroicons->searchHtml(
+                    "h-6 w-6 text-gray-700 hover:text-black",
+                    25,
+                    25
+                ) ?>
+            </button>
+
+            <!--Customer Icon & Dropdown-->
+            <?= $block->getChildHtml('customer') ?>
+
+            <!--Cart Icon-->
+            <a id="menu-cart-icon"
+               <?php if ($showMiniCart): ?>@click.prevent.stop="$dispatch('toggle-cart',{});"<?php endif ?>
+               class="relative inline-block no-underline hover:text-black"
+               href="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/index')) ?>"
+            >
+                <span class="sr-only label">
+                    <?= $escaper->escapeHtml(__('Cart')) ?>
+                </span>
+
+                <?= $heroicons->shoppingCartHtml(
+                    "h-6 w-6 text-gray-700 hover:text-black",
+                    25,
+                    25
+                ) ?>
+
+                <span x-text="cart.summary_count"
+                      x-cloak
+                      class="absolute top-0 right-0 h-5 px-2 py-1 -mt-5 -mr-4 text-xs font-semibold
+                        leading-none text-center text-gray-700 uppercase transform -translate-x-1
+                        translate-y-1/2 rounded-[10px] bg-blue-200"
+                      x-show="cart.summary_count"
+                ></span>
+            </a>
+
+        </div>
+    </div>
+    <!--Search-->
+    <div class="container absolute -mt-4 left-1/2 -translate-x-1/2 z-10"
+         id="search-content"
+         x-cloak
+         x-show="searchOpen"
+         @click.outside="searchOpen = false"
+    >
+        <?= $block->getChildHtml('header-search'); ?>
+    </div>
+
+    <?php
+    /**
+     * This notification could come from a CMS static block.
+     * Create or add to Magento_Theme/layout/default.xml
+     * <referenceBlock name="header-content">
+         <block class="Magento\Cms\Block\Block" name="header-notification">
+         <arguments>
+             <argument name="block_id" xsi:type="string">header-notification</argument>
+         </arguments>
+         </block>
+       </referenceBlock>
+     *
+     * And echo with $block->getChildHtml('header-notification')
+     */
+    ?>
+
+    <!--Notification-->
+    <script>
+        function initHeaderNotification() {
+            const closedCookieName = 'header-notification-closed';
+
+            /**
+             * Add closedCookieName to list of first-party cookies
+             * otherwise it would keep reappearing while cookie consent is missing
+             */
+            window.cookie_consent_config['necessary'] = [].concat(
+                window.cookie_consent_config['necessary'] || [],
+                [closedCookieName]
+            );
+
+            return {
+                notificationOpen: false,
+                closedCookieName: closedCookieName,
+                isScrolledPast: false,
+                init() {
+                    this.notificationOpen = this.shouldShowNotification()
+                },
+                closeNotification() {
+                    this.notificationOpen = false;
+                    this.setCloseCookie();
+                },
+                setCloseCookie() {
+                    hyva.setCookie(this.closedCookieName, true, 30);
+                },
+                shouldShowNotification() {
+                    return !hyva.getCookie(this.closedCookieName);
+                }
+            }
+        }
+    </script>
+
+    <?php
+    /**
+     * This notification is made sticky on mobile to completely remove Layout Shifts.
+     * On desktop, the banner is hidden until the component initialises. This causes a
+     * tiny layout shift on page load.
+     *
+     * Because the visibility of the banner is determined on the frontend by a cookie,
+     * you can't get around the delay. It can't be rendered by the backend, because
+     * cookies are not available in combination with Full Page Cache.
+     **/ ?>
+    <div id="header-notification"
+         class="absolute z-20 md:relative inset-x-0 container block py-2"
+         :class="{ 'fixed inset-0' : isScrolledPast, 'absolute' : !isScrolledPast }"
+         x-data="initHeaderNotification()"
+         x-show="notificationOpen"
+         x-cloak
+         @scroll.window="isScrolledPast = (window.scrollY >= document.getElementById('header').clientHeight)"
+    >
+        <div class="shadow-lg text-white font-semibold text-sm bg-blue-900 rounded-xl p-4
+                    flex items-center justify-between">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="hover:underline"
+            >
+                <?= $escaper->escapeHtml(__('Get ready for a dazzling summer with our new arrivals →')) ?>
+            </a>
+            <button class="ml-3" @click="closeNotification()">
+                <?= $heroicons->xHtml('text-blue-200') ?>
+            </button>
+        </div>
+    </div>
+
+    <!--Cart Drawer-->
+    <?= $block->getChildHtml('cart-drawer'); ?>
+
+    <!--Authentication Pop-Up-->
+    <?= $block->getChildHtml('authentication-popup'); ?>
+</div>
+

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 Extension Attributes Declaration
+ * This XML file is used to declare the extension attributes for the ProductTierPriceInterface.
+ * @category   Custom Module
+ * @package    Murergrej_Catalog
+ * @author     Abanoub Youssef <Abanoub.youssef@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/extension_attributes.xsd">
+    <extension_attributes for="Magento\Catalog\Api\Data\ProductTierPriceInterface">
+        <attribute code="ean" type="string[]"/>
+    </extension_attributes>
+</config>

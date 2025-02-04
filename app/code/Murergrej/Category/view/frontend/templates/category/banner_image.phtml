@@ -1,0 +1,17 @@
+<?php
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+
+/**
+ * Category view template
+ *
+ * @var $block \Magento\Catalog\Block\Category\View
+ */
+?>
+<?php if ($imageUrl = $block->getCurrentCategory()->getImageUrl('banner_image')) :?>
+    <?php $outputhelper    = $this->helper('Magento\Catalog\Helper\Output'); ?>
+    <?php $imgHtml = '<img src="' . $imageUrl . '" />'; ?>
+    <?php $imgHtml = $outputhelper->categoryAttribute($block->getCurrentCategory(), $imgHtml, 'banner_image') ?>
+    <div class="banner-image">
+        <?= $imgHtml ?>
+    </div>
+<?php endif; ?>

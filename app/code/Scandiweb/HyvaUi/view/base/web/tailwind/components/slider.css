@@ -1,0 +1,32 @@
+:root {
+    --slider-slide-inline-space: 8px;
+    
+    @media screen(lg) {
+        --slider-slide-inline-space: 10px;
+    }
+}
+
+.isCarousel {
+    --slider-slide-item-width: 288px;
+    --slider-slide-inline-space: 10px;
+
+    @media screen(lg) {
+        --slider-slide-item-width: 319px;
+    }
+
+    .glider, &.glider {
+        &-track {
+            > * {
+                padding-inline: var(--slider-slide-inline-space);
+            }
+        }
+
+        &-slide {
+            --slider-slide-item-plus-inline-space-width: calc(var(--slider-slide-item-width) + (2 * var(--slider-slide-inline-space)));
+        }
+    }
+}
+
+.slide-items {
+    @apply slider-scroll;
+}

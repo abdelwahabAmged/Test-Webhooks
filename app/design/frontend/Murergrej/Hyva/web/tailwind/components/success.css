@@ -1,0 +1,54 @@
+/**
+ * Success Page Styles
+ *
+ * This stylesheet contains the styles for the success page, including the order summary section.
+ *
+ * @category    Murergrej
+ * @package     Murergrej_Hyva
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ */
+
+.checkout-onepage-success {
+    .top-container {
+        .breadcrumbs {
+            @apply bg-cream;
+        }
+    }
+
+    .category-page-title-wrapper {
+        @apply bg-cream justify-start md:px-10;
+    }
+
+    .order-summary-wrapper {
+        @apply flex flex-col lg:w-1/4 gap-3 md:gap-0 py-3 px-4 lg:p-0 bg-cream md:bg-transparent;
+
+        h2 {
+            @apply text-black text-base font-extrabold lg:text-center lg:text-2xl lg:text-nowrap;
+            @apply lg:p-4 lg:bg-white;
+        }
+
+        .order-summary {
+            @apply flex flex-col gap-3 md:gap-0 lg:bg-cream;
+
+            h3 {
+                @apply text-black text-sm font-bold mb-1;
+            }
+
+            p {
+                @apply text-black text-sm font-normal tabular-nums lining-nums;
+            }
+
+            .order-summary-item {
+                @apply flex justify-between mb-1;
+
+                .label {
+                    @apply font-sans text-black text-sm font-normal leading-5 tabular-nums lining-nums;
+                }
+
+                .value {
+                    @apply text-black text-sm font-extrabold;
+                }
+            }
+        }
+    }
+}

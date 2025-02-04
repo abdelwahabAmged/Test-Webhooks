@@ -1,0 +1,90 @@
+.ProductSlider {
+    &-Title {
+        margin-top: 3.5rem;
+    }
+
+    &-Category-ViewAll {
+        display: flex;
+        justify-content: space-between;
+
+        .mobile-viewport & {
+            flex-direction: column;
+            row-gap: 4px;
+        }
+
+        .ProductSlider {
+            &-Categories-Container {
+                div {
+                    display: flex;
+                    flex-wrap: wrap;
+                }
+
+                .ProductSlider {
+                    &-Category {
+                        padding-block-start: 8px;
+                        font-weight: 500;
+                        color: var(--color-grey-dark);
+                        cursor: pointer;
+
+                        .underline-with-animation();
+
+                        .desktop-viewport & {
+                            padding-block-start: 12px;
+                        }
+                    }
+
+                    &-CategoryText {
+                        padding-inline: 12px;
+
+                        .desktop-viewport & {
+                            padding-inline: 20px;
+                        }
+                    }
+                }
+            }
+        }
+
+        .ProductSlider {
+            &-Categories-Actions {
+                .ProductSlider {
+                    &-ReadAll {
+                        height: max-content;
+                        column-gap: 12px;
+
+                        .mobile-viewport & {
+                            padding-inline: 16px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &-Placeholder {
+        background-image: url("@{baseDir}Scandiweb_HyvaUi/images/content-type/product-slider/product-card-placeholder-mobile.png");
+        background-repeat: repeat-x;
+        margin-top: 24px;
+        background-size: contain;
+        height: 540px;
+
+        .desktop-viewport & {
+            background-image: url("@{baseDir}Scandiweb_HyvaUi/images/content-type/product-slider/product-card-placeholder-desktop.png");
+        }
+    }
+}
+
+h3 {
+    &.ProductSlider {
+        &-Title {
+            margin-bottom: 28px;
+
+            .media-width(@extremum, @break)
+                when
+                (@extremum = "max")
+                and
+                (@break = @screen__l) {
+                margin-bottom: 24px;
+            }
+        }
+    }
+}

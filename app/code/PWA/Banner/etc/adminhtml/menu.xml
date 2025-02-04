@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="PWA_Banner::banner" title="PWA Banner" translate="title" module="PWA_Banner" sortOrder="20" parent="PWA_Cms::cms" action="pwa_banner/image" resource="PWA_Banner::banner"/>
+    </menu>
+</config>

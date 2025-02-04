@@ -1,0 +1,466 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var CurrentProduct $currentProduct */
+$currentProduct = $viewModels->require(CurrentProduct::class);
+
+try {
+    $product = $currentProduct->get();
+
+    // Check if the product in PDP is a configurable product
+    $isConfigurable = $product->getTypeId() == "configurable" ? true : false;
+
+    $product->getIsSalable();
+
+    $outOfStockMap[] = [
+        'id' => $product->getId(),
+        'isPermOOS' => $product->getData('permanently_oos')  === "1" ? true : false,
+        'isSaleable' => $product->getIsSalable()
+    ];
+    $optionConfig = [
+        // ... include existing optionConfig data
+        'outOfStockMap' => $outOfStockMap,
+    ];
+
+    $optionConfigProductJson = json_encode($optionConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+} catch (\RuntimeException $e) {
+    $product = null;
+    $isConfigurable = false;
+}
+
+if ($isConfigurable) {
+    $childProducts = $product->getTypeInstance()->getUsedProductCollection($product)->addAttributeToSelect(['permanently_oos', 'is_salable']);
+
+    // Loop through child products to get the permanent out-of-stock status
+    foreach ($childProducts as $child) {
+        $childProductId = (int) $child->getId();
+
+        $isChildPermOOS = $child->getData('permanently_oos') === "1" ? true : false;
+
+        $outOfStockMap[] = [
+            'id' => $childProductId,
+            'isChildPermOOS' => $isChildPermOOS,
+            'isChildTempOOS' => !$child->getIsSalable(),
+        ];
+    }
+
+    // Prepare optionConfig with the out-of-stock mapping
+    $optionConfig = [
+        // ... include existing optionConfig data
+        'outOfStockMap' => $outOfStockMap,
+    ];
+
+    // Convert the optionConfig array to JSON with proper encoding to prevent XSS
+    $optionConfigChildJson = json_encode($optionConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+} else {
+    $optionConfigChildJson = json_encode([], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    $optionConfigProductJson = json_encode([], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+}
+?>
+<script>
+    const childOOS = <?= $optionConfigChildJson ?>;
+    const productOOS = <?= $optionConfigProductJson ?>;
+
+    function initConfigurableOptions(productId, optionConfig) {
+
+        function findPathParam(key) {
+            <?php /* get all path pairs after BASE_URL/front_name/action_path/action */ ?>
+            const baseUrl = (BASE_URL.substring(0, 2) === '//' ? 'http:' : '') + BASE_URL;
+            const baseUrlParts = (new URL(baseUrl)).pathname.replace(/\/$/, '').split('/');
+            const pathParts = window.location.pathname.split('/').slice(baseUrlParts.length + 3);
+            for (let i = 0; i < pathParts.length; i += 2) {
+                if (pathParts[i] === key && pathParts.length > i) {
+                    return pathParts[i + 1];
+                }
+            }
+        }
+
+        return {
+            optionConfig,
+            productId,
+            itemId: (new URLSearchParams(window.location.search)).get('id') || findPathParam('id'),
+            allowedAttributeOptions: [],
+            childOutOfStockMap: childOOS.outOfStockMap || null,
+            productOutOfStockMap: productOOS.outOfStockMap || null,
+            selectedValues: [],
+            init() {
+                this.findAllowedAttributeOptions();
+                this.$nextTick(() => {
+                    if (typeof this.optionConfig.defaultValues === 'object') {
+                        for (const [attributeId, value] of Object.entries(this.optionConfig.defaultValues)) {
+                            this.changeOption(attributeId, value + '');
+                        }
+                    }
+                });
+                this.updateProductOutOfStock();
+            },
+            findSimpleIndex() {
+                <?php /* a better method name would be `updateSelectedSimpleIndex` but keeping for bc */ ?>
+                this.productIndex = this.calculateSimpleIndexForPartialSelection(this.selectedValues);
+            },
+            calculateSimpleIndexForPartialSelection(selectedValues) {
+                if (selectedValues.length === 0) return 0;
+                let productIndexIds = Object.keys(this.optionConfig.index);
+                Object.keys(this.optionConfig.attributes).forEach((attribute) => {
+                    <?php
+                    // for each attribute, check if a value is selected for the attribute
+                    // if it is, filter all products to only include those that match the selected attribute value
+                    ?>
+                    const productsWithAttributeMatch = selectedValues[attribute]
+                        ? productIndexIds.filter((productIndex) => {
+                            return this.optionConfig.index[productIndex][attribute] === this.selectedValues[attribute]
+                        })
+                        : [];
+
+                    <?php /* if we found matches, only keep the ones that match, otherwise, keep all products */ ?>
+                    productIndexIds = productsWithAttributeMatch.length ? productsWithAttributeMatch : productIndexIds
+                })
+                return productIndexIds[0];
+            },
+            calculateSimpleIndexForFullSelection(selectedValues) {
+                const productIndexes = this.optionConfig.index;
+                return Object.keys(productIndexes).find(productIndex => {
+                    const productCandidateOptions = productIndexes[productIndex];
+
+                    for (const productOption in productCandidateOptions) {
+                        if (
+                            ! selectedValues[productOption] ||
+                            selectedValues[productOption] !== productCandidateOptions[productOption]
+                        ) {
+                            return false;
+                        }
+                    }
+                    return productIndex;
+                });
+            },
+            productIndex: 0,
+            findAllowedAttributeOptions() {
+                <?php /* a better method name would be `updateAllowedAttributeOptions` but keeping for bc */ ?>
+                this.allowedAttributeOptions = this.calculateAllowedAttributeOptions(this.selectedValues);
+            },
+            calculateAllowedAttributeOptions(selectedValues) {
+                const allAttributes = this.optionConfig.attributes;
+                const allAttributesSorted = Object.values(allAttributes).sort((a, b) => {
+                    return a.position - b.position;
+                });
+
+                const newAllowedAttributeOptions = [];
+
+                allAttributesSorted.forEach(attribute => {
+                    const selectionWithoutAttr = Object.assign({}, this.removeAttrFromSelection(selectedValues, attribute.id));
+                    const availableIndexes = this.calculateAvailableProductIndexes(selectionWithoutAttr);
+                    newAllowedAttributeOptions[attribute.id] = allAttributes[attribute.id].options.filter(option => {
+                        return !!option.products.find(product => {
+                            return availableIndexes.includes(product);
+                        });
+                    });
+                });
+                return newAllowedAttributeOptions;
+            },
+            calculateAvailableProductIndexes(selectedOptions) {
+                if (Object.keys(selectedOptions).length === 0) {
+                    return Object.keys(this.optionConfig.index);
+                }
+
+                const selectedIds = Object.keys(selectedOptions);
+                const productIndexes = this.optionConfig.index;
+                return Object.keys(productIndexes).filter(index => {
+                    for (const attrId of selectedIds) {
+                        if (productIndexes[index][attrId] !== `${selectedOptions[attrId]}`) return false;
+                    }
+                    return true;
+                });
+            },
+            findAttributeByOptionId(optionId) {
+                for (const attributeId in this.optionConfig.attributes) {
+                    const attributeOptions = this.optionConfig.attributes[attributeId].options || [];
+                    if (attributeOptions.find(option => option.id === optionId)) {
+                        return attributeId;
+                    }
+                }
+            },
+            getAllowedAttributeOptions(attributeId) {
+                return this.allowedAttributeOptions[attributeId] || []
+            },
+            isSwatchText(attributeId) {
+                const options = this.getAllowedAttributeOptions(attributeId);
+                return options.length <= 5;
+            },
+            getProductIdsForOption(option) {
+                const attributeId = this.findAttributeByOptionId(option.id);
+                const allOptions = this.optionConfig.attributes[attributeId];
+                const opt = (allOptions && allOptions.options || []).find(o => o.id === option.id);
+                return opt && opt.products
+                    ? opt.products
+                    : [];
+            },
+            findProductIdsForPartialSelection(optionSelection) {
+                const candidateProducts = Object.values(optionSelection).reduce((candidates, optionId) => {
+                    const newCandidates = this.getProductIdsForOption({id: optionId});
+                    return candidates === null
+                        ? newCandidates
+                        : candidates.filter(productId => newCandidates.includes(productId));
+                }, null);
+                return candidateProducts || [];
+            },
+            findCheapestProductForPartialSelection(optionSelection) {
+                const candidateProducts = this.findProductIdsForPartialSelection(optionSelection);
+                return candidateProducts.reduce((cheapest, simpleIdx) => {
+                    // in the first iteration we start with simpleIdx as the currently cheapest product
+                    if (! this.optionConfig.optionPrices[cheapest]) return simpleIdx;
+                    const knownCheapestPrice = this.optionConfig.optionPrices[cheapest].finalPrice.amount;
+                    return knownCheapestPrice > this.optionConfig.optionPrices[simpleIdx].finalPrice.amount
+                        ? simpleIdx
+                        : cheapest;
+                }, 0)
+            },
+            findProductIdToUseForOptionPrice(option) {
+                // try to find a product for a complete selection
+                const attributeId = this.findAttributeByOptionId(option.id);
+                const optionSelection = Object.assign({}, this.selectedValues, {[attributeId]: option.id});
+                const matchingSimpleIndex = this.calculateSimpleIndexForFullSelection(optionSelection);
+                // if there is no complete selection, use the cheapest product for the option
+                return matchingSimpleIndex || this.findCheapestProductForPartialSelection(optionSelection);
+            },
+            getAttributeOptionLabel(option) {
+                const optionProduct = this.findProductIdToUseForOptionPrice(option);
+                if ((! optionProduct) || (optionProduct === this.productIndex)) {
+                    return option.label;
+                }
+
+                const currentPrice = this.getOptionPriceAdjustmentBasePrice();
+
+                if (this.optionConfig.optionPrices[optionProduct]) {
+                    const optionPrice = this.optionConfig.optionPrices[optionProduct].finalPrice.amount;
+                    if (optionPrice !== currentPrice){
+                        return option.label + ' ' + hyva.formatPrice(optionPrice - currentPrice, true);
+                    }
+                }
+                return option.label;
+            },
+            getOptionPriceAdjustmentBasePrice() {
+                if (this.optionConfig.optionPrices[this.productIndex]) {
+                    return this.optionConfig.optionPrices[this.productIndex].finalPrice.amount
+                }
+                const cheapestForSelection = this.findCheapestProductForPartialSelection(this.selectedValues);
+                return this.optionConfig.optionPrices[cheapestForSelection]
+                    ? this.optionConfig.optionPrices[cheapestForSelection].finalPrice.amount
+                    : this.optionConfig.prices.finalPrice.amount; // default price if no option selection
+            },
+            clearOptionIfActive(optionId, value) {
+                if (this.selectedValues[optionId] === value) {
+                    this.blurLabel()
+                    this.changeOption(optionId, '')
+                }
+            },
+            removeAttrFromSelection(selectedValues, attributeId) {
+                <?php /* create new array so the length property is reset if no option is selected (avoiding delete) */ ?>
+                attributeId = parseInt(attributeId);
+                return selectedValues.reduce((newSelection, val, attr) => {
+                    if (attr !== attributeId) {
+                        newSelection[attr] = val;
+                    }
+                    return newSelection;
+                }, []);
+            },
+            changeOption(attributeId, value) {
+                if (value === '') {
+                    this.selectedValues = this.removeAttrFromSelection(this.selectedValues, attributeId)
+                } else if (value && this.getAllowedAttributeOptions(attributeId).find(option => option.id === value)) {
+                    <?php /* Only set as selected value if it is valid */ ?>
+                    this.selectedValues[attributeId] = value;
+                }
+                this.findSimpleIndex();
+                this.findAllowedAttributeOptions();
+                this.updatePrices();
+                this.updateGallery();
+                this.updateVariantOutOfStock();
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'configurable-selection-changed',
+                        {
+                            detail: {
+                                productId: this.productId,
+                                optionId: attributeId,
+                                value: value,
+                                productIndex: this.productIndex,
+                                selectedValues: this.selectedValues,
+                                candidates: this.findProductIdsForPartialSelection(this.selectedValues),
+                            }
+                        }
+                    )
+                );
+            },
+            calculateIsMinimalPrice() {
+                return (
+                    this.selectedValues.filter(value => !!value).length <
+                        Object.keys(this.optionConfig.attributes).length
+                );
+            },
+            updatePrices() {
+                const value = this.productIndex ?
+                    this.optionConfig.optionPrices[this.productIndex] :
+                    this.optionConfig.prices;
+
+                const optionWeight = this.productIndex ?
+                  this.optionConfig.optionWeight[this.productIndex] : 0;
+
+                window.dispatchEvent(
+                    new CustomEvent(
+                        "update-prices-" + this.productId,
+                        {
+                            detail: Object.assign(
+                                value,
+                                { isMinimalPrice: this.calculateIsMinimalPrice() },
+                                { optionWeight }
+                            )
+                        }
+                    )
+                );
+            },
+            updateGallery () {
+                if (this.productIndex) {
+                    const images = this.optionConfig.images[this.productIndex];
+                    images && window.dispatchEvent(new CustomEvent(
+                        "update-gallery",
+                        { detail: this.sortImagesByPosition(images) }
+                    ));
+                } else {
+                    window.dispatchEvent(new Event("reset-gallery"));
+                }
+            },
+            sortImagesByPosition(images) {
+                return images.sort((x, y) => {
+                    return x.position === y.position ? 0 : (parseInt(x.position) > parseInt(y.position) ? 1 : -1)
+                });
+            },
+            onGetCartData(data) {
+                <?php if ($currentProduct->exists()): /* Only preconfigure the main product on product detail pages */ ?>
+                if (this.productId === '<?= (int) $currentProduct->get()->getEntityId() ?>') {
+                    this.preselectCartItems(data);
+                    this.preselectQuerystringItems();
+                    this.preselectLocationHashItems();
+                }
+                <?php endif; ?>
+            },
+            preselectCartItems(data) {
+                // pre-select options based on cart data for current (quote) itemId
+                const cart = data && data.cart;
+                if (cart && cart.items) {
+                    const cartItem = cart.items.find((item) => {
+                        return (
+                            item.item_id === this.itemId
+                            && item.product_id === this.productId
+                        )
+                    });
+                    if (cartItem && cartItem.options && cartItem.options.length) {
+                        cartItem.options.map(option => {
+                            this.changeOption(option.option_id, option.option_value);
+                        })
+                    }
+                }
+            },
+            preselectQuerystringItems() {
+                // pre-select option like ?size=167
+                const urlQueryParams = new URLSearchParams(window.location.search.replace('?',''));
+                this.preselectItemsBasedOnLocation(attribute => urlQueryParams.get(attribute.code));
+            },
+            preselectLocationHashItems() {
+                // pre-select option like #144=167
+                const urlHashParams = new URLSearchParams(window.location.hash.replace('#',''));
+                this.preselectItemsBasedOnLocation(attribute => urlHashParams.get(attribute.id));
+            },
+            preselectItemsBasedOnLocation(getLocationValue) {
+                Object.values(this.optionConfig.attributes).map(attribute => {
+                    this.changeOption(attribute.id, getLocationValue(attribute))
+                });
+            },
+            isVariantOutOfStock() {
+                const variant = this.childOutOfStockMap &&
+                  this.childOutOfStockMap.find(item => item.id == this.productIndex);
+
+                return variant ? variant.isChildTempOOS : false;
+            },
+            isVariantPermanentlyOutOfStock() {
+                const variant = this.childOutOfStockMap &&
+                  this.childOutOfStockMap.find(item => item.id == this.productIndex);
+
+                return variant ? variant.isChildPermOOS : false;
+            },
+            isProductPermOutOfStock() {
+                const product = this.productOutOfStockMap &&
+                  this.productOutOfStockMap.find(item => item.id == this.productId);
+
+                return product ? product.isPermOOS : false;
+            },
+            isProductOutOfStock() {
+                const product = this.productOutOfStockMap &&
+                  this.productOutOfStockMap.find(item => item.id == this.productId);
+
+                return product ? !product.isSaleable : false;
+            },
+            showPermanentOutOfStockNotification() {
+                toggleDisplay('.permOOS', 'block');
+                toggleDisplay('.tempOOS', 'none');
+                toggleDisplay('.addToCartOOS', 'none');
+            },
+            showTemporaryOutOfStockNotification() {
+                toggleDisplay('.tempOOS', 'block');
+                toggleDisplay('.permOOS', 'none');
+                toggleDisplay('.addToCartOOS', 'none');
+            },
+            hideOutOfStockNotification() {
+                toggleDisplay('.tempOOS', 'none');
+                toggleDisplay('.permOOS', 'none');
+                toggleDisplay('.addToCartOOS', 'block');
+            },
+            showAlternativesProductSlider() {
+                toggleDisplay('.alternatives-product-slider', 'block');
+            },
+            hideAlternativesProductSlider() {
+                toggleDisplay('.alternatives-product-slider', 'none');
+            },
+            updateVariantOutOfStock() {
+                this.isVariantPermanentlyOutOfStock() ? this.showPermanentOutOfStockNotification() :
+                this.isVariantOutOfStock() ? this.showTemporaryOutOfStockNotification() :
+                this.hideOutOfStockNotification();
+
+                if (this.isVariantPermanentlyOutOfStock() || this.isVariantOutOfStock()) {
+                    this.showAlternativesProductSlider();
+                } else {
+                    this.hideAlternativesProductSlider();
+                }
+            },
+            updateProductOutOfStock() {
+                this.isProductPermOutOfStock() ? this.showPermanentOutOfStockNotification() :
+                this.isProductOutOfStock() ? this.showTemporaryOutOfStockNotification() :
+                this.hideOutOfStockNotification();
+
+                if (this.isProductPermOutOfStock() || this.isProductOutOfStock()) {
+                    this.showAlternativesProductSlider();
+                } else {
+                    this.hideAlternativesProductSlider();
+                }
+            }
+        }
+    }
+
+    const toggleDisplay = (selector, displayStyle) => {
+        document.querySelectorAll(selector).forEach(element => {
+            element.style.display = displayStyle;
+        });
+    };
+</script>

@@ -1,0 +1,217 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Catalog\Block\Product\View;
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Slider;
+
+/** @var View $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Slider $sliderViewModel */
+$sliderViewModel = $viewModels->require(Slider::class);
+
+$product = $block->getProduct();
+$isConfigurable = $product->getTypeId() == 'configurable';
+
+$relatedProducts = $block->getRecommendedProducts(
+    [
+        $block->getRecommendationsKeyForRecentlyViewedProductsSlider(),
+        $block->getRecommendationsKeyForRelatedProductsSlider(),
+        $block->getRecommendationsKeyForAlternativeProductsSlider()
+    ]
+);
+$recentlyViewedProductsCollection = $relatedProducts[0]['collection'] ?? null;
+$recentlyViewedProductTrackingCodes = $relatedProducts[0]['products'] ?? [];
+$recentlyViewedProductsSliderHtml = '';
+
+$relatedProductsCollection = $relatedProducts[1]['collection'] ?? null;
+$relatedProductTrackingCodes = $relatedProducts[1]['products'] ?? [];
+$relatedProductsSliderHtml = '';
+
+$alternativesProductsCollection = $relatedProducts[2]['collection'] ?? null;
+$alternativesProductTrackingCodes = $relatedProducts[2]['products'] ?? [];
+$alternativesProductsSliderHtml = '';
+
+$containerTemplate = 'Murergrej_HelloRetail::product/slider/hello_retail_products_slider.phtml';
+
+if ($relatedProductsCollection && $relatedProductsCollection->getSize() > 0) {
+    $relatedProductsSliderHtml = $sliderViewModel->getSliderForItems(
+        'Magento_Catalog::product/list/item.phtml',
+        $relatedProductsCollection,
+        $containerTemplate
+    )
+        ->setData('hide_details', false)
+        ->setData('hide_rating_summary', false)
+        ->setData('title', __('Related products'))
+        ->setData('item_relation_type', 'generic')
+        ->setData('heading_tag', 'h3')
+        ->setData('product_tracking_codes', $relatedProductTrackingCodes)
+        ->setData('slide_count_desktop', 3.25)
+        ->setData('slide_count_large_desktop', 5)
+        ->setData('display_arrows', true)
+        ->setData('slides_gap', 16)
+      ->toHtml();
+}
+
+if (
+    ((!$product->getIsSalable() || $product->getPermanentlyOos()) || $isConfigurable) &&
+    $alternativesProductsCollection && $alternativesProductsCollection->getSize() > 0
+) {
+    $alternativesProductsSliderHtml = $sliderViewModel->getSliderForItems(
+        'Magento_Catalog::product/list/item.phtml',
+        $alternativesProductsCollection,
+        $containerTemplate
+    )
+        ->setData('hide_details', false)
+        ->setData('hide_rating_summary', false)
+        ->setData('title', __('Similar products'))
+        ->setData('item_relation_type', 'generic')
+        ->setData('heading_tag', 'h4')
+        ->setData('product_tracking_codes', $alternativesProductTrackingCodes)
+        ->setData('slide_count_desktop', 2.25)
+        ->setData('slide_count_large_desktop', 2.25)
+        ->setData('display_arrows', false)
+        ->setData('slides_gap', 12)
+      ->toHtml();
+}
+
+if ($recentlyViewedProductsCollection && $recentlyViewedProductsCollection->getSize() > 0) {
+    $recentlyViewedProductsSliderHtml = $sliderViewModel->getSliderForItems(
+        'Magento_Catalog::product/list/item.phtml',
+        $recentlyViewedProductsCollection,
+        $containerTemplate
+    )
+        ->setData('hide_details', false)
+        ->setData('hide_rating_summary', false)
+        ->setData('title', __('Recently viewed products'))
+        ->setData('item_relation_type', 'generic')
+        ->setData('heading_tag', 'h3')
+        ->setData('product_tracking_codes', $relatedProductTrackingCodes)
+        ->setData('slide_count_desktop', 3.25)
+        ->setData('slide_count_large_desktop', 5)
+        ->setData('display_arrows', true)
+        ->setData('slides_gap', 16)
+        ->toHtml();
+}
+?>
+<section class="text-gray-700 body-font">
+    <div class="flex pb-6 lg:flex-row flex-col items-center">
+        <div class="product-info-media grid grid-rows-auto grid-cols-1 md:gap-x-5 md:grid-cols-[42%_minmax(0,_1fr)]
+         md:grid-rows-[min-content_minmax(0,_1fr)] lg:gap-x-10 w-full">
+            <?= $block->getChildHtml('product.media') ?>
+            <div>
+                <div class="product-information relative">
+                    <?php if ($labels = $block->getChildBlock('product.labels')): ?>
+                        <?= $labels->toHtml(); ?>
+                    <?php endif ?>
+                    <?= $block->getChildHtml('product.title') ?>
+                    <?= $block->getChildHtml('product.info') ?>
+
+                </div>
+                <?php if ($alternativesProductsSliderHtml): ?>
+                    <div
+                      class="alternatives-product-slider pt-6 pb-5 md:pt-8 md:pb-14 md:px-10 bg-secondary-lighter"
+                    >
+                        <?= /* @noEscape */ $alternativesProductsSliderHtml ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section>
+    <?= $block->getChildHtml('product_options_wrapper_bottom') ?>
+</section>
+
+<?= $block->getChildHtml('product.info.details'); ?>
+
+<section>
+    <?= $block->getChildHtml('related') ?>
+    <?= $block->getChildHtml('upsell') ?>
+    <?= $block->getChildHtml('review_list') ?>
+    <?= $block->getChildHtml('review_form') ?>
+</section>
+<section>
+    <?php if ($relatedProductsSliderHtml): ?>
+    <div class="md:pt-[72px] pt-14 pb-[52px] bg-secondary-lighter">
+        <?= /* @noEscape */ $relatedProductsSliderHtml ?>
+    </div>
+    <?php endif; ?>
+</section>
+<section>
+    <?php if ($recentlyViewedProductsSliderHtml): ?>
+        <div class="product-slider-1 md:pt-[72px] pt-14 pb-[52px]">
+            <?= /* @noEscape */ $recentlyViewedProductsSliderHtml ?>
+        </div>
+    <?php endif; ?>
+</section>
+<section>
+    <?php
+    // Create a CMS block object and render it
+    $cmsBlock = $block->getLayout()
+        ->createBlock(\Magento\Cms\Block\Block::class)
+        ->setBlockId('trust_piolt_PDP')
+        ->toHtml();
+
+    echo $cmsBlock;
+    ?>
+</section>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const productInfoElement = document.querySelector('.product-information');
+
+        // Styling adjustments for vertical labels direction
+        if (productInfoElement) {
+            const placeholderElement = productInfoElement.querySelector('.cataloglabel-placeholder.direction-vertical');
+
+            if (placeholderElement) {
+                const badgePlaceholders = placeholderElement.querySelectorAll('.cataloglabel-badge-placeholder');
+                let totalHeight = 0;
+                const additionalSpace = 5; // Additional space for each badge (considering bottom margin)
+
+                if (badgePlaceholders.length > 1) {
+                    const lastTwoBadges = Array.from(badgePlaceholders).slice(-2);
+
+                    lastTwoBadges.forEach(badge => {
+                        totalHeight += badge.offsetHeight;
+                    });
+                    totalHeight += lastTwoBadges.length * additionalSpace;
+                }
+
+                // Set the top style based on the total height
+                placeholderElement.style.top = `-${totalHeight}px`;
+
+                // Set the margin-top to product-information element based on the height of the cataloglabel-placeholder
+                const placeholderHeight = placeholderElement.offsetHeight;
+
+                productInfoElement.style.marginTop = `${placeholderHeight}px`;
+            }
+
+            // Styling adjustments for horizontal labels direction
+            if (window.innerWidth < 768) {
+                // Handle horizontal placeholder
+                const placeholderElementHorizontal =
+                  productInfoElement.querySelector('.cataloglabel-placeholder.direction-horizontal');
+
+                if (placeholderElementHorizontal) {
+                    // Check if the height of placeholderElementHorizontal is greater than 24
+                    // because that means the flex content gets "ugly" and needs to be wrapped into 2 lines
+                    if (placeholderElementHorizontal.offsetHeight > 24) {
+                        placeholderElementHorizontal.style.top = '-29px';
+                        placeholderElementHorizontal.style.flexWrap = 'wrap';
+                    }
+                }
+            }
+        }
+    });
+</script>

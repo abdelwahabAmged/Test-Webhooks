@@ -1,0 +1,177 @@
+#category-view-container {
+    @apply px-0 flex flex-col items-start pl-6;
+}
+
+#category-view-container h1 {
+    @apply text-base font-normal !p-0;
+}
+
+.page-main {
+    @apply !mb-0 !mt-0;
+}
+
+.description-content {
+    @apply text-[16px] font-normal max-w-[896px] !leading-6;
+}
+
+.category-description-container {
+    @apply !leading-6 md:text-justify;
+}
+
+.catalog-category-view {
+    .section-title {
+        h1, h2, h3, h4, h5, h6 {
+            @apply text-base font-extrabold;
+        }
+    }
+
+    .category-page-title-wrapper {
+        @apply !mb-0;
+
+        .page-title {
+            h1 {
+                @apply !mt-4 !mb-3;
+            }
+        }
+    }
+
+    .description-content span,
+    .description-content p,
+    .description-content div {
+        @apply !text-base !font-normal;
+    }
+
+    .special-price {
+        .price {
+            @apply !text-xl !font-extrabold;
+        }
+    }
+
+    .section-title-dark {
+        h1, h2, h3, h4, h5, h6 {
+            @apply !text-gray-darker !text-base !font-extrabold;
+
+            strong {
+                @apply !text-gray-darker !text-base !font-extrabold;
+
+                span {
+                    @apply !text-gray-darker !text-base !font-extrabold;
+                }
+            }
+        }
+    }
+
+    .section-content {
+        p {
+            @apply text-sm font-normal;
+        }
+
+        p:not(:last-child) {
+            @apply pb-1;
+        }
+
+        p:last-child {
+            @apply pb-5;
+        }
+    }
+
+    div.text-color-blue {
+        h1, h2, h3, h4, h5, h6 {
+            @apply text-blue !text-base h-6;
+        }
+    }
+
+    div.section-title-dark {
+        h1, h2, h3, h4, h5, h6 {
+            @apply !text-base h-6;
+        }
+    }
+
+    div.faq-content {
+        .category-description {
+            h1, h2, h3, h4, h5, h6 {
+                @apply text-left h-auto;
+            }
+        }
+    }
+
+    .category-description {
+        a {
+            span {
+                @apply !text-blue font-extrabold leading-normal;
+            }
+        }
+
+        div {
+            @apply lg:text-justify;
+        }
+
+        [data-content-type='row'][data-appearance='contained'] {
+            @apply max-w-none;
+        }
+
+        p {
+            @apply lg:text-justify;
+        }
+
+        [data-content-type='row'] {
+            @apply !p-0 !m-0;
+
+            & > div {
+                @apply !p-0 !m-0;
+            }
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            @apply !text-xl !leading-6 lg:!text-[32px] font-extrabold lg:!leading-10 text-center pb-4;
+
+            strong {
+                h1, h2, h3, h4, h5, h6 {
+                    @apply !text-xl !leading-6 lg:!text-[32px] font-extrabold lg:!leading-10 text-center;
+
+                    span {
+                        @apply !text-xl !leading-6 lg:!text-[32px] font-extrabold lg:!leading-10 text-center;
+                    }
+                }
+            }
+        }
+
+        strong {
+            h1, h2, h3, h4, h5, h6 {
+                @apply !text-xl !leading-6 lg:!text-[32px] font-extrabold lg:!leading-10 text-center;
+            }
+
+            span {
+                @apply !text-xl !leading-6 lg:!text-[32px] font-extrabold lg:!leading-10 text-center;
+            }
+        }
+    }
+
+    .trustpilot-widget {
+        @apply mt-12 lg:mt-16;
+    }
+
+    .trustpilot-widget-top-container {
+        .trustpilot-widget {
+            @apply mt-0 lg:mt-0;
+        }
+    }
+
+    .plp-grid-view {
+        @apply lg:w-[199px] 2xl:w-[214px];
+    }
+}
+
+.category_slider:hover .text_category_slider {
+    @apply text-white;
+}
+
+/* #maincontent .columns{
+    @apply flex gap-0
+} */
+/*
+Use the following selector to extend the toolbar modes switcher with your own icon,
+also replace `custom` with your own mode name.
+
+.modes-mode.mode-custom {}
+*/

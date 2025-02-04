@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Catalog\Block\Category\View" name="category.description.top" template="Murergrej_Category::category/top_description.phtml" before="-" />
+            <block class="Magento\Catalog\Block\Category\View" name="category.fqa" template="Murergrej_Category::category/fqa_content.phtml" />
+        </referenceContainer>
+        <move element="category.fqa" destination="content" after="category.products.list" />
+        <move element="category.description" destination="content" after="-" />
+        <referenceBlock name="category.image" remove="true" />
+    </body>
+</page>

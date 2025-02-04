@@ -1,0 +1,101 @@
+<?php
+/**
+ * @category    Scandiweb
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\Model\ViewModelRegistry;
+
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+$heroicons = $viewModels->require(HeroiconsSolid::class);
+?>
+<div class="bg-blue-900 p-7">
+    <div class="container mx-auto">
+        <div class="grid gap-16 sm:grid-cols-3">
+
+            <div class="flex flex-col items-center gap-4 xl:flex-row xl:gap-8">
+                <a
+                    href="{{store url='customer/account'}}"
+                    class="text-white"
+                >
+                    <?= $heroicons->renderHtml(
+                        'user-circle',
+                        'h-12 w-12 xl:h-16 xl:w-16',
+                        48,
+                        48
+                    ); ?>
+                </a>
+                <div class="text-center xl:text-left">
+                    <a
+                        href="{{store url='customer/account'}}"
+                        class="text-xl leading-7 font-semibold text-white"
+                    >
+                        My account
+                    </a>
+                    <div class="text-gray-400 leading-6 mt-1 hidden lg:block">
+                        Track your order, view and create wishlists or return items.
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-4 xl:flex-row xl:gap-8">
+                <a
+                    href="{{store url='contact'}}"
+                    class="text-white"
+                >
+                    <?= $heroicons->renderHtml(
+                        'chat-alt-2',
+                        'h-12 w-12 xl:h-16 xl:w-16',
+                        48,
+                        48
+                    ); ?>
+                </a>
+                <div class="text-center xl:text-left">
+                    <a
+                        href="{{store url='contact'}}"
+                        class="text-xl leading-7 font-semibold text-white"
+                    >
+                        Support
+                    </a>
+                    <div class="text-gray-400 leading-6 mt-1 hidden lg:block">
+                        Check out the FAQ or get in touch with us for assistance.
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-4 xl:flex-row xl:gap-8">
+                <a
+                    href="{{store url='home'}}"
+                    class="text-white"
+                >
+                    <?= $heroicons->renderHtml(
+                        'mail',
+                        'h-12 w-12 xl:h-16 xl:w-16',
+                        48,
+                        48
+                    ); ?>
+                </a>
+                <div class="text-center xl:text-left">
+                    <a
+                        href="{{store url='home'}}"
+                        class="text-xl leading-7 font-semibold text-white"
+                    >
+                        Newsletter
+                    </a>
+                    <div class="text-gray-400 leading-6 mt-1 hidden lg:block">
+                        Be the first to know about new arrivals and our best offers.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

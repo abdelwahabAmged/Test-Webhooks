@@ -1,0 +1,51 @@
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<div attr="data.main.attributes" ko-style="data.main.style" css="data.main.css">
+    <div data-is-page-builder-ignored-element="true">
+        <!-- Slider Title -->
+        <if args="data.block_title.html">
+            <h3
+                attr="data.block_title.attributes"
+                ko-style="data.block_title.style"
+                css="data.block_title.css"
+                html="data.block_title.html"
+                hidden
+            ></h3>
+        </if>
+
+        <!-- Slider Subtitle -->
+        <if args="data.block_subtitle.html">
+            <div
+                attr="data.block_subtitle.attributes"
+                ko-style="data.block_subtitle.style"
+                css="data.block_subtitle.css"
+                html="data.block_subtitle.html"
+                hidden
+            ></div>
+        </if>
+
+        <!-- Slider Content -->
+        <if
+            args="data.dynamic_slides_slider.attributes().cards.length > 0 && data.dynamic_slides_slider.attributes().cards !== '[]'"
+        >
+            <div
+                data-bind="attr: { cards: JSON.stringify(data.dynamic_slides_slider.attributes().cards) }"
+                ko-style="data.dynamic_slides_slider.style"
+                data-element="dynamic_slides_slider"
+                css="data.dynamic_slides_slider.css"
+                hidden
+            >
+            </div>
+        </if>
+    </div>
+    <div
+        attr="data.block_directive.attributes"
+        html="data.block_directive.html"
+    ></div>
+</div>

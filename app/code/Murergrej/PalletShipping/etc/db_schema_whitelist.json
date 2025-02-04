@@ -1,0 +1,83 @@
+{
+    "palletshipping_dsv": {
+        "column": {
+            "pk": true,
+            "website_id": true,
+            "dest_country_id": true,
+            "dest_region_id": true,
+            "dest_city": true,
+            "dest_zip": true,
+            "dest_zip_to": true,
+            "pallet_qty_from": true,
+            "pallet_qty_to": true,
+            "weight_from": true,
+            "weight_to": true,
+            "price": true,
+            "cost": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PALLETSHIPPING_DSV_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID": true
+        }
+    },
+    "palletshipping_hcs": {
+        "column": {
+            "pk": true,
+            "website_id": true,
+            "dest_country_id": true,
+            "dest_region_id": true,
+            "dest_city": true,
+            "dest_zip": true,
+            "dest_zip_to": true,
+            "pallet_qty_from": true,
+            "pallet_qty_to": true,
+            "weight_from": true,
+            "weight_to": true,
+            "price": true,
+            "cost": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PALLETSHIPPING_HCS_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID": true
+        }
+    },
+    "quote_shipping_rate": {
+        "column": {
+            "cost": true
+        }
+    },
+    "quote_address": {
+        "column": {
+            "shipping_cost": true,
+            "pallet_tax": true,
+            "base_pallet_tax": true,
+            "pallet_tax_incl_tax": true,
+            "base_pallet_tax_incl_tax": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "shipping_cost": true,
+            "pallet_tax": true,
+            "base_pallet_tax": true,
+            "pallet_tax_incl_tax": true,
+            "base_pallet_tax_incl_tax": true
+        }
+    },
+    "sales_invoice": {
+        "column": {
+            "pallet_tax": true,
+            "base_pallet_tax": true,
+            "pallet_tax_incl_tax": true,
+            "base_pallet_tax_incl_tax": true
+        }
+    },
+    "sales_creditmemo": {
+        "column": {
+            "pallet_tax": true,
+            "base_pallet_tax": true,
+            "pallet_tax_incl_tax": true,
+            "base_pallet_tax_incl_tax": true
+        }
+    }
+}

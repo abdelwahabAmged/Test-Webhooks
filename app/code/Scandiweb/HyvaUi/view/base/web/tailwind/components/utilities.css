@@ -1,0 +1,8 @@
+.center-inline {
+    inset-inline-start: 50%;
+    @apply -translate-x-1/2;
+}
+
+.slider-scroll {
+    @apply flex overflow-x-auto relative;
+}

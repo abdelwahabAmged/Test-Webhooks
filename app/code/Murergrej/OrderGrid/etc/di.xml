@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid" type="Murergrej\OrderGrid\Model\ResourceModel\Grid">
+        <arguments>
+            <argument name="joins" xsi:type="array">
+                <item name="sales_order_item" xsi:type="array">
+                    <item name="table" xsi:type="object">AggregateOrderItemExpression</item>
+                    <item name="origin_column" xsi:type="string">entity_id</item>
+                    <item name="target_column" xsi:type="string">order_id</item>
+                </item>
+            </argument>
+            <argument name="columns" xsi:type="array">
+                <item name="billing_vat_id" xsi:type="string">sales_billing_address.vat_id</item>
+                <item name="billing_company" xsi:type="string">sales_billing_address.company</item>
+                <item name="billing_telephone" xsi:type="string">sales_billing_address.telephone</item>
+                <item name="po_number" xsi:type="string">sales_order_payment.po_number</item>
+                <item name="item_skus" xsi:type="string">sales_order_item.sku</item>
+                <item name="item_names" xsi:type="string">sales_order_item.name</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AggregateOrderItemExpression" type="Murergrej\OrderGrid\Db\Sql\AggregateOrderItemExpression">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="sku" xsi:type="string">sku</item>
+                <item name="name" xsi:type="string">name</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Murergrej\OrderGrid\Setup\Patch\Data\PopulateGridOrderItems">
+        <arguments>
+            <argument name="aggregateOrderItemExpression" xsi:type="object">AggregateOrderItemExpression</argument>
+        </arguments>
+    </type>
+</config>

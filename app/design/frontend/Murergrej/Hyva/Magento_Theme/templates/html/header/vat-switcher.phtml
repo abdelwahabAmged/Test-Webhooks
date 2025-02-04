@@ -1,0 +1,80 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Magento_Theme
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+
+?>
+<script>
+    function initVatSwitcher() {
+        return {
+            inclTax: null,
+            eventListeners: {
+                ['@vat-switch.window'](event) {
+                    this.inclTax = event.detail === 'incl';
+                }
+            },
+
+            init() {
+                let storedValue = sessionStorage.getItem('vatToggle');
+                if (storedValue === null || storedValue === 'incl') {
+                    this.inclTax = true;
+                } else {
+                    this.inclTax = storedValue === 'incl';
+                }
+            },
+
+            toggleTax() {
+                this.inclTax = !this.inclTax;
+                let vatMode = this.inclTax ? 'incl' : 'ex';
+                sessionStorage.setItem('vatToggle', vatMode);
+                window.dispatchEvent(new CustomEvent('vat-switch', {
+                    detail: vatMode
+                }));
+                window.location.reload();
+            }
+        }
+    }
+</script>
+<div
+    x-data="initVatSwitcher()"
+    x-spread="eventListeners" class="text-sm order-3 text-center"
+    x-init="init()"
+>
+    <template x-if="inclTax !== null">
+        <div class="vat-switcher-wrapper">
+            <div class="vat-switcher-title text-xs mb-2">
+                <?= $escaper->escapeHtml(__('Price display (VAT)')) ?>
+            </div>
+            <div class="flex items-center justify-center px-3.5">
+                <span :class="{'text-primary': inclTax, 'text-primary-lighter': !inclTax}" class="mr-2 font-extrabold">
+                    <?= $escaper->escapeHtml(__('Incl.')) ?>
+                </span>
+                <button
+                    @click="toggleTax()"
+                    class="relative w-9 h-5 rounded-full"
+                    :class="inclTax ? 'bg-gray-lighter' : 'bg-primary'"
+                    role="switch"
+                    :aria-checked="inclTax.toString()"
+                >
+                    <span
+                        class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform"
+                        :class="{'translate-x-4': !inclTax, 'translate-x-0': inclTax}"
+                    ></span>
+                </button>
+                <span :class="{'text-primary': !inclTax, 'text-primary-lighter': inclTax}" class="ml-2 font-extrabold">
+                    <?= $escaper->escapeHtml(__('Ex.')) ?>
+                </span>
+            </div>
+        </div>
+    </template>
+</div>

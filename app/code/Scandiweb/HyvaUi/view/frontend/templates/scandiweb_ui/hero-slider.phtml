@@ -1,0 +1,182 @@
+<?php
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Irmantas Dvareckas <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Scandiweb\HyvaUi\Helper\Decode as DecodeHelper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var ScandiwebHeroSlider $block */
+
+/** @var DecodeHelper $decodeHelper */
+$decodeHelper = $this->helper(DecodeHelper::class);
+$cards = $block->getData('cards');
+$slides = $decodeHelper->decodeJSONHTMLEntity($cards);
+$viewMode = 'grid';
+$uniqueId = uniqid('_');
+$name = (string) $block->getName();
+$title = (string) $block->getTitle();
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+$sliderIndex = 1;
+$sliderSectionClasses = $block->getData('maybe_purged_tailwind_section_classes')
+    ?? '-mx-4 md:-mx-6 xl:-mx-[104px] bg-white-smoke py-14 lg:py-10 my-0';
+$slideItemClasses = $block->getData('maybe_purged_tailwind_slide_item_classes') ?? '';
+$swiperUrl = $block->getViewFileUrl('js/swiper.min.js');
+$swiperCssUrl = $block->getViewFileUrl('css/swiper.min.css');
+
+?>
+
+<script>
+    function initHeroSliderComponent(uniqueId, swiperJsUrl, swiperCssUrl) {
+        return {
+            init() {
+                if (!window.Swiper) {
+                    this.addJsScript(swiperJsUrl);
+                    this.addCss(swiperCssUrl);
+                } else {
+                    this.initializeSwiper(uniqueId);
+                }
+            },
+            initializeSwiper(uniqueId) {
+                const swiperElement = this.$el.querySelector('.swiper_' + uniqueId);
+
+                if (!swiperElement) {
+                    return;
+                }
+
+                const swiper = new Swiper(swiperElement, {
+                    draggable: true,
+                    autoHeight: true,
+                    touchEventsTarget: 'container',
+                    navigation: {
+                        nextEl: '.swiper-next_' + uniqueId,
+                        prevEl: '.swiper-prev_' + uniqueId,
+                    },
+                    hashNavigation: {
+                        watchState: true,
+                    },
+                    pagination: {
+                        el: '.swiper-pagination ',
+                        paginationClickable: true,
+                    },
+                });
+            },
+            addJsScript(swiperJsUrl) {
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.addEventListener('load', () => {
+                    this.initializeSwiper(uniqueId);
+                });
+                script.src = swiperJsUrl;
+                document.head.appendChild(script);
+            },
+            addCss(swiperCssUrl) {
+                const link = document.createElement('link');
+                link.type = 'text/css';
+                link.rel = 'stylesheet';
+                link.href = swiperCssUrl;
+                document.head.appendChild(link);
+            },
+        }
+    }
+</script>
+
+<section
+    class="relative flex flex-col mb-[56px] lg:mb-[72px]"
+    x-data="initHeroSliderComponent('<?= $uniqueId; ?>', '<?= $swiperUrl; ?>', '<?= $swiperCssUrl; ?>')"
+    x-init="init();"
+    x-id="['slider-nav', 'slider-desc', 'slider-id']"
+    role="group"
+    x-cloak
+    aria-roledescription="<?= $escaper->escapeHtmlAttr(__('Carousel')) ?>"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Carousel %1', $title)) ?>"
+    :aria-describedby="$id('slider-desc')"
+>
+    <?php if ($slides): ?>
+        <div>
+            <!-- Flex container for buttons and slider -->
+            <div class="relative">
+                <!-- Previous Button with 40px padding to the left -->
+                <div class="absolute top-[238px] left-[40px] hidden xl:block z-10" >
+                    <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Previous slide')) ?>"
+                            class="swiper-prev_<?= $uniqueId ?> border-2 border-secondary p-3.5 flex items-center justify-center">
+                        <?= $hyvaicons->renderHtml('next', 'rotate-180', 24, 24) ?>
+                    </button>
+                </div>
+                <div class="swiper swiper_<?= $uniqueId ?> overflow-hidden flex-grow">
+                    <div class="swiper-wrapper flex h-[495px] md:h-[528px]">
+                        <?php foreach ($slides as $index => $slide):
+                            $slideUniqueId = $uniqueId . '-' . uniqid();
+                            $slideImgSrc = $escaper->escapeHtmlAttr($slide['slide_img_src'][0]['url']);
+                            $title_color = $escaper->escapeHtmlAttr($slide['slide_img_title_color']);
+                            $subtitle_color = $escaper->escapeHtmlAttr($slide['slide_img_subtitle_color']);
+                            $dataHash = 'slide' . ($index + 1);
+                            ?>
+                            <div class="h-[495px] md:h-[528px] swiper-slide <?= $escaper->escapeHtmlAttr($slideItemClasses) ?>"
+                                 id="slide-<?= $slideUniqueId; ?>"
+                                 data-hash="<?= $dataHash ?>"
+                                 role="group"
+                                 aria-label="<?= $escaper->escapeHtmlAttr(__('Item %1', $sliderIndex++)) ?>"
+                                 :aria-describedby="'slide-desc-' + <?= $slide['record_id'] ?> + '-' + $id('slider-id')">
+                                <div class="min-h-full relative bg-no-repeat bg-cover lg:bg-center lazyload h-[495px] md:h-[528px]"
+                                    <?php if (!empty($slide['slide_background_src'][0]['url'])): ?>
+                                        data-background-image="url(<?= $escaper->escapeHtmlAttr($slide['slide_background_src'][0]['url']) ?>)"
+                                    <?php endif; ?>>
+                                        <img class="<?= empty($slide['slide_img_mobile_src'][0]['url']) ? '' : 'hidden' ?> absolute md:block
+                                        <?= empty($slide['slide_background_src'][0]['url']) ? 'object-cover w-full' : 'right-[222px]' ?> bottom-0 h-full" src="<?= $slideImgSrc; ?>"
+                                             alt="<?= $escaper->escapeHtmlAttr($slide['slide_img_title']); ?>">
+                                    <?php if ($slide['slide_img_mobile_src']): ?>
+                                        <img class="block absolute md:hidden object-contain <?= empty($slide['slide_background_src'][0]['url']) ? 'object-cover w-full' : '' ?> h-[425px] bottom-[59px] z-12"
+                                             src="<?= $escaper->escapeHtmlAttr($slide['slide_img_mobile_src'][0]['url']) ?>"
+                                             alt="<?= $escaper->escapeHtmlAttr($slide['slide_img_title']); ?>">
+                                    <?php endif; ?>
+                                    <div class="pt-[167px] md:pt-[145px] h-[495px] md:h-[528px] relative z-10 bg-custom-gradient md:bg-none">
+                                        <div class="m-0 pt-14 px-4 md:pt-0 md:pl-[156px] text-left md:w-[432px] pb-6">
+                                            <?php if ($slide['slide_img_title']): ?>
+                                                <div class="md:w-[432px] text-[28px] leading-8 md:text-5xl md:leading-[52px] font-extrabold pb-3"
+                                                     style="color: <?= $title_color ?>;">
+                                                    <?= $escaper->escapeHtml($slide['slide_img_title']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ($slide['slide_img_subtitle']): ?>
+                                                <div class="md:w-[432px] break-word text-base font-normal pb-8 md:pb-10" style="color: <?= $subtitle_color ?>;">
+                                                    <?= $escaper->escapeHtml($slide['slide_img_subtitle']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ($slide['slide_img_label']): ?>
+                                                <div class="relative z-10">
+                                                    <a href="<?= $escaper->escapeUrl($slide['slide_img_url']) ?>" class="btn-primary btn button-arrow w-full leading-5">
+                                                        <?= $escaper->escapeHtml($slide['slide_img_label']); ?>
+                                                    </a>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>
+                <!-- Next Button with 40px padding to the right -->
+                <div class="absolute top-[238px] right-[40px] hidden xl:block z-10">
+                    <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Next slide')) ?>"
+                            class="swiper-next_<?= $uniqueId ?> border-2 border-secondary p-3.5 flex items-center justify-center">
+                        <?= $hyvaicons->renderHtml('next', '', 24, 24) ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+</section>

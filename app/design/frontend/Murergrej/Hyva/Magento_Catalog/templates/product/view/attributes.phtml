@@ -1,0 +1,171 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Catalog\Block\Product\View\Details;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var ViewModelRegistry $viewModels */
+/** @var Details $block */
+/** @var Escaper $escaper */
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+?>
+
+<?php if ($_additional = $block->getAdditionalData()): ?>
+    <div id="product-tabs" x-data="initProductInfoTabs" class="bg-blend-multiply bg-product-tabs-background bg-cover bg-top">
+        <div class="flex items-stretch flex-1">
+            <div class="bg-white w-[52px]"></div>
+            <nav x-show="items.length"
+                class="hidden lg:flex nap overflow-x-auto overscroll-x-contain"
+                aria-label="<?= $escaper->escapeHtml(__('Navigate to product information tabs')) ?>"
+            >
+                <template x-for="(item, index) in items" :key="item.id">
+                    <button
+                        type="button"
+                        class="relative py-3.5 px-6 font-extrabold"
+                        :aria-expanded="sectionItemIsOpen(item.id)"
+                        :aria-controls="item.id"
+                        :class="currentOpen === item.id ? 'bg-transparent text-white' : 'bg-white text-primary-lighter'"
+                        @click="openSectionItem(item.id)"
+                        x-text="item.label"
+                    ></button>
+                </template>
+            </nav>
+            <div class="bg-white flex-auto"></div>
+        </div>
+
+        <div x-ref="accordion" class="product-info-tabs-accordion">
+            <?php foreach ($_additional as $index => $_data): ?>
+                <?php
+                    $attributeLabel = $_data['label'];
+                    $attributeValue = $_data['value'];
+                    $sectionId = 'additional-data-' . $index;
+                ?>
+                <div x-data="{ id: '<?= $escaper->escapeHtmlAttr($sectionId) ?>', label: '<?= $escaper->escapeHtml($attributeLabel) ?>' }">
+                    <details
+                        id="<?= $escaper->escapeHtmlAttr($sectionId) ?>"
+                        data-name="<?= $escaper->escapeHtml($attributeLabel) ?>"
+                        class="group scroll-mt-8 lg:scroll-mt-24"
+                        :open="sectionItemIsOpen(id)"
+                    >
+                        <summary
+                            @click.prevent="openSectionItem(id)"
+                            class="flex [&::-webkit-details-marker]:hidden lg:hidden w-full items-center justify-between py-3 text-lg font-bold group-open:text-blue-700 cursor-pointer" 
+                            :class="currentOpen === id ? 'bg-transparent border-b-2 border-b-secondary-lighter' : 'bg-white border-b-[1px] border-b-secondary-lighter'"
+                        >
+                            <span
+                                class="text-base font-extrabold"
+                                :class="currentOpen === id ? 'text-white' : 'text-primary-lighter'">
+                                <?= $escaper->escapeHtml(__($attributeLabel)) ?>
+                            </span>
+                            <span class="transition-transform">
+                                <!-- Change icon based on the open/closed state -->
+                                <span x-show="sectionItemIsOpen(id)">
+                                    <?= $hyvaicons->renderHtml('remove', '', 16, 16); ?>
+                                </span>
+                                <span x-show="!sectionItemIsOpen(id)">
+                                    <?= $hyvaicons->renderHtml('add', '', 16, 16); ?>
+                                </span>
+                            </span>
+                        </summary>
+                        <div x-show="sectionItemIsOpen(id)" x-collapse>
+                            <div class="product-info-tabs-content p-4 <?= $escaper->escapeHtml($_data['code']); ?>">
+                                <?= /** @noEscape */ $attributeValue ?>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <script>
+            const header = document.getElementById('header');
+
+            getHeaderHeight = () => {
+                return header.offsetHeight; // Pixels to adjust at the top
+            };
+            window.addEventListener('resize', getHeaderHeight);
+
+            function initProductInfoTabs() {
+                return {
+                    items: [...document.querySelectorAll('[data-name]')].map(item => ({
+                        id: item.id,
+                        label: item.dataset.name,
+                    })),
+                    currentOpen: '',
+                    init() {
+                        if (this.items.length > 0) {
+                            this.currentOpen = this.items[0].id;
+                        }
+                    },
+                    openSectionItem(id) {
+                        const isLargeScreen = window.matchMedia('(min-width: 1023px)').matches;
+
+                        if (isLargeScreen) {
+                            // For large screens: Prevent closing if the same tab is clicked
+                            if (this.currentOpen !== id) {
+                                this.currentOpen = id;
+                            }
+                            // If the clicked tab is already open, do nothing (keep it open)
+                        } else {
+                            // For small screens: Toggle behavior
+                            if (this.currentOpen === id) {
+                                this.currentOpen = '';
+                            } else {
+                                this.currentOpen = id;
+
+                                // Scroll adjustment for small screens
+                                this.$nextTick(() => {
+                                    const targetElement = document.getElementById(this.currentOpen);
+                                    if (targetElement) {
+                                        const topPosition =
+                                            targetElement.getBoundingClientRect().top +
+                                            window.scrollY -
+                                            getHeaderHeight();
+
+                                        window.scrollTo({
+                                            top: topPosition,
+                                            behavior: 'smooth',
+                                        });
+                                    }
+                                });
+                            }
+                        }
+
+                        // Save the current open tab to localStorage (optional)
+                        if (this.currentOpen) {
+                            localStorage.setItem('currentOpenTab', this.currentOpen);
+                        } else {
+                            localStorage.removeItem('currentOpenTab');
+                        }
+                    },
+                    sectionItemIsOpen(id) {
+                        return this.currentOpen === id;
+                    },
+                    isNoTabOpen() {
+                        return this.currentOpen === '';
+                    }
+                };
+            }
+        </script>
+
+        <?php // To ensure the summary is visible when JavaScript is disabled. ?>
+        <noscript>
+            <style>details[data-name] summary { display: flex }</style>
+        </noscript>
+    </div>
+<?php endif; ?>

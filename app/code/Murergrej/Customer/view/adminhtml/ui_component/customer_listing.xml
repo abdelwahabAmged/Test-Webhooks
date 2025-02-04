@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <columns name="customer_columns">
+        <column name="taxvat" sortOrder="10">
+            <settings>
+                <filter>text</filter>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">CVR nummer</label>
+                <visible>false</visible>
+            </settings>
+        </column>
+        <column name="company_name" sortOrder="265">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Company name</label>
+                <visible>false</visible>
+            </settings>
+        </column>
+    </columns>
+</listing>

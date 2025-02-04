@@ -1,0 +1,106 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Cart;
+use Magento\Wishlist\Model\Item;
+use Magento\Wishlist\ViewModel\AllowedQuantity;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\App\ObjectManager;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var Cart $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var Item $item */
+$item = $block->getItem();
+$product = $item->getProduct();
+$productId = $product->getId();
+/** @var AllowedQuantity $viewModel */
+$viewModel = $viewModels->require(AllowedQuantity::class);
+$allowedQty = $viewModel->setItem($item)->getMinMaxQty();
+
+// Get product quantity
+$objectManager = ObjectManager::getInstance();
+$stockRegistry = $objectManager->get(StockRegistryInterface::class);
+$stockItem = $stockRegistry->getStockItem($productId);
+$productIsInStock = $stockItem->getIsInStock();
+$permanentlyOos = $product->getData('permanently_oos');
+
+?>
+<?php foreach ($block->getChildNames() as $childName): ?>
+    <?= /* @noEscape */ $block->getLayout()->renderElement($childName, false) ?>
+<?php endforeach;?>
+<div class="box-tocart">
+    <fieldset class="fieldset">
+    <?php if ($item->canHaveQty() && $product->isVisibleInSiteVisibility()): ?>
+        <div class="field qty">
+            <label class="label"
+                   for="qty[<?= $escaper->escapeHtmlAttr($item->getId()) ?>]">
+                <span>
+                    <?= $escaper->escapeHtml(__('Qty')) ?>
+                </span>
+            </label>
+            <div class="control">
+                <input type="number"
+                       x-ref="product-qty-<?= $escaper->escapeHtmlAttr($item->getId()) ?>"
+                       data-role="qty"
+                       id="qty[<?= $escaper->escapeHtmlAttr($item->getId()) ?>]"
+                       class="form-input qty"
+                       name="qty[<?= $escaper->escapeHtmlAttr($item->getId()) ?>]"
+                       value="<?= /* @noEscape */ $block->getAddToCartQty($item) * 1 ?>"
+                    <?= $product->isSaleable() ? '' : 'disabled' ?>
+                >
+            </div>
+        </div>
+    <?php endif; ?>
+    <?php if ($product->isSaleable()): ?>
+        <div class="product-item-actions">
+            <div class="actions-primary w-full">
+                <button type="button"
+                        data-role="tocart"
+                        @click.prevent='addToCart("<?= $escaper->escapeHtmlAttr($item->getId()) ?>",
+                            <?= /* @noEscape */ $block->getItemAddToCartParams($item) ?>)'
+                        title="<?= $escaper->escapeHtmlAttr(__('Add %1 to Cart', $product->getName())) ?>"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Cart %1', $product->getName())) ?>"
+                        class="action w-full tocart primary btn btn-primary mt-2"
+                        data-addto="cart"
+                >
+                    <span><?= $escaper->escapeHtml(__('Add to Cart')) ?></span>
+                </button>
+            </div>
+        </div>
+    <?php else: ?>
+        <?php if ($permanentlyOos): ?>
+            <div>
+                <div class="out-of-stock bg-white flex gap-x-1 px-3 py-1.5 mt-1">
+                    <?= $hyvaIcons->renderHtml('exclamation-red', '', 20, 20); ?>
+                    <p class="text-sm text-red font-bold"><?= $escaper->escapeHtml(__('We are sorry, but the product is permanently out of stock!')) ?></p>
+                </div>
+            </div>
+        <?php elseif (!$permanentlyOos && !$productIsInStock): ?>
+            <div>
+                <div class="out-of-stock bg-white flex flex-col gap-y-1 px-3 py-1.5 mt-1">
+                    <div class="flex gap-x-1">
+                        <?= $hyvaIcons->renderHtml('exclamation-red', '', 20, 20); ?>
+                        <p class="text-sm text-red font-bold"><?= $escaper->escapeHtml(__('Product is currently out of stock!')) ?></p>
+                    </div>
+                    <p class="text-sm">
+                        <?= $escaper->escapeHtml(__('Subscribe to the back in stock notification and get notified when the item is back!')) ?>
+                    </p>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+    </fieldset>
+</div>

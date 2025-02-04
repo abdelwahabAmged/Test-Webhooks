@@ -1,0 +1,242 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductAttributes;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\ProductPage;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Magento\Catalog\Pricing\Price\FinalPrice;
+use Magento\Catalog\Pricing\Price\RegularPrice;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\App\ObjectManager;
+use Amasty\OutofstockHyvaCompatibility\ViewModel\Catalog\OutofstockData;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+/** @var ProductPrice $productPriceViewModel */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+/** @var ProductAttributes $attributesViewModel */
+$attributesViewModel = $viewModels->require(ProductAttributes::class);
+
+/** @var Product $product */
+$product = $productViewModel->getProduct();
+$productType = $product->getTypeId();
+$productId = $product->getId();
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var OutofstockData $outofstockViewModel */
+$outofstockViewModel = $viewModels->require(OutofstockData::class);
+
+$regularPrice = $productPriceViewModel->getPriceValue(RegularPrice::PRICE_CODE, $product);
+$finalPrice = $productPriceViewModel->getPriceValueExclTax(FinalPrice::PRICE_CODE, $product);
+$tierPrices = $product->getTierPrice();
+
+$regularPriceExclTax = $regularPrice;
+$regularPriceInclTax = $productPriceViewModel->getPriceValueInclTax(RegularPrice::PRICE_CODE, $product);
+if ($productPriceViewModel->displayPriceInclAndExclTax()) {
+    $regularPriceExclTax = $productPriceViewModel->getPriceValueExclTax(RegularPrice::PRICE_CODE, $product);
+}
+
+$isSpecialPriceLowest = false;
+
+if (count($tierPrices)) {
+    foreach ($tierPrices as $tierPrice) {
+        if ($product->getSpecialPrice() && ((int)$product->getSpecialPrice() < $tierPrice['price'])) {
+            $isSpecialPriceLowest = true;
+        } else {
+            $isSpecialPriceLowest = false;
+            break;
+        }
+    }
+}
+
+// Get product quantity
+$objectManager = ObjectManager::getInstance();
+$stockRegistry = $objectManager->get(StockRegistryInterface::class);
+$stockItem = $stockRegistry->getStockItem($productId);
+
+$productIsInStock = $stockItem->getIsInStock();
+
+$productIsInStock = $stockItem->getIsInStock();
+$permanentlyOos = $product->getData('permanently_oos');
+$isConfigurable = $product->getTypeId() == "configurable" ? true : false;
+?>
+
+<div class="product-sku-description">
+    <?php if ($sku = $product->getSku()) { ?>
+        <div class="flex">
+        <div class="-ml-4 md:-ml-2">
+             <!-- TrustBox widget - Horizontal -->
+        <div class="trustpilot-widget" data-locale="en-GB" data-template-id="5406e65db0d04a09e042d5fc" data-businessunit-id="5701692e0000ff00058b00e1" data-style-height="60px" data-style-width="75%">                   
+            <a href="https://uk.trustpilot.com/review/murergrej.dk" target="_blank" rel="noopener">Trustpilot</a>
+               </div>
+               <!-- End TrustBox widget -->
+           </div>
+        <p id="sku_pld" class=" sku_pld flex ml-auto justify-end product-sku"><?= $escaper->escapeHtml(__('SKU'))?>:
+            <span><?= $escaper->escapeHtml($sku) ?><span>
+        </p>
+        </div>
+    <?php } ?>
+
+    <?php if ($shortDescription = $productViewModel->getShortDescription()) { ?>
+        <div class="leading-relaxed product-description prose"><?= /* @noEscape */ $shortDescription ?></div>
+    <?php } ?>
+
+    <!-- READ MORE Button -->
+    <a href="#product-tabs" class="more-button flex gap-2 text-base">
+        READ MORE
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8.49991 12.0858L11.9999 15.5858L15.4999 12.0858L16.9141 13.5L11.9999 18.4142L7.08569 13.5L8.49991 12.0858Z" fill="#1D1F22"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8.49991 5.58582L11.9999 9.08582L15.4999 5.58582L16.9141 7.00003L11.9999 11.9142L7.08569 7.00003L8.49991 5.58582Z" fill="#1D1F22"/>
+        </svg>
+    </a>
+</div>
+
+<?php if ($product->isSaleable()): ?>
+    <div role="group" class="product-price" aria-label="<?= $escaper->escapeHtmlAttr('Price') ?>">
+        <div class="flex flex-col md:flex-row">
+            <?php
+            echo $block->getLayout()->createBlock('\Mirasvit\CatalogLabel\Block\Product\Label\Placeholder')
+                ->setProduct($product)
+                ->setPlaceholderByCode('buy-more-save-more-pdp-mobile')
+                ->setType('view')
+                ->toHtml();
+            ?>
+            <?= $block->getChildHtml("product.info.price") ?>
+        </div>
+    </div>
+
+    <?= $block->getChildHtml('product.info.form') ?>
+
+    <?php if ($tierPriceBlock = $block->getChildHtml("product.price.tier")): ?>
+        <?= /** @noEscape */ $tierPriceBlock ?>
+    <?php endif; ?>
+
+    <div x-data="{vatMode: sessionStorage.getItem('vatToggle') === 'incl' ? 'including' : 'excluding'}"
+         class="w-full pb-5 pt-4 md:pt-5 lg:pb-8 border-t-2 border-white addToCartOOS">
+        <div class="my-0 flex">
+            <?= $block->getChildHtml('product.info.review') ?>
+        </div>
+
+        <div class="flex flex-col">
+            <?php if ($productType === 'bundle'): ?>
+                <span class="sr-only">
+                    <?= $escaper->escapeHtml(__('The price depends on the chosen options')) ?>
+                </span>
+            <?php endif; ?>
+
+            <div
+            class="product-quantity-cart flex flex-col gap-3"
+            x-data="{ isTablePresent: document.getElementById('tierPriceTable') !== null }"
+            >
+                    <span id="currentContainerDetails" class="hidden text-xs font-extrabold">
+                        <?= $escaper->escapeHtml(__('Current container details')) ?>
+                    </span>
+                    <div class="flex justify-between">
+                        <div class="flex flex-col w-4/12 sm:flex-row sm:w-auto">
+                            <?= $block->getChildHtml("product.info.quantity") ?>
+                            <template x-if="isTablePresent">
+                                <p id="palletCountTotalWrapper" class="hidden sm:self-center sm:ml-4">
+                                    <span class="text-sm">
+                                        <?= $escaper->escapeHtml(__('Pallet count')) ?>:
+                                    </span>
+                                    <span class="text-base font-extrabold" id="totalPalletCount">0</span>
+                                </p>
+                            </template>
+                        </div>
+                        <template x-if="isTablePresent">
+                            <div
+                            id="productTotalPriceWrapper"
+                            class="text-right"
+                            style="<?= $product->getTypeId() === 'configurable' ? 'display: none;' : '' ?>"
+                            >
+                                <p>
+                                <span class="font-extrabold text-sm text-primary-lighter">
+                                    <?= $escaper->escapeHtml(__('Total price')) ?>:
+                                </span>
+                                    <span class="text-xl font-extrabold" id="grandTotal" x-text="vatMode === 'including'
+                                          ? hyva.formatPrice(<?= $regularPriceInclTax ?>)
+                                          : hyva.formatPrice(<?= $regularPriceExclTax ?>)"></span>
+                                </p>
+                                <p id="percentageData" class="text-xs text-green hidden">
+                                    <?= $escaper->escapeHtml(__('save')) ?>
+                                    <span class="text-green" id="totalSaved">0 </span>
+                                    (-<span id="discountPercentage" class="text-green">0</span>%)
+                                </p>
+                            </div>
+                        </template>
+                    </div>
+
+                <?= $block->getChildHtml("product.info.stock.status") ?>
+
+                <div class="grid gap-3 items-stretch addToCart-wishlist">
+                    <?= $block->getChildHtml("product.info.addtocart") ?>
+                    <?= $block->getChildHtml('product.info.addtowishlist'); ?>
+                </div>
+
+                <?= $block->getChildHtml("product.info.delivery.returns") ?>
+            </div>
+        </div>
+
+        <?php if ($addtocartShortcutBtn = $block->getChildHtml("addtocart.shortcut.buttons")): ?>
+            <div class="flex mt-4 justify-end">
+                <?= /** @noEscape */ $addtocartShortcutBtn ?>
+            </div>
+        <?php endif; ?>
+
+        <?= $block->getChildHtml('product.info.emailtofriend'); ?>
+        <?= $block->getChildHtml('product.info.additional.actions'); ?>
+        <?= $block->getChildHtml("product.info.additional") ?>
+    </div>
+<?php endif; ?>
+
+<?php if ($permanentlyOos || $isConfigurable): ?>
+    <div class="permOOS">
+        <div class="out-of-stock bg-white flex gap-x-1 px-3 py-1.5 mt-6">
+            <?= $hyvaIcons->renderHtml('exclamation-red', '', 20, 20); ?>
+            <p class="text-sm text-red font-bold"><?= $escaper->escapeHtml(__('We are sorry, but the product is permanently out of stock!')) ?></p>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if ((!$permanentlyOos && !$productIsInStock) || $isConfigurable): ?>
+    <div class="tempOOS">
+        <div class="out-of-stock bg-white flex flex-col gap-y-1 px-3 py-1.5 mt-5">
+            <div class="flex gap-x-1">
+                <?= $hyvaIcons->renderHtml('exclamation-red', '', 20, 20); ?>
+                <p class="text-sm text-red font-bold"><?= $escaper->escapeHtml(__('Product is currently out of stock!')) ?></p>
+            </div>
+            <p class="text-sm">
+                <?= $escaper->escapeHtml(__('Subscribe to the back in stock notification and get notified when the item is back!')) ?>
+            </p>
+        </div>
+        <?php if ($alertUrlsBlock = $block->getChildHtml("alert.urls") || $isConfigurable): ?>
+            <div class="mt-3 flex gap-3 subscribe-stock-notifications items-center">
+                <?= /** @noEscape */ $block->getChildHtml("alert.urls") ?>
+                <?php if ($outofstockViewModel->isCustomerLoggedIn()): ?>
+                    <?= $block->getChildHtml('product.info.addtowishlist'); ?>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>

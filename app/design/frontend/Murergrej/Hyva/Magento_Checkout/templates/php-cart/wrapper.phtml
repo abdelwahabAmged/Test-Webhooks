@@ -1,0 +1,78 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Checkout\Block\Cart;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\SvgIcons;
+/** @var SvgIcons $hyvaicons */
+/** @var Cart $block */
+/** @var Escaper $escaper */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+$cartBlock = $this->getLayout()->getBlock('checkout.cart');
+$itemCount = $cartBlock->getItemsCount();
+?>
+<div class="cart_page_loader w-screen h-screen hidden
+fixed top-0 left-0 flex justify-center items-center bg-[#FFFFFFB2] z-50">
+<?= $block->getChildHtml('loader') ?>
+</div>
+<div
+  class="w-full lg:pr-10"
+  x-data="{ isMobile: window.innerWidth <= 1024, activeFiltersOpen: true }"
+  @resize.window="isMobile = window.innerWidth <= 1024"
+>
+    <div
+      x-cloak
+      id="targetDiv"
+      class="with-before-hidden w-full lg:w-[31%] float-left before:w-full before:h-screen
+        lg:float-right lg:order-2 lg:top-0 lg:before:content-none lg:sticky bottom-0 fixed z-30 lg:z-0"
+    >
+        <div class="title_order_summary relative z-[1] flex flex-row justify-between pt-3 lg:pt-0 lg:pt-6 lg:pb-4
+         border-gray-300 items-center max-lg:bg-cream max-lg:px-4">
+            <h1 class="lg:w-full w-fit leading-6 lg:leading-8 flex text-base
+                lg:text-2xl lg:text-center lg:justify-center text-gray-900 title-font font-extrabold"
+            >
+                <?= $escaper->escapeHtml(__('Order summary')) ?>
+            </h1>
+            <button class="flex w-fit hidden border-s-2 ml-4 pl-2" id="toggleButton_cart2" @click="toggleSubtotal(2)">
+                <?= $hyvaicons->renderHtml('arrow_expand', 'inline-block ', 24, height: 24) ?>
+            </button>
+        </div>
+        <template x-if="!isMobile">
+            <div class="border-white border-b-2">
+                <?= $block->getChildHtml('free.shipping.progress') ?>
+            </div>
+        </template>
+        <div class="relative">
+            <?= $block->getChildHtml('cart.summary') ?>
+        </div>
+    </div>
+    <div class="w-full flex flex-col lg:w-[69%] float-left lg:order-1 lg:pr-8">
+        <div class="flex flex-col">
+             <div class="flex items-center px-4 py-2 lg:pr-6 lg:pt-4 lg:pl-10 lg:pb-4">
+                 <h1 class="flex-1 lg:text-[32px] text-xl leading-10 font-extrabold">
+                     <?= $escaper->escapeHtml(__('Shopping Cart')) ?>
+                 </h1>
+                 <p class="flex text-sm  leading-5 text-gray-darker">
+                     (<?=$itemCount?> <?= /* @noEscape */  __('items') ?>)
+                 </p>
+             </div>
+            <template x-if="isMobile">
+                <div class="border-white border-b-2">
+                    <?= $block->getChildHtml('free.shipping.progress') ?>
+                </div>
+            </template>
+            <?= $block->getChildHtml('form_before') ?>
+            <?= $block->getChildHtml('cart-items') ?>
+        </div>
+        <div class="w-full flex lg:hidden">
+             <?= $block->getChildHtml('cart.discount') ?>
+        </div>
+    </div>
+</div>

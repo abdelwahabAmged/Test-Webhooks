@@ -1,0 +1,19 @@
+/*
+ * @category    Murergrej
+ * @package     Murergrej_Emarket
+ * @author      Abanoub Youssef <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+/* Adjust the SVG size */
+#emaerket-widget-4u545cjbjm8 svg {
+    width: 50% !important;
+    max-width: 100px !important;;
+    min-width: 60px !important;;
+}
+
+#emaerket-widget-jivlwxcny1 svg {
+    width: 50% !important;
+    max-width: 50px !important;;
+    min-width: 60px !important;;
+}

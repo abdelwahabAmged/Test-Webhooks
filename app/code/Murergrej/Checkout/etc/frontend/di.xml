@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ *
+ * This configuration file overrides default Magento checkout controllers and blocks.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\Checkout\Controller\Sidebar\RemoveItem"
+                type="Murergrej\Checkout\Controller\Sidebar\RemoveItem"/>
+    <preference for="Magento\Checkout\Controller\Cart\UpdatePost" type="Murergrej\Checkout\Controller\Cart\UpdatePost"/>
+    <preference for="Magento\Checkout\Controller\Cart\Delete" type="Murergrej\Checkout\Controller\Cart\Delete"/>
+    <!-- overwrite the original success block  -->
+    <preference for="Magento\Checkout\Block\Onepage\Success" type="Murergrej\Checkout\Block\Onepage\Success"/>
+</config>

@@ -1,0 +1,129 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Out Of Stock Notifications Hyva Compatibility
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\App\ActionInterface;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Amasty\OutofstockHyvaCompatibility\ViewModel\Catalog\OutofstockData;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Magento\Catalog\Model\Product;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Template $block */
+/** @var CurrentProduct $currentProduct */
+
+/** @var OutofstockData $outofstockViewModel */
+$outofstockViewModel = $viewModels->require(OutofstockData::class);
+
+/** @var Product $product */
+$product = $block->getProduct();
+if (!$product) {
+    $currentProduct = $viewModels->require(CurrentProduct::class);
+    $product = $currentProduct->get();
+}
+
+if (!$product || !$product->getId()) {
+    return;
+}
+
+$parentId = $block->getData('parent_product_id');
+$productId = (int)$product->getId();
+$isAlertBlockHidden = $product->getData('amxnotif_hide_alert');
+$type = 'stock';
+$isGrouped = empty($block->getNameInLayout());
+$productTypeGrouped = $product->getTypeId() === "grouped";
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<?php if ($outofstockViewModel->isAllowAlertStock()): ?>
+    <?php if (!$outofstockViewModel->isCustomerLoggedIn() && !$isAlertBlockHidden
+        && $outofstockViewModel->isAllowedForCurrentCustomerGroup(OutofstockData::STOCK_ALERT_BLOCK)): ?>
+        <div class="amxnotif-block-wrapper w-full">
+            <div class="amxnotif-block"
+                 x-data="amXnotifSubscribeComponent_<?= $escaper->escapeHtmlAttr($product->getId()) ?>()"
+                <?php if ($productTypeGrouped):?>
+                    x-init="getSimpleOfGroupedProduct($el)"
+                <?php endif; ?>
+            >
+                <?= /** @noEscape */
+                $block->fetchView($block->getTemplateFile('Hyva_Theme::ui/loading.phtml')) ?>
+                <div :id="'form-validate-stock' + ('<?= $escaper->escapeHtml($isGrouped) ?>'
+                ? groupedIndex : productIdentifier)"
+                      class="amxnotif-form-stock"
+                      x-show="groupedIndex && '<?= !!($parentId); ?>' ? true : !isInStock ">
+                    <?= $block->getBlockHtml('formkey') ?>
+
+                    <div class="notification-container flex gap-3"
+                         :id="'notification-container-' + ('<?= $escaper->escapeHtml($isGrouped) ?>'
+                         ? groupedIndex : productIdentifier)">
+                        <div class="input-fields fieldset flex-grow">
+                            <input type="email"
+                                   name="guest_email"
+                                   :id="'amxnotif-guest-email-' + ('<?= $escaper->escapeHtml($isGrouped) ?>'
+                                   ? groupedIndex : productIdentifier)"
+                                   class="out-of-stock-subscribe-email-field form-input input-text amxnotif-guest-email w-full"
+                                   x-model="emailInput"
+                                   x-ref="emailElement"
+                                   placeholder="<?= $escaper->escapeHtml($outofstockViewModel->getPlaceholder()); ?>"
+                            />
+                            <input type="hidden" name="product_id"
+                                   :value="('<?= $escaper->escapeHtml($isGrouped) ?>'
+                                   ? groupedIndex : productIdentifier)"/>
+                            <?php if ($parentId):?>
+                                <input type="hidden" name="parent_id"
+                                       value="<?= $escaper->escapeHtmlAttr($parentId); ?>"/>
+                            <?php endif; ?>
+                            <input type="hidden" name="type" value="email"/>
+                            <input type="hidden"
+                                   name="<?= $escaper->escapeHtml(ActionInterface::PARAM_NAME_URL_ENCODED); ?>"
+                                   value="<?= $escaper->escapeUrl($outofstockViewModel->encodeUrl()); ?>"/>
+                            <?php if ($outofstockViewModel->isGDRPEnabled()): ?>
+                                <div class="amxnotif-stock-gdrp field flex gap-x-2">
+                                    <input type="checkbox"
+                                           class="mt-1"
+                                           name="gdrp"
+                                           :id="'amxnotif-stock-gdrp-' + ('<?= $escaper->escapeHtml($isGrouped) ?>'
+                                           ? groupedIndex : productIdentifier)"
+                                           title="<?= $escaper->escapeHtml(__('GDRP')); ?>"
+                                           value="1"
+                                           x-model="isGdprChecked"
+                                           x-ref="gdprElement">
+                                    <label class="label"
+                                           :for="'amxnotif-stock-gdrp-' + ('<?= $escaper->escapeHtml($isGrouped) ?>'
+                                           ? groupedIndex : productIdentifier)">
+                                        <?= /* @noEscape */ $outofstockViewModel->getGDRPText(); ?>
+                                    </label>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="wishlist-and-notify-btn flex gap-x-3">
+                            <div class="actions-toolbar amxnotif_guest_action w-full">
+                                <div class="primary flex-grow">
+                                    <button type="button"
+                                            class="w-full action submit primary subscribe-button active:opacity-70 disabled:opacity-50"
+                                            @click.prevent="fetchSubscribe('<?= $escaper->escapeHtml($type); ?>',
+                                            ('<?= $escaper->escapeHtml($isGrouped) ?>' ? groupedIndex : productIdentifier))"
+                                    >
+                                        <span class="!mx-0"><?= $escaper->escapeHtml(__('Notify me')); ?></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <?=
+                                $block->getLayout()->createBlock('Magento\Framework\View\Element\Template')
+                                      ->setTemplate('Magento_Catalog::product/view/addtowishlist.phtml')
+                                      ->toHtml();
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

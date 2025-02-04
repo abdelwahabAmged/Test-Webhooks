@@ -1,0 +1,40 @@
+<?php
+/**
+ * @category Murergrej
+ * @package Murergrej_Category
+ * @author Irmantas Dvareckas info@scandiweb.com
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+
+use Magento\Catalog\Block\Category\View;
+use Magento\Catalog\Helper\Output;
+
+/**
+ *
+ * @var $block View
+ * @var $helper Output
+ */
+?>
+
+<?php if ($description = $block->getCurrentCategory()->getDescription()):?>
+    <div class="bg-white category-description px-4 sm:px-5 md:px-10 lg:px-20 xl:px-40 1xl:px-[272px] mx-auto pt-6 pb-14 lg:pb-[72px] -mb-4">
+        <?php $descriptionHtml = $this->helper(Output::class)->categoryAttribute(
+            $block->getCurrentCategory(),
+            $description,
+            'description'
+        );?>
+        <?php if (stripos($description, 'data-appearance') === false):?>
+            <div data-content-type="row" data-appearance="contained" data-element="main">
+                <div data-enable-parallax="0" data-parallax-speed="0.5" data-background-images="{}" data-element="inner">
+                    <div data-content-type="html" data-appearance="default" data-element="main">
+                        <?= /* @noEscape */$descriptionHtml; ?>
+                    </div>
+                </div>
+            </div>
+        <?php else: ?>
+            <?= /* @noEscape */$descriptionHtml; ?>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,48 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+?>
+<div class="p-7 flex flex-col lg:flex-row lg:gap-5">
+    <div class="text-center lg:text-left">
+        <?php if ($block->hasData('title')): ?>
+            <div id="modal-title" class="text-xl leading-7 font-bold text-gray-800 mb-3">
+                <?= $escaper->escapeHtml($block->getData('title')) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($block->hasData('details')): ?>
+            <div class="text-gray-600">
+                <?= /** @noEscape */ $block->getData('details') ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<div class="bg-gray-100 p-7 flex flex-col gap-4 lg:flex-row-reverse">
+    <button @click="ok"
+            x-focus-first
+            class="bg-blue-700 shadow-md text-white py-4 px-6 rounded-md font-bold text-center hover:bg-blue-600"
+    >
+        <?= $escaper->escapeHtml($block->getData('ok') ?: __('OK')) ?>
+    </button>
+    <button @click="cancel"
+            class="bg-white shadow text-gray-600 py-4 px-6 rounded-md font-bold text-center hover:bg-gray-100"
+    >
+        <?= $escaper->escapeHtml($block->getData('cancel') ?: __('Cancel')) ?>
+    </button>
+</div>

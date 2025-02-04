@@ -1,0 +1,50 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Hyva
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\Modal;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Modal $modelViewModel */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+?>
+<?php
+/** @var Modal $modelViewModel */
+
+$modelViewModel = $viewModels->require(Modal::class);
+$modal = $modelViewModel->confirm()
+    ->withTemplate('Murergrej_Category::product_modal.phtml')
+    ->withDialogRefName('config-modal')
+    ->positionCenter()
+    ->removeDialogClass('p-10', 'rounded')
+    ->addOverlayClass('config-product-modal-background')
+    ->addDialogClass('w-[976px] rounded-none');
+?>
+<div x-data="productDataLoader()" x-init="init()">
+    <?= $modal ?>
+    <?= $block->getChildHtml('loading') ?>
+    <?= $block->getBlockHtml('product.info.options.swatch.js') ?>
+    <?= $block->getBlockHtml('product.tier.prices.js') ?>
+</div>

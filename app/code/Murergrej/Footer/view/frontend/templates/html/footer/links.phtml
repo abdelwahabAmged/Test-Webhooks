@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * Footer Links Template
+ *
+ * This template file is used to render the footer links section in the frontend.
+ *
+ * @category    Murergrej
+ * @package     Murergrej_Footer
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Customer;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Customer $customer */
+$customer = $viewModels->require(Customer::class);
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+?>
+
+<!-- Start Footer links Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 " id="footer-links">
+    <!-- Footer Links -->
+    <div class="md:col-span-9 md:grid md:grid-cols-12 py-6 px-4 md:py-10 md:pl-10 md:pr-8 grid gap-y-6 ">
+        <!-- Get in Touch -->
+        <div class="get-in-touch col-span-3 order-1 md:order-1 general" id="get-in-touch">
+            <?= $block->getChildHtml('get.in.touch') ?>
+        </div>
+        <div id="follow_us" class="general">
+            <?= $block->getChildHtml('follow.us') ?>
+        </div>
+        <!-- About Us-->
+        <div id="about-us">
+            <?= $block->getChildHtml('about.us') ?>
+        </div>
+        <!-- Customer Services -->
+        <div id="customer-services">
+            <?= $block->getChildHtml('customer.services') ?>
+        </div>
+        <!-- Ordering -->
+        <div id="ordering">
+            <?= $block->getChildHtml('ordering') ?>
+        </div>
+    </div>
+    <!-- Follow Us and Trustpilot -->
+    <div class="col-span-3 order-2 md:order-5 bg-cream md:bg-white general md:pl-10 hidden md:flex md:flex-col md:p-10">
+        <div class="Follow_us ">
+            <?= $block->getChildHtml('follow.us') ?>
+        </div>
+        <div class="hidden md:block trust_piolt_footer">
+            <?= $block->getChildHtml('trustpilot.widget') ?>
+        </div>
+    </div>
+</div>
+
+<!-- End Footer links Grid -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Select all toggle buttons
+        const toggleButtons = document.querySelectorAll('.toggle-btn');
+
+        toggleButtons.forEach((toggleButton) => {
+            toggleButton.addEventListener('click', function () {
+                // Find the closest parent block (expandable-wrapper)
+                const parentBlock = toggleButton.closest('.expandable-wrapper') || toggleButton.closest('[data-content-type="row"]');
+
+                if (!parentBlock) return;
+
+                // Find the expandable content within the same parent block
+                const parentRow = parentBlock.closest('[data-content-type="row"]');
+                const expandableContent = parentRow.nextElementSibling?.querySelector('.expandable-content');
+                const expandableLinks = parentRow.nextElementSibling?.querySelectorAll('.expandable-item-link');
+                const toggleIcon = toggleButton.querySelector('img[data-element="mobile_image"]');
+
+                if (expandableContent) {
+                    // Toggle visibility of the expandable content
+                    expandableContent.classList.toggle('hidden');
+                    expandableLinks.forEach((expandableLink) => {
+                        expandableLink.classList.toggle('hidden');
+                    });
+                }
+
+                if (toggleIcon) {
+                    // Toggle the rotation of the SVG icon
+                    toggleIcon.classList.toggle('expanded');
+                }
+            });
+        });
+    });
+
+</script>

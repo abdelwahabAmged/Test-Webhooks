@@ -1,0 +1,333 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\ReCaptcha;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Customer\Block\Form\Edit as CustomerEdit;
+use Magento\Customer\Block\Widget\Name;
+use Magento\Framework\Escaper;
+use Magento\Customer\Block\Widget\Dob;
+use Magento\Customer\Block\Widget\Taxvat;
+use Magento\Customer\Block\Widget\Gender;
+use Magento\Customer\Block\Widget\Telephone;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var CustomerEdit $block */
+/** @var Escaper $escaper */
+/** @var ReCaptcha|null $recaptcha */
+/** @var HeroiconsSolid $heroicons */
+/** @var ViewModelRegistry $viewModels */
+
+// Do not replace this with $viewModels->require(ReCaptcha::class); that might break the dependency
+// on the Magento_ReCaptchaCustomer module
+$recaptcha = $block->getData('viewModelRecaptcha');
+$heroicons = $viewModels->require(HeroiconsSolid::class);
+$minimumPasswordLength = $block->getMinimumPasswordLength();
+$passwordMinCharacterSets = $block->getRequiredCharacterClassesNumber();
+$storeConfig = $viewModels->require(StoreConfig::class);
+$isAutocompleteEnabled = $storeConfig->getStoreConfig('customer/password/autocomplete_on_storefront');
+$customer = $block->getCustomer();
+$customAttributes = $customer->getCustomAttributes('mp_sms_telephone');
+
+$mpSmsTelephone = isset($customAttributes['mp_sms_telephone'])
+    ? $customAttributes['mp_sms_telephone']?->getValue()
+    : null;
+?>
+
+<h2 class="mb-6 text-lg md:text-2xl block-title"><?= $escaper->escapeHtml(__('Account Information')) ?></h2>
+
+<form class="form form-edit-account mb-4"
+      action="<?= $escaper->escapeUrl($block->getUrl('customer/account/editPost')) ?>"
+      method="post" id="form-validate"
+      enctype="multipart/form-data"
+      x-data="Object.assign(hyva.formValidation($el), initForm())"
+      @submit.prevent="submitForm"
+      autocomplete="off">
+    <div class="bg-white p-4">
+        <fieldset class="fieldset grid gap-2">
+            <legend class="legend w-full"><span class="text-lg font-bold"><?= $escaper->escapeHtml(__('Personal information')) ?></span></legend>
+            <div class="grid md:grid-cols-2 gap-2">
+                <?= $block->getBlockHtml('formkey') ?>
+                <?= $block->getLayout()->createBlock(Name::class)->setObject($block->getCustomer())->toHtml() ?>
+                <?php $dob = $block->getLayout()->createBlock(Dob::class) ?>
+                <?php $taxvat = $block->getLayout()->createBlock(Taxvat::class) ?>
+                <?php $gender = $block->getLayout()->createBlock(Gender::class) ?>
+                <?php $telephone = $block->getLayout()->createBlock(Telephone::class) ?>
+                <?php if ($dob->isEnabled()): ?>
+                    <?= $dob->setDate($block->getCustomer()->getDob())->toHtml() ?>
+                <?php endif ?>
+                <?php if ($taxvat->isEnabled()): ?>
+                    <?= $taxvat->setTaxvat($block->getCustomer()->getTaxvat())->toHtml() ?>
+                <?php endif ?>
+                <?php if ($telephone->isEnabled()): ?>
+                    <div class="field field-reserved">
+                    <label for="telephone" class="label">
+                        <span><?= $escaper->escapeHtml(__('Phone Number')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input
+                            type="tel"
+                            name="telephone"
+                            id="telephone"
+                            value="<?= $escaper->escapeHtmlAttr($mpSmsTelephone) ?>"
+                            title="<?= $escaper->escapeHtmlAttr(__('Phone Number')) ?>"
+                            data-validate='{"telephone": "true"}'
+                            class="form-input w-full"
+                            @input.debounce="onChange"
+                        />
+                    </div>
+                </div>
+                <?php endif ?>
+                <?php if ($gender->isEnabled()): ?>
+                    <?= $gender->setGender($block->getCustomer()->getGender())->toHtml() ?>
+                <?php endif ?>
+                <div>
+                <?= $block->getChildHtml('fieldset_edit_info_additional') ?>
+                <?= $block->getChildHtml('form_additional_info') ?>
+
+                <div class="field choice md:col-span-2">
+                    <input
+                        type="checkbox"
+                        name="change_email"
+                        id="change-email"
+                        value="1"
+                        title="<?= $escaper->escapeHtmlAttr(__('Change Email')) ?>"
+                        @change="handleCheckboxChange('email-fields')"
+                        class="checkbox"
+                        aria-describedby="change_email_description"
+                    />
+                    <label class="label" for="change-email">
+                        <span><?= $escaper->escapeHtml(__('Change Email')) ?></span>
+                    </label>
+                    <span class="sr-only" id="change_email_description"><?= $escaper->escapeHtml(__('form appears when field is selected')) ?></span>
+                </div>
+
+                <div class="field choice md:col-span-2">
+                    <input
+                        type="checkbox"
+                        name="change_password"
+                        id="change-password"
+                        value="1"
+                        title="<?= $escaper->escapeHtmlAttr(__('Change Password')) ?>"
+                        @change="handleCheckboxChange('password-fields')"
+                        <?php if ($block->getChangePassword()): ?> checked<?php endif; ?>
+                        class="checkbox"
+                        aria-describedby="change_password_description"
+                    />
+                    <label class="label" for="change-password">
+                        <span><?= $escaper->escapeHtml(__('Change Password')) ?></span>
+                    </label>
+                    <span class="sr-only" id="change_password_description"><?= $escaper->escapeHtml(__('form appears when field is selected')) ?></span>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+        <template x-if="showEmailField">
+            <div
+                class="field field-reserved email required"
+                id="email-fields"
+            >
+                <label class="label" for="email">
+                    <span><?= $escaper->escapeHtml(__('Email')) ?></span>
+                </label>
+                <div class="control">
+                    <input type="email" name="email" id="email" autocomplete="email" required
+                        value="<?= $escaper->escapeHtmlAttr($block->getCustomer()->getEmail()) ?>"
+                        title="<?= $escaper->escapeHtmlAttr(__('Email')) ?>"
+                        class="form-input"/>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="showEmailField || showPasswordFields">
+            <div
+                class="field field-reserved password current required"
+                id="password-fields"
+            >
+                <label class="label" for="current-password">
+                    <span><?= $escaper->escapeHtml(__('Current Password')) ?></span>
+                </label>
+                <div class="control flex items-center relative">
+                    <input :type="showPasswordCurrent ? 'text' : 'password'" type="password" class="form-input"
+                           name="current_password" id="current-password"
+                           data-input="current-password"
+                           required
+                           autocomplete="<?= $isAutocompleteEnabled ? 'current-password' : 'off' ?>"
+                           aria-describedby="password-strength-meter"
+                    />
+                    <button
+                        type="button"
+                        @click="showPasswordCurrent = !showPasswordCurrent"
+                        class="px-4 self-stretch absolute right-0 top-1/2 transform -translate-y-1/2"
+                        :aria-label="showPasswordCurrent ? '<?= $escaper->escapeJs(__('Hide Password')) ?>' : '<?= $escaper->escapeJs(__('Show Password')) ?>'"
+                    >
+                        <template x-if="!showPasswordCurrent">
+                            <?= $heroicons->eyeHtml('w-5 h-5'); ?>
+                        </template>
+
+                        <template x-if="showPasswordCurrent">
+                            <?= $heroicons->eyeOffHtml('w-5 h-5'); ?>
+                        </template>
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="showPasswordFields">
+            <div class="field field-reserved required">
+                <label class="label" for="password"><span>
+                        <?= $escaper->escapeHtml(__('New Password')) ?>
+                </span></label>
+                <div class="control flex items-center relative ">
+                    <input :type="showPasswordNew ? 'text' : 'password'"
+                            type="password"
+                            class="form-input"
+                            name="password"
+                            id="password"
+                            required
+                            data-validate='{"password-strength": {"minCharacterSets": <?= (int) $passwordMinCharacterSets ?>}}'
+                            @input="onChange"
+                            minlength="<?= $escaper->escapeHtmlAttr($minimumPasswordLength) ?>"
+                            autocomplete="<?= $isAutocompleteEnabled ? 'new-password' : 'off' ?>"
+                            aria-describedby="password-strength-meter"
+                    />
+                    <button
+                        type="button"
+                        @click="showPasswordNew = !showPasswordNew"
+                        class="px-4 self-stretch absolute right-0 top-1/2 transform -translate-y-1/2"
+                        :aria-label="showPasswordNew ? '<?= $escaper->escapeJs(__('Hide Password')) ?>' : '<?= $escaper->escapeJs(__('Show Password')) ?>'"
+                    >
+                        <template x-if="!showPasswordNew">
+                            <?= $heroicons->eyeHtml('w-5 h-5'); ?>
+                        </template>
+                        <template x-if="showPasswordNew">
+                            <?= $heroicons->eyeOffHtml('w-5 h-5'); ?>
+                        </template>
+                    </button>
+                </div>
+            </div>
+
+            <div class="field field-reserved">
+                <label class="label" for="password-confirmation">
+                    <span><?= $escaper->escapeHtml(__('Confirm New Password')) ?></span>
+                </label>
+                <div class="control flex items-center relative">
+                    <input :type="showPasswordConfirm ? 'text' : 'password'"
+                            type="password"
+                            class="form-input"
+                            name="password_confirmation" id="password-confirmation"
+                            data-validate='{"equalTo": "password"}'
+                            @input="onChange"
+                            autocomplete="<?= $isAutocompleteEnabled ? 'new-password' : 'off' ?>"
+                            aria-describedby="password-strength-meter"
+                    />
+                    <button
+                        type="button"
+                        @click="showPasswordConfirm = !showPasswordConfirm"
+                        class="px-4 self-stretch absolute right-0 top-1/2 transform -translate-y-1/2"
+                        :aria-label="showPasswordConfirm ? '<?= $escaper->escapeJs(__('Hide Password')) ?>' : '<?= $escaper->escapeJs(__('Show Password')) ?>'"
+                    >
+                        <template x-if="!showPasswordConfirm">
+                            <?= $heroicons->eyeHtml('w-5 h-5'); ?>
+                        </template>
+                        <template x-if="showPasswordConfirm">
+                            <?= $heroicons->eyeOffHtml('w-5 h-5'); ?>
+                        </template>
+                    </button>
+                </div>
+            </div>
+        </template>
+        <?= $recaptcha ? $recaptcha->getInputHtml(ReCaptcha::RECAPTCHA_FORM_ID_CUSTOMER_EDIT) : '' ?>
+    </div>
+    <div class="actions-toolbar md:col-span-2">
+        <div class="btn btn-primary">
+            <button type="submit" class="action save primary" title="<?= $escaper->escapeHtmlAttr(__('Save')) ?>">
+                <span class="uppercase"><?= $escaper->escapeHtml(__('Save')) ?></span>
+            </button>
+        </div>
+        <div class="btn btn-secondary">
+            <a class="action no-underline" href="<?= $escaper->escapeUrl($block->getBackUrl()) ?>">
+                <span><?= $escaper->escapeHtml(__('Go back')) ?></span>
+            </a>
+        </div>
+    </div>
+</form>
+<div class="w-full">
+    <?= $recaptcha ? $recaptcha->getLegalNoticeHtml(ReCaptcha::RECAPTCHA_FORM_ID_CUSTOMER_EDIT) : '' ?>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+            hyva.formValidation.addRule('telephone', (value, options) => {
+            const phoneNumber = value.trim().replace(' ', '');
+
+            if (phoneNumber && phoneNumber.length < (options.minlength || 3)) {
+                return '<?= $escaper->escapeJs(__('The telephone number is too short.')) ?>';
+            }
+
+            return true;
+        });
+    });
+    function initForm() {
+        return {
+            errors: 0,
+            hasCaptchaToken: 0,
+            displayErrorMessage: false,
+            errorMessages: [],
+            showEmailField: false,
+            showPasswordNew: false,
+            showPasswordConfirm: false,
+            showPasswordCurrent: false,
+            showPasswordFields: <?= $block->getChangePassword() ? $escaper->escapeJs('true') : $escaper->escapeJs('false') ?>,
+            setErrorMessages(messages) {
+                this.errorMessages = [messages]
+                this.displayErrorMessage = this.errorMessages.length
+            },
+            submitForm() {
+                this.validate()
+                    .then(() => {
+                        // Do not rename $form, the variable is expected to be declared in the recaptcha output
+                        const $form = document.querySelector('#form-validate');
+                        <?= $recaptcha ? $recaptcha->getValidationJsHtml(ReCaptcha::RECAPTCHA_FORM_ID_CUSTOMER_EDIT) : '' ?>
+
+                        if (this.errors === 0) {
+                            $form.submit();
+                        }
+                    })
+                    .catch((invalid) => {
+                        if (invalid.length > 0) {
+                            invalid[0].focus();
+                        }
+                    })
+            },
+            handleCheckboxChange(checkboxId) {
+                if(checkboxId === 'email-fields') {
+                    this.showEmailField = !this.showEmailField
+                }
+                if(checkboxId ==='password-fields') {
+                    this.showPasswordFields = !this.showPasswordFields
+                }
+
+                this.$nextTick(() => {
+                    const firstFocusableElement = document.querySelector(`
+                        #${checkboxId} input,
+                        #${checkboxId} textarea,
+                        #${checkboxId} select
+                    `)
+
+                    firstFocusableElement && firstFocusableElement.focus()
+                })
+            }
+        }
+    }
+</script>

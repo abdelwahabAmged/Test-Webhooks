@@ -1,0 +1,51 @@
+<?php
+/**
+ * @category Murergrej
+ * @package Murergrej_Swatches
+ * @author Jorgena Shinjatari info@scandiweb.com
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+*/
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\Slider;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Magento\Swatches\Block\Product\Renderer\Configurable;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Slider $sliderViewModel */
+
+$productId          = $block->getData('product_id');
+$options            = $block->getData('options_config');
+$attributeId        = $block->getData('attribute_id');
+$sliderViewModel    = $viewModels->require(Slider::class);
+$itemTemplate       = 'Magento_Swatches::template/swatch-item.phtml';
+$containerTemplate  = 'Magento_Swatches::product/slider/custom-slider.phtml';
+
+$sliderName = str_replace('.', '_', $block->getNameInLayout());
+$sliderClass = 'visual-swatch-slider';
+
+$title      = $block->getData('title') ?: '';
+
+$sliderHtml = $sliderViewModel->getSliderForItems($itemTemplate, $options, $containerTemplate)
+    ->setData('name', $sliderName)
+    ->setData('title', $title)
+    ->setData('options_config', $options)
+    ->setData('attribute_id', $attributeId)
+    ->setData('product_id', $productId)
+    ->toHtml();
+
+if (empty($sliderHtml)) {
+    return '';
+}
+
+?>
+
+<div class="<?= $escaper->escapeHtmlAttr($sliderClass) ?>">
+    <div>
+        <?= /* @noEscape */ $sliderHtml ?>
+    </div>
+</div>

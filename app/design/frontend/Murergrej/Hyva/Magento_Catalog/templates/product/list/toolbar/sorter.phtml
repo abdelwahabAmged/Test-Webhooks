@@ -1,0 +1,84 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Catalog\Block\Product\ProductList\Toolbar;
+use Magento\Framework\Escaper;
+
+/** @var Toolbar $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$sortExists = isset($_GET['sort']);
+$currentSort = $sortExists ? $_GET['sort'] : null;
+?>
+<div class="toolbar-sorter sorter p-4  flex items-center order-1 col-span-3 gap-x-4 sm:col-span-6
+        lg:col-span-3 lg:p-0 lg:col-span-6 justify-end" x-cloak>
+    <!-- Next lines changed to implement custom dropdown -->
+    <div class="field w-full lg:w-[199px]">
+        <?php
+        $options = [
+            [
+                'value' => 'popularity',
+                'label' => __('Popularity')
+            ]
+        ];
+        $sortOptions = $block->getData('sortOptions');
+
+        foreach ($sortOptions as $sortOption) {
+            $options[] = [
+                'value' => $sortOption['ascending']['query'],
+                'label' => __($sortOption['settings']['ascendingText'])
+            ];
+        }
+        ?>
+
+        <?= $this->getLayout()
+            ->createBlock('Magento\Framework\View\Element\Template')
+            ->setTemplate('Hyva_Theme::ui/dropdown.phtml')
+            ->setData('id', 'sorter')
+            ->setData('options', $options)
+            ->setData('default', $currentSort)
+            ->setData('on_change', "updateSortParam(selectedOptionValue)")
+            ->toHtml();
+        ?>
+    </div>
+    <?php
+    // Determine the current direction based on the 'sort' parameter if it exists
+    $currentDirection = $sortExists && strpos($currentSort, 'desc') !== false ? 'desc' : 'asc';
+    $newDirection = $currentDirection === 'desc' ? 'asc' : 'desc';
+
+    // Replace "asc" with "desc" or vice versa in the URL for the new sort link
+    $newSortValue = $sortExists ? str_replace($currentDirection, $newDirection, $currentSort) : null;
+
+    // Preserve existing URL parameters and add/update the 'sort' parameter
+    $currentParams = $_GET;
+    $currentParams['sort'] = $newSortValue;
+
+    // Build the new URL with the updated 'sort' parameter
+    $currentUrl = strtok($_SERVER["REQUEST_URI"], '?');
+    $newUrl = $sortExists ? $currentUrl . '?' . http_build_query($currentParams) : null;
+    ?>
+
+    <div class="toolbar-sorter sorter flex items-center justify-end">
+        <?php if ($currentDirection === 'asc'): ?>
+            <a title="<?= $escaper->escapeHtmlAttr(__('Set Descending Direction')) ?>"
+               href="<?= $sortExists ? $escaper->escapeUrl($newUrl) : '#' ?>"
+               class="action sorter-action sort-asc text-black"
+                <?= !$sortExists ? 'onclick="return false;"' : '' ?>>
+                <?= $heroicons->sortDescendingHtml(); ?>
+            </a>
+        <?php else: ?>
+            <a title="<?= $escaper->escapeHtmlAttr(__('Set Ascending Direction')) ?>"
+               href="<?= $sortExists ? $escaper->escapeUrl($newUrl) : '#' ?>"
+               class="action sorter-action sort-desc text-black"
+                <?= !$sortExists ? 'onclick="return false;"' : '' ?>>
+                <?= $heroicons->sortAscendingHtml(); ?>
+            </a>
+        <?php endif; ?>
+    </div>
+</div>

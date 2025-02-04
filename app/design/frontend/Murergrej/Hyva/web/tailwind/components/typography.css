@@ -1,0 +1,86 @@
+@font-face {
+    font-family: "Supreme Variable";
+    src: local("Supreme Regular"), local("Supreme-Regular"),
+    url("../fonts/Supreme_Variable/Supreme-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Supreme Variable";
+    src: local("Supreme Variable ExtraBold"), local("Supreme-Extrabold"),
+    url("../fonts/Supreme_Variable/Supreme-Extrabold.woff2") format("woff2");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Supreme Variable";
+    src: local("Supreme Variable Bold"), local("Supreme-Bold"),
+    url("../fonts/Supreme_Variable/Supreme-Bold.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@layer components {
+    .heading {
+        &-md {
+            @apply text-base md:text-2xl leading-6 md:leading-8 font-extrabold;
+        }
+
+        &-lg {
+            @apply text-xl leading-6 md:text-[32px] md:leading-10 font-extrabold;
+        }
+
+        &-xl {
+            @apply text-[40px] leading-[3rem] font-extrabold;
+        }
+
+        &-xxl {
+            @apply text-5xl leading-[3.25rem] font-extrabold;
+        }
+    }
+}
+
+@layer utilities {
+    /* This class only exists for backwards compatibility, */
+    /* The default is applied in tailwind.config.js since Hyvä 1.2.0 */
+    .text-supreme-variable {
+        font-family: 'Supreme Variable', sans-serif;
+    }
+}
+
+html {
+    @apply antialiased;
+}
+
+body {
+    @apply text-primary leading-normal text-base tracking-normal;
+
+    p, span, a, div, dd, h1, h2, h3, h4 {
+        @apply text-primary;
+    }
+
+    h1 {
+        @apply heading-xxl;
+    }
+
+    h2 {
+        @apply heading-xl;
+    }
+
+    h3 {
+        @apply heading-lg;
+    }
+
+    h4 {
+        @apply heading-md;
+    }
+
+    a {
+        @apply font-extrabold text-blue leading-6 underline hover:text-blue-darker;
+    }
+}

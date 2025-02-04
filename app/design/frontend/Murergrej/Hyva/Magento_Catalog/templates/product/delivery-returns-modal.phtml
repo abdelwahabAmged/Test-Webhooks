@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @category Murergrej
+ * @package Murergrej_Catalog
+ * @author Jorgena Shinjatari info@scandiweb.com
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+*/
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\SvgIcons;
+use Magento\Cms\Block\Block;
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+$modalBlockId = $block->getData('modal_block_id');
+$modalName = $block->getData('modal_name');
+$modalTitle = $block->getData('modal_title');
+?>
+
+<!-- Modal Structure -->
+<div x-show="currentModal === '<?= $modalName ?>'" class="z-30 delivery-modal fixed inset-0 flex items-center justify-end" x-cloak>
+    <div class="modal-content bg-white h-full">
+        <div class="modal-title flex justify-between bg-secondary-lighter py-3.5">
+            <p class="font-extrabold"><?= $escaper->escapeHtml(__($modalTitle)) ?></p>
+            <button @click.prevent="closeModal()" class="close cursor-pointer">
+                <?= $hyvaicons->renderHtml('close-icon', '', 24, 24); ?>
+            </button>
+        </div>
+        <div class="modal-page-builder">
+            <?=
+                $block->getLayout()
+                    ->createBlock(Block::class)
+                    ->setBlockId($modalBlockId)
+                    ->toHtml();
+            ?>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="pwa_banner_image" resource="default" engine="innodb" comment="PWA Banner Image">
+        <column xsi:type="int" name="image_id" padding="11" unsigned="true" nullable="false" identity="true"
+                comment="Primary key"/>
+        <column xsi:type="varchar" name="title" nullable="false" length="255" default="" comment="Banner Title"/>
+        <column xsi:type="varchar" name="subtitle" nullable="false" length="255" default="" comment="Banner Subtitle"/>
+        <column xsi:type="varchar" name="filename" nullable="false" length="255" default="" comment="Banner Image Filename"/>
+        <column xsi:type="varchar" name="link" nullable="false" length="255" default="" comment="Banner Link"/>
+        <column xsi:type="smallint" name="sort_order" padding="6" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Sort Order"/>
+        <column xsi:type="varchar" name="button_text" nullable="false" length="255" default="" comment="Banner Button Text"/>
+        <column xsi:type="varchar" name="background" nullable="false" length="255" default="" comment="Banner Background"/>
+        <column xsi:type="smallint" name="banner_id" padding="6" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Banner"/>
+        <column xsi:type="timestamp" name="creation_time" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Block Creation Time"/>
+        <column xsi:type="timestamp" name="update_time" on_update="true" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Block Modification Time"/>
+        <column xsi:type="smallint" name="status" padding="6" unsigned="false" nullable="false" identity="false"
+                default="1" comment="Status"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="image_id"/>
+        </constraint>
+    </table>
+    <table name="pwa_banner_image_store" resource="default" engine="innodb" comment="PWA Banner Image To Store Linkage Table">
+        <column xsi:type="int" name="image_id" padding="11" unsigned="true" nullable="false" identity="false"
+                comment="Entity ID"/>
+        <column xsi:type="smallint" name="store_id" padding="5" unsigned="true" nullable="false" identity="false"
+                comment="Store ID"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="image_id"/>
+            <column name="store_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="PWA_BAN_IMG_STORE_PWA_BAN_IMG_ID_PWA_BAN_IMG_PWA_BAN_IMG_ID" table="pwa_banner_image_store"
+                    column="image_id" referenceTable="pwa_banner_image" referenceColumn="image_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="PWA_BANNER_IMG_STORE_STORE_ID_STORE_STORE_ID" table="pwa_banner_image_store"
+                    column="store_id" referenceTable="store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <index referenceId="PWA_BANNER_IMG_STORE_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+</schema>

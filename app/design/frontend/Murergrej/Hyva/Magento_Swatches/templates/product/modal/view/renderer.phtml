@@ -1,0 +1,276 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SwatchRenderer;
+use Magento\Framework\Escaper;
+use Magento\Swatches\Block\Product\Renderer\Configurable;
+use Magento\Swatches\ViewModel\Product\Renderer\Configurable as ConfigurableViewModel;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Magento\Framework\View\Element\Template;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Configurable $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var ConfigurableViewModel $configurableViewModel */
+$configurableViewModel = $viewModels->require(ConfigurableViewModel::class);
+
+/** @var SwatchRenderer $swatchRendererViewModel */
+$swatchRendererViewModel = $viewModels->require(SwatchRenderer::class);
+
+$product = $block->getProduct();
+$productId = $product->getId();
+
+$attributes = $block->getData('config_product_attributes');
+
+$layout = $block->getLayout();
+$swatchItemBlock = $layout->getBlock('product.swatch.item');
+$swatchItemBlock->setData('product_id', $productId);
+
+$tooltipBlockHtml = $block->getBlockHtml('product.swatch.tooltip');
+
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+?>
+<?php if ($product->isSaleable() && count($attributes)): ?>
+    <div x-data="initModalConfigurableSwatchOptions(
+            <?= (int) $productId ?>,
+            <?= htmlspecialchars($block->getJsonConfig(), ENT_QUOTES, 'UTF-8') ?>,
+            <?= htmlspecialchars($block->getJsonSwatchConfig(), ENT_QUOTES, 'UTF-8') ?>
+        )"
+         x-init="init(); initShowSwatchesIntersect();"
+         @private-content-loaded.window="onGetCartData($event.detail.data)"
+         class="relative"
+         x-defer="intersect"
+    >
+        <div class="flex flex-col gap-5">
+            <?php foreach ($attributes as $attribute): ?>
+                <?php $attributeId = $attribute->getAttributeId(); ?>
+                <?php $productAttribute = $attribute->getProductAttribute();  ?>
+                <?php if ($swatchRendererViewModel->isSwatchAttribute($productAttribute)): ?>
+                    <div class="swatch-attribute min-h-14
+                            <?= $escaper->escapeHtmlAttr($productAttribute->getAttributeCode()) ?>">
+                        <template x-if="showSwatches">
+                            <div class="flex flex-col w-full">
+                                <label
+                                    class="w-full sm:w-1/2 text-left text-gray-700 label product-option-label"
+                                    id="attribute-label-<?= $escaper->escapeHtmlAttr($productId . '-' . $attributeId) ?>"
+                                    aria-hidden="true"
+                                >
+                                    <span class="text-xs font-extrabold">
+                                        <?= $escaper->escapeHtml(__('Choose')) . ' '
+                                        . strtolower($escaper->escapeHtml($productAttribute->getStoreLabel())) ?>
+                                    </span>
+                                </label>
+                                <div class="w-full product-option-values">
+                                    <div
+                                         class=" items-center gap-2 swatch-attribute-options"
+                                         role="radiogroup"
+                                         aria-label="<?= $escaper->escapeHtmlAttr($productAttribute->getStoreLabel()) ?>"
+                                    >
+                                        <template x-if="showCarousel(<?= (int)$attributeId ?>)">
+                                            <?php
+                                                $optionJsonConfig = $block->getJsonConfig();
+                                                $optionConfigArr = json_decode($optionJsonConfig, true);
+                                                $optionConfig = isset($optionConfigArr['attributes'][$attributeId]['options'])
+                                                    ? $optionConfigArr['attributes'][$attributeId]['options']
+                                                    : [];
+
+                                                echo $this->getLayout()->createBlock(Template::class)
+                                                    ->setTemplate('Magento_Swatches::product/slider/swatches-slider.phtml')
+                                                    ->setData('product_id', $productId)
+                                                    ->setData('options_config', $optionConfig)
+                                                    ->setData('attribute_id', $attributeId)
+                                                    ->toHtml();
+                                            ?>
+                                        </template>
+                                        <template x-if="!showCarousel(<?= (int)$attributeId ?>)">
+                                            <div class="flex gap-x-2">
+                                                <template
+                                                    x-for="(item, index) in optionConfig.attributes[<?= (int) $attributeId ?>].options"
+                                                    :key="item.id"
+                                                >
+                                                    <?= /* @noEscape */ $swatchItemBlock->setData('attribute_id', $attributeId)->toHtml(); ?>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="selected-swatch mt-2 w-full"
+                                    x-show="isSwatchDivVisible(<?= (int)$attributeId ?>)"
+                                    :style="getSwatchBackgroundStyle('<?= (int) $attributeId ?>',selectedValues[<?= (int)$attributeId ?>])">
+                                    <div class="selected-option w-max flex flex-col gap-y-0.5 m-0.5 py-3 bg-green">
+                                        <span class="text-xs font-extrabold">
+                                            <?= $escaper->escapeHtml(__('Selected')) . ' '
+                                            . strtolower($escaper->escapeHtml($productAttribute->getStoreLabel())) ?>:
+                                        </span>
+                                        <span class="text-xs font-normal"
+                                            x-text="getSwatchText(<?= (int)$attributeId ?>, selectedValues[<?= (int)$attributeId ?>])"
+                                        ></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                <?php else: ?>
+                    <div class="configurable-dropdown flex flex-col w-full">
+                        <label
+                          class="label text-xs font-extrabold"
+                          for="attribute<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>"
+                        >
+                        <span>
+                            <?= $escaper->escapeHtml(__('Select')) . ' ' .
+                            strtolower($escaper->escapeHtml($attribute->getProductAttribute()->getStoreLabel()))
+                            ?>
+                        </span>
+                        </label>
+                        <template x-if="isSwatchText(<?= (int) $attribute->getAttributeId() ?>)">
+                            <div class="relative">
+                                <div class="flex flex-wrap gap-2 relative z-[1]">
+                                    <template
+                                      x-for="(item, index) in getAllowedAttributeOptions(<?= (int) $attribute->getAttributeId() ?>)"
+                                      :key="item.id"
+                                    >
+                                        <div
+                                          class="text-swatch border-2 cursor-pointer"
+                                          :class="{ 'active': selectedValues[<?= (int) $attribute->getAttributeId() ?>] === item.id }"
+                                          @click="changeOption(<?= (int) $attribute->getAttributeId() ?>, item.id)"
+                                        >
+                                            <span class="text-sm font-extrabold" x-text="item.label"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                                <!-- Hidden select element for form submission -->
+                                <select
+                                  name="super_attribute[<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>]"
+                                  id="attribute<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>"
+                                  class="opacity-0 p-0 border-0 absolute top-0"
+                                  required
+                                >
+                                    <option value disabled selected>
+                                        <?= $escaper->escapeHtml(__('Select an option')) ?>
+                                    </option>
+                                    <template
+                                      x-for="(item, index) in getAllowedAttributeOptions(<?= (int) $attribute->getAttributeId() ?>)"
+                                      :key="item.id"
+                                    >
+                                        <option
+                                          :value="item.id" x-html="getAttributeOptionLabel(item)"
+                                          :selected="selectedValues[<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>] === item.id"
+                                        >
+                                        </option>
+                                    </template>
+                                </select>
+                            </div>
+                        </template>
+                        <template x-if="!isSwatchText(<?= (int) $attribute->getAttributeId() ?>)">
+                            <?php
+                            $options = array_map(function ($option) {
+                                return [
+                                    'value' => $option['value_index'],
+                                    'label' => $option['label']
+                                ];
+                            }, $attribute->getOptions());
+                            ?>
+                            <div class="dropdown-container relative">
+                                <div class="control">
+                                    <div
+                                      x-data="initDropdown(<?= htmlspecialchars(json_encode($options), ENT_QUOTES, 'UTF-8') ?>)"
+                                      class="form-select-wrapper"
+                                    >
+                                        <select
+                                          class="form-select w-full"
+                                          :class="{
+                                                            'text-secondary border-secondary': !selectedOptionValue,
+                                                            'text-primary border-primary-darker': selectedOptionValue
+                                                          }"
+                                          @mousedown="!$store.device.isMobile ? $event.preventDefault() : null"
+                                          @click="!$store.device.isMobile ? (isOpen = !isOpen) : null"
+                                          @mouseup="!$store.device.isMobile ? $event.preventDefault() : null"
+                                          x-model="selectedOptionValue"
+                                          @keydown="select()"
+                                          @keydown.enter.prevent="isOpen = false"
+                                          x-ref="select"
+                                          id="<?= 'attribute' . $attribute->getAttributeId() ?>"
+                                          name="super_attribute[<?= $attribute->getAttributeId() ?>]>"
+                                          @change.debounce="changeOption('<?= $attribute->getAttributeId( )?>', $event.target.value)"
+                                        >
+                                            <?php if ($options[0]['value']): ?>
+                                                <option hidden>
+                                                    <?= $options[0]['value'] ?>
+                                                </option>
+                                            <?php endif; ?>
+                                            <?php foreach($options as $option): ?>
+                                                <?php
+                                                $optionValue = $option['value'];
+                                                $isDisabled = empty($option['disabled']) ? false : $option['disabled'];
+                                                $optionLabel = $option['label'];
+                                                ?>
+                                                <option
+                                                    <?php if($isDisabled): ?>
+                                                        disabled
+                                                    <?php endif; ?>
+                                                  value="<?= $optionValue ?>"
+                                                <?php if (isset($option['customAttributes'])): ?>
+                                                    <?php foreach($option['customAttributes'] as $key => $value): ?>
+                                                        <?= $key ?>="<?= $value ?>"
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                                >
+                                                <?= $optionLabel ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="chevron" :class="{ 'chevron-opened': isOpen }">
+                                            <!-- Change to your chevron or custom icon -->
+                                            <?= $hyvaIcons->renderHtml('chevron', '', 20, 20) ?>
+                                        </div>
+                                        <ul
+                                          x-cloak
+                                          x-show="isOpen"
+                                          @click.away="isOpen = false"
+                                          class="form-select-options-list"
+                                          tabindex="0"
+                                          x-ref="dropdown"
+                                        >
+                                            <?php foreach($options as $key => $option): ?>
+                                                <?php
+                                                $optionValue = $option['value'];
+                                                $isDisabled = empty($option['disabled']) ? false : $option['disabled'];
+                                                $optionLabel = $option['label'];
+                                                ?>
+                                                <li
+                                                  @click="handleOptionSelect('<?= $optionValue ?>');"
+                                                  :class="{ 'form-select-option-selected': selectedOptionValue === '<?= $optionValue ?>' }"
+                                                  class="form-select-option <?= !$isDisabled ?: 'form-select-option-disabled' ?>"
+                                                  value="<?= $optionValue ?>"
+                                                  id="<?= $optionValue ?>"
+                                                  :tabindex="<?= $key ?>"
+                                                  :key="<?= $key ?>"
+                                                    <?php if($isDisabled): ?>
+                                                        disabled
+                                                    <?php endif; ?>
+                                                >
+                                                    <?= $optionLabel ?>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+        <?= /* @noEscape */ $tooltipBlockHtml ?>
+    </div>
+<?php endif;?>

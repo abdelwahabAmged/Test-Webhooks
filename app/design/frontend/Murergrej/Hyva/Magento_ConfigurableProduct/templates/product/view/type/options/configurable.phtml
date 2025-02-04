@@ -1,0 +1,111 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Magento\ConfigurableProduct\Block\Product\View\Type\Configurable;
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var Configurable $block */
+/** @var Escaper $escaper */
+
+$product = $block->getProduct();
+$productId = $product->getId();
+$attributes = $block->decorateArray($block->getAllowAttributes());
+
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+?>
+<?php if ($product->isSaleable() && count($attributes)): ?>
+
+    <script>
+        function initConfigurableDropdownOptions_<?= (int) $productId ?>() {
+            return initConfigurableOptions(
+                '<?= (int) $productId ?>',
+                <?= /* @noEscape */ $block->getJsonConfig() ?>
+            );
+        }
+    </script>
+
+    <div x-data="initConfigurableDropdownOptions_<?= (int) $productId ?>()"
+         x-init="init()"
+         @private-content-loaded.window="onGetCartData($event.detail.data)"
+        class="flex flex-col gap-5"
+    >
+        <?php foreach ($attributes as $attribute): ?>
+            <div class="configurable-dropdown flex flex-col w-full">
+
+                <label class="label text-xs font-extrabold"
+                    for="attribute<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>"
+                >
+                    <span>
+                        <?= $escaper->escapeHtml(__('Select')) . ' ' .
+                            strtolower($escaper->escapeHtml($attribute->getProductAttribute()->getStoreLabel()))
+                        ?>
+                    </span>
+                </label>
+
+                <template x-if="isSwatchText(<?= (int) $attribute->getAttributeId() ?>)">
+                    <div class="relative">
+                        <div class="flex flex-wrap gap-2 relative z-[1]">
+                            <template
+                                x-for="(item, index) in getAllowedAttributeOptions(<?= (int) $attribute->getAttributeId() ?>)"
+                                :key="item.id"
+                            >
+                                <div class="text-swatch border-2 cursor-pointer"
+                                    :class="{ 'active': selectedValues[<?= (int) $attribute->getAttributeId() ?>] === item.id }"
+                                    @click="changeOption(<?= (int) $attribute->getAttributeId() ?>, item.id)">
+                                    <span class="text-sm font-extrabold" x-text="item.label"></span>
+                                </div>
+                            </template>
+                        </div>
+                        <!-- Hidden select element for form submission -->
+                        <select name="super_attribute[<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>]"
+                                id="attribute<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>"
+                                class="opacity-0 p-0 border-0 absolute top-0"
+                                required>
+                            <option value disabled selected>
+                                <?= $escaper->escapeHtml(__('Select an option')) ?>
+                            </option>
+                            <template
+                                x-for="(item, index) in getAllowedAttributeOptions(<?= (int) $attribute->getAttributeId() ?>)"
+                                :key="item.id"
+                            >
+                                <option :value="item.id" x-html="getAttributeOptionLabel(item)"
+                                        :selected="selectedValues[<?= $escaper->escapeHtmlAttr($attribute->getAttributeId()) ?>] === item.id">
+                                </option>
+                            </template>
+                        </select>
+                    </div>
+                </template>
+
+                <template x-if="!isSwatchText(<?= (int) $attribute->getAttributeId() ?>)">
+                    <div class="dropdown-container relative">
+                        <?php
+                            $options = array_map(function($option) {
+                                return [
+                                    'value' => $option['value_index'],
+                                    'label' => $option['label']
+                                ];
+                            }, $attribute->getOptions());
+
+                            echo $this->getLayout()
+                                ->createBlock('Magento\Framework\View\Element\Template')
+                                ->setTemplate('Hyva_Theme::ui/dropdown.phtml')
+                                ->setData('id', 'attribute' . $attribute->getAttributeId())
+                                ->setData('name', 'super_attribute[' . $attribute->getAttributeId() . ']')
+                                ->setData('options', $options)
+                                ->setData('on_change', 'changeOption(' . $attribute->getAttributeId() . ', $event.target.value)')
+                                ->toHtml();
+                        ?>
+                    </div>
+                </template>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif;?>

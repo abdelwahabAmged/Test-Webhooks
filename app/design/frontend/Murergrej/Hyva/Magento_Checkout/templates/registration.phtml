@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ *
+ * This template displays the registration prompt on the order success page.
+ */
+
+declare(strict_types=1);
+
+use Magento\Cms\Block\BlockByIdentifier;
+
+use Murergrej\Checkout\Block\Registration;
+use Magento\Framework\Escaper;
+
+/** @var Registration $block */
+/** @var Escaper $escaper */
+?>
+<div class="registration-wrapper mx-4 mt-8 mb-12 lg:mx-10 lg:mt-10 lg:mb-14">
+    <div class="registration-details">
+        <!-- Render CMS block content -->
+        <?= $block->getLayout()->createBlock(BlockByIdentifier::class)->setData('identifier',
+            'registration_info')->toHtml(); ?>
+    </div>
+    <!--    Start the Form -->
+    <form id="registration-form" action="<?= $block->getUrl('murergrej_checkout/account/register') ?>"
+          method="POST">
+        <input name="form_key" type="hidden" value="<?= $block->getFormKey() ?>">
+
+        <!-- First column in large screen-->
+        <div class="first-column">
+            <!-- Name-->
+            <div class="form-field">
+                <div class="form-field-wrapper">
+                    <label for="name" class="registration-label">
+                        <?= $escaper->escapeHtml(__('Name')) ?>
+                    </label>
+                    <div class="registration-input-container">
+                        <input type="text" name="name" id="name" class="registration-input"
+                               placeholder="<?= $escaper->escapeHtml(__('Your name')) ?>" required>
+                    </div>
+                </div>
+            </div>
+            <!-- Surname-->
+            <div class="form-field">
+                <div class="form-field-wrapper">
+                    <label for="surname" class="registration-label">
+                        <?= $escaper->escapeHtml(__('Surname')) ?>
+                    </label>
+                    <div class="registration-input-container">
+                        <input type="text" name="surname" id="surname" class="registration-input"
+                               placeholder="<?= $escaper->escapeHtml(__('Your surname')) ?>" required>
+                    </div>
+                </div>
+            </div>
+            <!-- Email-->
+            <div class="form-field">
+                <div class="form-field-wrapper">
+                    <label for="email" class="registration-label">
+                        <?= $escaper->escapeHtml(__('Email')) ?>
+                    </label>
+                    <div class="registration-input-container">
+                        <input type="email" name="email" id="email" class="registration-input"
+                               placeholder="<?= $escaper->escapeHtml(__('Your email address')) ?>" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Second column in large screen-->
+        <div class="second-column">
+            <!-- Phone-->
+            <div class="form-field">
+                <div class="form-field-wrapper">
+                    <label for="telephone" class="registration-label">
+                        <?= $escaper->escapeHtml(__('Phone')) ?>
+                    </label>
+                    <div class="registration-input-container">
+                        <input type="text" name="telephone" id="telephone" class="registration-input"
+                               placeholder="<?= $escaper->escapeHtml(__('Your phone number')) ?>">
+                    </div>
+                </div>
+            </div>
+            <!-- Password -->
+            <div class="form-field">
+                <div class="form-field-wrapper">
+                    <label for="password" class="registration-label">
+                        <?= $escaper->escapeHtml(__('Password')) ?>
+                    </label>
+                    <div class="registration-input-container">
+                        <input type="password" name="password" id="password" class="registration-input"
+                               placeholder="<?= $escaper->escapeHtml(__('Enter password')) ?>" required>
+                    </div>
+                </div>
+            </div>
+            <!-- Repeat Password -->
+            <div class="form-field">
+                <div class="form-field-wrapper">
+                    <label for="password_confirmation" class="registration-label">
+                        <?= $escaper->escapeHtml(__('Repeat Password')) ?>
+                    </label>
+                    <div class="registration-input-container">
+                        <input type="password" name="password_confirmation" id="password_confirmation"
+                               class="registration-input"
+                               placeholder="<?= $escaper->escapeHtml(__('Repeat entered password')) ?>" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--accept policy  -->
+        <div class="flex justify-start items-start gap-2 lg:col-span-12 ">
+            <!-- Checkbox Input -->
+            <div class="pt-0.5 flex items-start gap-2.5 ">
+                <input type="checkbox" name="" id="accept_policy"
+                       class="w-4 h-4 bg-white border border-secondary" required>
+            </div>
+
+            <!-- Label for the Checkbox -->
+            <div class="flex-col flex-grow justify-start items-start inline-flex">
+                <label for="accept_policy" class="text-black text-sm font-sans leading-tight">
+                    <span class="font-bold">I have read and accept the personal data policy
+                        regarding newsletters & agree to receive newsletters, special offers and news
+                    </span>
+                </label>
+            </div>
+        </div>
+        <!-- Submit Button -->
+        <div class="flex justify-center lg:col-span-12">
+            <button type="submit" class="btn btn-primary inline-block w-full">
+                <span><?= $escaper->escapeHtml(__('Create an Account')) ?></span>
+            </button>
+        </div>
+    </form>
+</div>

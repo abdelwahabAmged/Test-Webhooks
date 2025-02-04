@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module configuration file for the Murergrej_Footer module.
+ *
+ * This file defines the basic configuration for the Murergrej_Footer module.
+ *
+ * @category    Murergrej
+ * @package     Murergrej_Footer
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Murergrej_Footer" setup_version="1.0.0"/>
+</config>

@@ -1,0 +1,71 @@
+@sw-color: #B73B3B;
+@text-slate-600: #475569;
+@gray-800-75: rgba(31, 41, 55, 0.75);
+@sw-magento-color: linear-gradient(66deg, rgba(183,59,59,1) 18%, rgba(244,111,37,1) 100%);
+
+.banner-b-wrapper {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  height: 400px;
+  position: relative;
+
+  img {
+    &:nth-child(1) {
+      width: 100%;
+      position: absolute;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &:nth-child(2) {
+      display: none;
+      object-fit: cover;
+      width: 50%;
+      height: 100%;
+      right: 0;
+      position: absolute;
+    }
+
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+
+  .banner-text-wrapper {
+    background-image: linear-gradient(to top, @gray-800-75, transparent);
+    padding: 112px 24px 24px;
+    width: 100%;
+    bottom: 0;
+    position: absolute;
+
+    .banner-title {
+      font-weight: 700;
+      color: white;
+      font-size: 60px;
+      margin-bottom: 0.5rem;
+    }
+
+    .banner-subtitle {
+      color: white;
+      line-height: 2rem;
+      font-weight: 600;
+      font-size: 24px;
+      display: block;
+    }
+  }
+}
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+  .banner-b-wrapper {
+    img {
+      &:nth-child(1) {
+        width: 50%;
+      }
+
+      &:nth-child(2) {
+        display: block;
+      }
+    }
+  }
+}
+

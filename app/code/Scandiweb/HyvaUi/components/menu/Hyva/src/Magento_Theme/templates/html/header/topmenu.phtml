@@ -1,0 +1,21 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+?>
+
+<div class="md:flex md:items-center md:w-auto w-full order-4 md:order-2" id="menu">
+    <?= $block->getChildHtml('topmenu.mobile'); ?>
+    <?= $block->getChildHtml('topmenu.desktop'); ?>
+</div>

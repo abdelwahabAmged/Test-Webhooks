@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Catalog\Model\Product">
+        <plugin name="murergrej_hyva_product_save_plugin" type="Murergrej\Hyva\Plugin\Product\ProductSavePlugin" />
+    </type>
+    <preference for="Magento\Catalog\Block\Product\View\Attributes" type="Murergrej\Hyva\Block\Product\View\Attributes" />
+    <preference for="Magento\Swatches\Block\Adminhtml\Attribute\Edit\Options\Visual" type="Murergrej\Hyva\Block\Adminhtml\Attribute\Edit\Options\CustomVisual" />
+    <preference for="Magento\Eav\Model\Entity\Attribute\Option" type="Murergrej\Hyva\Model\Entity\Attribute\CustomOption" />
+    <preference for="Magento\Swatches\Block\Product\Renderer\Configurable" type="Murergrej\Hyva\Block\Product\Renderer\CustomConfigurable" />
+    <preference for="Magento\Swatches\Helper\Data" type="Murergrej\Hyva\Helper\Data" />
+    <preference for="Magento\Catalog\Model\ResourceModel\Attribute" type="Murergrej\Hyva\Model\ResourceModel\Attribute" />
+</config>

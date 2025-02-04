@@ -1,0 +1,87 @@
+<?php
+
+use Hyva\Theme\ViewModel\SvgIcons;
+
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+?>
+<div class="expandable-item about_us">
+    <!-- Header -->
+    <?php
+    $aboutUsHtml = $this->getLayout()->createBlock(\Magento\Cms\Block\Block::class)
+        ->setBlockId('about_us')->toHtml();
+
+    $dom = new \DOMDocument();
+    libxml_use_internal_errors(true);
+    $dom->loadHTML('<?xml encoding="utf-8" ?>' . $aboutUsHtml);
+
+    $h4Elements = $dom->getElementsByTagName('h4');
+    $pElements = $dom->getElementsByTagName('p');
+    $aElements = $dom->getElementsByTagName('a'); // Get all anchor tags
+
+    // Display the first <h4> tag and add a button to control expand/collapse
+    if ($h4Elements->length > 0) {
+        echo '<h4 class="flex justify-between items-center mb-3 md:mb-4">';
+        echo htmlspecialchars($h4Elements->item(0)->textContent);
+        echo '<span class="toggle-btn block md:hidden">'; // Start the span for the button
+        echo $hyvaIcons->renderHtml('arrow_expand', 24, 24); // Replace the "▼" with the Hyvä icon
+        echo '</span>';
+        echo '</h4>';
+    }
+    ?>
+
+    <!-- Expandable Content -->
+    <div class="content max-h-screen overflow-hidden transition-[max-height] duration-300 ease-in-out">
+        <?php
+        // Loop through and display all <p> tags and inject <a> tag into each <p>
+        foreach ($pElements as $index => $pElement) {
+            $pContent = htmlspecialchars($pElement->textContent);
+
+            // Check if there is a corresponding <a> tag
+            if ($index < $aElements->length) {
+                $aElement = $aElements->item($index);
+                $aHref = htmlspecialchars($aElement->getAttribute('href'));
+                $aText = htmlspecialchars($aElement->textContent);
+
+                // Wrap the <p> content with <a> tag
+                echo '<p class="mb-3 md:mb-4">';
+                echo '<a class="text-black no-underline font-normal" href="' . $aHref . '" class="block">' . $pContent . '</a>';
+                echo '</p>';
+            } else {
+                // If no <a> tag exists, just output the <p> content
+                echo '<p class="mb-3 md:mb-4">' . $pContent . '</p>';
+            }
+        }
+        ?>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.toggle-btn').forEach(button => {
+            const item = button.closest('.expandable-item');
+            const content = item.querySelector('.content');
+
+            button.addEventListener('click', () => {
+                item.classList.toggle('expanded');
+                if (item.classList.contains('expanded')) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    button.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.maxHeight = '0';
+                    button.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
+        // Inject the icon and expand by default
+        const expandIconHtml = `<?= $hyvaIcons->renderHtml('arrow_expand', 50, 50); ?>`;
+        document.querySelectorAll('.expandable-item').forEach(item => {
+            const content = item.querySelector('.content');
+            const button = item.querySelector('.toggle-btn');
+
+            item.classList.add('expanded');
+            content.style.maxHeight = content.scrollHeight + 'px';
+            button.innerHTML = expandIconHtml;
+        });
+    });
+</script>

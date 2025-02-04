@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category  Murergrej
+ * @package   Murergrej_Hyva
+ * @author    Jorgena Shinjatari info@scandiweb.com
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ * @license   https://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="product_list_item">
+            <block class="Murergrej\Hyva\Block\GetProductStockStatus" name="product.item.addtocartoroutofstock"
+                    as="addtocartoroutofstock" template="Magento_Catalog::product/list/add-to-cart-or-out-of-stock.phtml"/>
+            <referenceBlock name="product.item.stockstatus" remove="true"/>
+        </referenceBlock>
+    </body>
+</page>

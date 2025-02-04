@@ -1,0 +1,35 @@
+.underline-with-animation {
+    --underline-with-animation-transition-duration: 0.3s;
+    --underline-with-animation-row-gap: 8px;
+
+    .desktop-viewport & {
+        --underline-with-animation-row-gap: 12px;
+    }
+
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--underline-with-animation-row-gap);
+
+    &::after {
+        content: '';
+        display: block; 
+        width: 0; 
+        height: 1px; 
+        background-color: var(--color-black); 
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.280,0.840,0.420,1);
+        transition-duration: var(--underline-with-animation-transition-duration);
+    }
+
+    &:hover {
+        &::after {
+            width: 100%;
+        }
+    }
+
+    &.isSelected {
+        &::after {
+            width: 100%;
+        }
+    }
+}

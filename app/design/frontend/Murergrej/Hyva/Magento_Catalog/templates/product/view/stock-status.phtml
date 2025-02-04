@@ -1,0 +1,68 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var CurrentProduct $currentProduct */
+$currentProduct = $viewModels->require(CurrentProduct::class);
+
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var Product $product */
+$product = $block->hasData('product')
+    ? $block->getData('product')
+    : $currentProduct->get();
+
+if (!$product || !$product->getId()) {
+    return;
+}
+
+$supplierOrders = $product->getData('supplier_orders');
+$deliveringDaysFromWarehouse = $block->getRemainingDays($product);
+?>
+<?php if (!$supplierOrders): ?>
+    <div class="stock-delivery flex gap-2">
+        <p
+            class="stock-status flex py-1 pr-3 rounded-full items-center align-middle gap-x-1 stock
+                text-sm font-extrabold text-white
+                before:w-4 before:h-4 before:rounded-full before:shrink-0 available before:bg-white"
+            title="<?= $escaper->escapeHtmlAttr(__('Availability')) ?>"
+        ><?= $escaper->escapeHtml(__('In stock')) ?></p>
+        <p class="self-center text-xs font-extrabold">
+            <?= $escaper->escapeHtmlAttr(__('(delivered in 1-2 days)')) ?>
+        </p>
+    </div>
+<?php else: ?>
+    <div class="stock-delivery flex gap-2">
+        <p
+            class="stock-status-warehouse flex py-1 rounded-full items-center align-middle gap-x-1 stock
+                text-sm font-extrabold text-white"
+            title="<?= $escaper->escapeHtmlAttr(__('Availability')) ?>"
+        >
+            <?= $hyvaIcons->renderHtml('trailing-icons', '', 16, 16) ?>
+            <?= $escaper->escapeHtml(__('In remote warehouse')) ?>
+        </p>
+        <p class="self-center text-xs font-extrabold">
+            <?= $escaper->escapeHtmlAttr(__('(delivery in ' . $deliveringDaysFromWarehouse . ' days)')) ?>
+        </p>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,64 @@
+<?php declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\Modal;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Modal $modelViewModel */
+/** @var HeroiconsSolid $heroIcons */
+
+$modelViewModel = $viewModels->require(Modal::class);
+$heroIcons = $viewModels->require(HeroiconsSolid::class);
+$modal = $modelViewModel->createModal()
+    ->positionCenter()
+    ->removeDialogClass('p-10', 'rounded-lg')
+    ->addDialogClass('rounded-xl m-4')
+    ->withAriaLabelledby('modal-title');
+?>
+
+<div x-data="hyva.modal()">
+
+    <button @click="<?= $escaper->escapeHtmlAttr($modal->getShowJs()) ?>" type="button" class="btn">
+        <?= $escaper->escapeHtml(__('Show modal')) ?>
+    </button>
+
+    <?= /** @noEscape */ $modal->withContent(<<<END_OF_CONTENT
+        <div class="p-7 flex flex-col lg:flex-row lg:gap-5">
+            <div class="text-center text-yellow-400">
+                {$heroIcons->exclamationHtml('inline-block fill-current', 68, 68)}
+            </div>
+            <div class="text-center lg:text-left">
+                <div id="modal-title"
+                     class="text-xl leading-7 font-bold text-gray-800 mb-3"
+                >
+                    {$escaper->escapeHtml(__('Hi! I’m a modal title.'))}
+                </div>
+                <div class="text-gray-600">
+                    {$escaper->escapeHtml(__('
+                        Additional information about this modal. Lorem ipsum dolor sit amet,
+                        consectetur adipiscing elit. Etiam massa augue, pretium.
+                    '))}
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-100 p-7 flex flex-col gap-4 lg:flex-row-reverse">
+            <button @click="hide"
+                    x-focus-first
+                    class="bg-blue-700 shadow-md text-white py-4 px-6 rounded-md font-bold text-center
+                           hover:bg-blue-600"
+            >
+                {$escaper->escapeHtml(__('Main action'))}
+            </button>
+            <button @click="hide"
+                    class="bg-white shadow text-gray-600 py-4 px-6 rounded-md font-bold text-center hover:bg-gray-100"
+            >
+                {$escaper->escapeHtml(__('Secondary action'))}
+            </button>
+        </div>
+
+END_OF_CONTENT
+    );?>
+</div>

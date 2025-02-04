@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @category    Murergrej
+ * @package     Murergrej_CookieBanner
+ * @author      Abanoub Youssef <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ *
+ * This template renders a button with a cookie icon. When clicked, it triggers the CookieConsent.renew() function.
+ */
+
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+?>
+
+<button class="absolute bottom-[200px] -right-[20px] md:hidden" onclick="javascript:CookieConsent.renew();">
+    <?= $hyvaicons->renderHtml('cookie', 'inline-block', 60, 60) ?>
+</button>

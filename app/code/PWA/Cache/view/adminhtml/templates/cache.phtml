@@ -1,0 +1,153 @@
+<?php /** @var \Magento\Framework\View\Element\Template $block */ ?>
+<div class="page-columns cache-container">
+    <div class="error" id="cache_error" style="display: none;"></div>
+    <div class="admin__field field">
+        <button class="cache-button" id="clear_ssr_cache" title="<?= __('Clear SSR Cache') ?>">
+            <span><?= __('Clear SSR Cache') ?></span>
+        </button>
+    </div>
+    <div class="admin__field field">
+        <button class="cache-button" id="clear_api_cache" title="<?= __('Clear API Cache') ?>">
+            <span><?= __('Clear API Cache') ?></span>
+        </button>
+    </div>
+    <div class="admin__field field">
+        <button class="cache-button" id="clear_client_cache" title="<?= __('Clear API Cache') ?>">
+            <span><?= __('Force flush Client Cache') ?></span>
+        </button>
+    </div>
+    <div><?= __('Notice: if in response is written that cache.invalidate is not a function then this cache is disabled.') ?></div>
+    <div class="admin__field field">
+        <textarea id="cache_log" rows="30" cols="200" readonly style="display: none"></textarea>
+    </div>
+    <script type="text/javascript">
+        var cacheConfig = <?= json_encode([
+            'clearUrl' => $block->getUrl('*/*/clear'),
+            'logUrl' => $block->getUrl('*/*/log')
+        ]) ?>;
+        require(['jquery', 'prototype'], function ($) {
+            var errorShown = false;
+            var showError = function (text) {
+                errorShown = true;
+                $('#cache_error').text(text).show();
+            };
+            var hideError = function () {
+                if (errorShown) {
+                    $('#cache_error').hide();
+                    errorShown = false;
+                }
+            }
+
+            var inProgress = false;
+            var starting = false;
+
+            var startListening = function () {
+                var offset = 0;
+                var limit = 250;
+
+                jQuery('#cache_log').val('').show();
+
+                var update = function () {
+                    new Ajax.Request(cacheConfig.logUrl, {
+                        method: 'get',
+                        loaderArea: false,
+                        parameters: {
+                            offset: offset,
+                            limit: limit
+                        },
+                        /**
+                         * @param {Object} response
+                         */
+                        onSuccess: (response) => {
+                            var json = response.responseJSON || {};
+                            if (json.code == 200) {
+                                hideError();
+                                var logEl = document.getElementById('cache_log');
+                                var regex = /(^stdout: |^stderr: |\u001b\[\d+m)/g;
+                                json.result.lines.forEach(function (line) {
+                                    logEl.value += line.replace(regex, '');
+                                });
+                                offset += json.result.lines.length;
+                                if (json.result.total > offset) {
+                                    setTimeout(update, 0);
+                                } else if (json.result.running) {
+                                    setTimeout(update, 500);
+                                } else {
+                                    inProgress = false;
+                                    $('.cache-button').prop('disabled', false);
+                                }
+                            } else {
+                                showError(json.result || json.message || 'An error has occured.');
+                                inProgress = false;
+                                $('.cache-button').prop('disabled', false);
+                            }
+                        },
+                        onFailure: (response) => {
+                            var json = response.responseJSON || {};
+                            showError(json.result || json.message || 'Request failed.');
+                            inProgress = false;
+                            $('.cache-button').prop('disabled', false);
+                        }
+                    })
+                }
+
+                update();
+            }
+
+            var clear = function (type) {
+                if (inProgress || starting) {
+                    return;
+                }
+                starting = true;
+                $('.cache-button').prop('disabled', true);
+                new Ajax.Request(cacheConfig.clearUrl, {
+                    method: 'post',
+                    parameters: {
+                        type: type
+                    },
+                    /**
+                     * @param {Object} response
+                     */
+                    onSuccess: (response) => {
+                        starting = false;
+                        var json = response.responseJSON || {};
+                        if (json.code == 200 && json.result == 'OK') {
+                            hideError();
+                            inProgress = true;
+                            startListening();
+                        } else {
+                            $('.cache-button').prop('disabled', false);
+                            showError(json.result || json.message || 'An error has occured.');
+                        }
+                    },
+                    onFailure: (response) => {
+                        starting = false;
+                        $('.cache-button').prop('disabled', false);
+                        var json = response.responseJSON || {};
+                        showError(json.result || json.message || 'Request failed.');
+                    }
+                })
+            };
+
+            $('#clear_ssr_cache').click(function () {
+                clear('ssr');
+            });
+            $('#clear_api_cache').click(function () {
+                clear('api');
+            });
+            $('#clear_client_cache').click(function () {
+                clear('client');
+            });
+        });
+    </script>
+</div>
+<style>
+    .error {
+        background-color: lightcoral;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    #cache_log {
+        width: 100%;
+    }
+</style>

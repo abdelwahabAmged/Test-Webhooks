@@ -1,0 +1,288 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductListItem;
+use Hyva\Theme\ViewModel\ProductPage;
+use Magento\Catalog\Block\Product\ReviewRendererInterface as ProductReviewRenderer;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\ViewModel\SvgIcons;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+/** @var ProductListItem $productListItemViewModel */
+$productListItemViewModel = $viewModels->require(ProductListItem::class);
+
+$viewMode = 'grid';
+$imageDisplayArea = 'category_page_grid';
+$showDescription = false;
+$title = (string) $block->getTitle();
+$headingTag = $block->getData('heading_tag') ?: 'h3';
+$uniqueId = uniqid('_');
+$items = $block->getItems() ?? [];
+
+if (is_object($items) && $items instanceof Iterator) {
+    $items = iterator_to_array($items);
+}
+
+if (!$itemCount = count($items)) {
+    return '';
+}
+
+$sliderIndex = 1;
+$sliderItemRenderer = $block->getLayout()->getBlock('product_list_item')
+    ?: $block->getChildBlock('slider.item.template')
+        ?: $block->getLayout()->createBlock(Template::class);
+
+$hideRatingSummary = (bool) $block->getData('hide_rating_summary');
+$hideDetails = (bool) $block->getData('hide_details');
+$productTrackingCodes = $block->getData('product_tracking_codes');
+$slideCountDesktop = $block->getData('slide_count_desktop');
+$slideCountLargeDesktop = $block->getData('slide_count_large_desktop');
+$displayArrows = $block->getData('display_arrows');
+$slidesGap = $block->getData('slides_gap');
+
+$sliderItemRenderer->setData('hide_details', $hideDetails);
+$sliderItemRenderer->setData('hide_rating_summary', $hideRatingSummary);
+
+$sharedItemRendererTemplate = null;
+$isSharedItemRenderer = $sliderItemRenderer !== $block->getChildBlock('slider.item.template');
+
+if ($isSharedItemRenderer && $block->getChildBlock('slider.item.template')) {
+    $sharedItemRendererTemplate = $sliderItemRenderer->getTemplate();
+    $sliderSpecificItemTemplate = $block->getChildBlock('slider.item.template')->getTemplate();
+    $sliderItemRenderer->setTemplate($sliderSpecificItemTemplate);
+}
+
+$slideItemClasses = $block->getData('maybe_purged_tailwind_slide_item_classes') ?? '';
+$swiperUrl = $block->getViewFileUrl('js/swiper.min.js');
+$swiperCssUrl = $block->getViewFileUrl('css/swiper.min.css');
+?>
+<script>
+    function initRecomProductsSliderComponent(
+        uniqueId,
+        swiperJsUrl,
+        swiperCssUrl,
+        slideCountDesktop,
+        slideCountLargeDesktop,
+        slidesGap
+    ) {
+        return {
+            init() {
+                if (!window.Swiper) {
+                    this.addJsScript(swiperJsUrl);
+                    this.addCss(swiperCssUrl);
+                } else {
+                    this.initializeSwiper(uniqueId, slideCountDesktop, slideCountLargeDesktop);
+                }
+            },
+            initializeSwiper(uniqueId) {
+                const swiperElement = this.$el.querySelector('.swiper_' + uniqueId);
+
+                if (!swiperElement) {
+                    return;
+                }
+
+                const swiper = new Swiper(swiperElement, {
+                    slidesPerView: '1.5',
+                    spaceBetween: 12,
+                    draggable: true,
+                    autoHeight: false,
+                    touchEventsTarget: 'container',
+                    navigation: {
+                        nextEl: '.swiper-next_' + uniqueId,
+                        prevEl: '.swiper-prev_' + uniqueId,
+                    },
+                    scrollbar: {
+                        el: '.swiper-scrollbar_' + uniqueId,
+                        draggable: true,
+                    },
+                    breakpoints: {
+                        768: {
+                            spaceBetween: slidesGap,
+                            slidesPerView: slideCountDesktop,
+                        },
+                        1440: {
+                            spaceBetween: slidesGap,
+                            slidesPerView: slideCountLargeDesktop,
+                        },
+                    }
+                });
+
+                this.setEqualHeight(uniqueId);
+
+                const hrsliders = document.querySelectorAll('#hello-retail-slider-wrapper');
+
+                hrsliders.forEach(slider => {
+                    slider.style.display = 'block';
+                });
+            },
+            setEqualHeight(uniqueId) {
+                const slides = this.$el.querySelectorAll('.swiper_' + uniqueId + ' .swiper-slide');
+                let maxHeight = 0;
+
+                // Reset heights
+                slides.forEach(slide => {
+                    slide.style.height = 'auto';
+                });
+
+                // Calculate max height
+                slides.forEach(slide => {
+                    const slideHeight = slide.offsetHeight;
+                    if (slideHeight > maxHeight) {
+                        maxHeight = slideHeight;
+                    }
+                });
+
+                // Set all slides to max height
+                slides.forEach(slide => {
+                    slide.style.height = maxHeight + 'px'; // Set to max height
+                });
+            },
+            addJsScript(swiperJsUrl) {
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.addEventListener('load', () => {
+                    this.initializeSwiper(uniqueId);
+                });
+                script.src = swiperJsUrl;
+                document.head.appendChild(script);
+            },
+            addCss(swiperCssUrl) {
+                const link = document.createElement('link');
+                link.type = 'text/css';
+                link.rel = 'stylesheet';
+                link.href = swiperCssUrl;
+                document.head.appendChild(link);
+            },
+        }
+    }
+</script>
+<section
+    class="flex flex-col min-h-[560px] md:min-h-[600px] overflow-hidden"
+    x-data="initRecomProductsSliderComponent(
+        '<?= $uniqueId; ?>',
+        '<?= $swiperUrl; ?>',
+        '<?= $swiperCssUrl; ?>',
+        <?= $slideCountDesktop ?>,
+        <?= $slideCountLargeDesktop ?>,
+        <?= $slidesGap ?>
+    )"
+    x-init="init();"
+    x-id="['slider-nav', 'slider-desc', 'slider-id']"
+    role="group"
+    aria-roledescription="<?= $escaper->escapeHtmlAttr(__('Carousel')) ?>"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Carousel %1', $title)) ?>"
+    :aria-describedby="$id('slider-desc')"
+>
+    <?php if ($items): ?>
+        <div
+          id="hello-retail-slider-wrapper"
+          class="hello-retail-slider-wrapper relative ml-4 xl:ml-0"
+          style="display: none;"
+        >
+        <?php if ($title): ?>
+            <div class="flex justify-center mb-6 lg:mb-8">
+            <<?= $headingTag ?> class="text-center">
+            <?= $escaper->escapeHtml($title); ?>
+            </<?= $headingTag ?>>
+            </div>
+        <?php endif; ?>
+            <div class="flex items-center justify-between">
+                <?php if ($displayArrows): ?>
+                    <div class="swiper-prev flex-shrink-0 ml-10 mr-4 hidden xl:block">
+                        <button
+                          type="button"
+                          aria-label="<?= $escaper->escapeHtmlAttr(__('Previous slide')) ?>"
+                          class="swiper-prev_<?= $uniqueId ?> border-2 p-3.5 bg-white flex items-center justify-center"
+                        >
+                            <?= $hyvaicons->renderHtml('next', 'rotate-180', 24, 24) ?>
+                        </button>
+                    </div>
+                <?php endif; ?>
+                <div class="swiper swiper_<?= $uniqueId ?> overflow-hidden flex-grow max-xl:!pr-4">
+                    <div class="swiper-wrapper flex">
+                        <?php foreach ($items as $product):
+                            $slideUniqueId = $uniqueId . '-' . uniqid();
+                            $trackingCode = null;
+
+                            // Find tracking code by product number
+                            foreach ($productTrackingCodes as $item) {
+                                if ($item['productNumber'] === $product->getSku()) {
+                                    $trackingCode = $item['trackingCode'];
+                                    break;
+                                }
+                            }
+                        ?>
+                            <div class="swiper-slide bg-white <?= $escaper->escapeHtmlAttr($slideItemClasses) ?>"
+                                 id="slide-<?= $slideUniqueId; ?>"
+                                 role="group"
+                                 aria-label="<?= $escaper->escapeHtmlAttr(__('Item %1', $sliderIndex++)) ?>"
+                                 :aria-describedby="'slide-desc-' +
+                                 <?= $escaper->escapeHtmlAttr($product->getId()) ?> + '-' + $id('slider-id')"
+                            >
+                                <?php if ($trackingCode): ?>
+                                <div
+                                  type="button"
+                                  @click="
+                                    hrq = window.hrq || [];
+                                    hrq.push([
+                                        'trackClick',
+                                         '<?= $escaper->escapeHtmlAttr($trackingCode) ?>'
+                                  ]);"
+                                >
+                                <?php endif; ?>
+                                <?= $productListItemViewModel->getItemHtmlWithRenderer(
+                                    $sliderItemRenderer,
+                                    $product,
+                                    $block,
+                                    $viewMode,
+                                    ProductReviewRenderer::SHORT_VIEW,
+                                    $imageDisplayArea,
+                                    $showDescription
+                                ) ?>
+                                <?php if ($trackingCode): ?>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="swiper-scrollbar swiper-scrollbar_<?= $uniqueId ?>"></div>
+                </div>
+                <?php if ($displayArrows): ?>
+                    <div class="swiper-next flex-shrink-0 mr-10 ml-4 hidden xl:block">
+                        <button
+                          type="button"
+                          aria-label="<?= $escaper->escapeHtmlAttr(__('Next slide')) ?>"
+                          class="swiper-next_<?= $uniqueId ?> border-2 p-3.5 bg-white flex items-center justify-center"
+                        >
+                            <?= $hyvaicons->renderHtml('next', '', 24, 24) ?>
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+</section>
+
+<?php
+if ($sharedItemRendererTemplate) {
+    $sliderItemRenderer->setTemplate($sharedItemRendererTemplate);
+}
+?>

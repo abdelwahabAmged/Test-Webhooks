@@ -1,0 +1,9 @@
+[data-content-type='banner'] {
+    .pagebuilder-banner-wrapper {
+        @apply flex items-center container;
+    }
+
+    h2 {
+        @apply mb-4;
+    }
+}

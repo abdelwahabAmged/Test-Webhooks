@@ -1,0 +1,3 @@
+[data-element="block_directive"] {
+    @apply bg-inherit rounded-[inherit];
+}

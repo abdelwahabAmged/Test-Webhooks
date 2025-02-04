@@ -1,0 +1,19 @@
+[data-content-type='slider'] {
+    .pagebuilder-slide-wrapper {
+        @apply flex items-center;
+    }
+
+    h1 {
+        @apply mb-4;
+    }
+}
+
+.pagebuilder-slider {
+    &:not(.pagebuilder-content-type) {
+        @apply slider-scroll;
+
+        > :not(.carousel-nav):not(.carousel-nav-element) {
+            @apply min-w-full;
+        }
+    }
+}

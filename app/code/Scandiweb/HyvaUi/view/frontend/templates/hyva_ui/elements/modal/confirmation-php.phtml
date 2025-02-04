@@ -1,0 +1,33 @@
+<?php declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\Modal;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Modal $modelViewModel */
+/** @var HeroiconsSolid $heroIcons */
+
+$modelViewModel = $viewModels->require(Modal::class);
+$heroIcons = $viewModels->require(HeroiconsSolid::class);
+$modal = $modelViewModel->confirm()
+    ->withTemplate('Scandiweb_HyvaUi::hyva_ui/elements/modal/template/confirmation-content.phtml')
+    ->withTitle(__('Are you sure?'))
+    ->withDetails($escaper->escapeHtml(__('This action is permanent. Be sure before taking action.')))
+    ->withOKLabel(__('Yes'))
+    ->withCancelLabel(__('No'))
+    ->positionCenter()
+    ->removeDialogClass('p-10', 'rounded-lg')
+    ->addDialogClass('rounded-xl m-4');
+?>
+
+<div x-data="hyva.modal()">
+
+    <button @click="<?= $escaper->escapeHtmlAttr($modal->getShowJs()) ?>" type="button" class="btn">
+        <?= $escaper->escapeHtml(__('Show confirmation dialog')) ?>
+    </button>
+
+    <?= /** @noEscape */ $modal ?>
+</div>

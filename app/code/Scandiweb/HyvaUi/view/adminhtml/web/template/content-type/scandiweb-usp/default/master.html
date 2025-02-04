@@ -1,0 +1,52 @@
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Amr Osama <amr.osama@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<div attr="data.main.attributes" ko-style="data.main.style" css="data.main.css">
+    <div data-is-page-builder-ignored-element="true">
+        <if args="data.usp_subtitle.html">
+            <span
+                attr="data.usp_subtitle.attributes"
+                ko-style="data.usp_subtitle.style"
+                css="data.usp_subtitle.css"
+                html="data.usp_subtitle.html"
+                hidden
+            >
+            </span>
+        </if>
+        <if args="data.usp_title.html">
+            <div
+                attr="data.usp_title.attributes"
+                ko-style="data.usp_title.style"
+                css="data.usp_title.css"
+                html="data.usp_title.html"
+                hidden
+            ></div>
+        </if>
+        <if
+            args="data.usp_sections.attributes().cards.length > 0 && data.usp_sections.attributes().cards !== '[]'"
+        >
+            <div
+                data-bind="attr: { cards: JSON.stringify(data.usp_sections.attributes().cards) }"
+                ko-style="data.usp_sections.style"
+                data-element="usp_sections"
+                css="data.usp_sections.css"
+                hidden
+            ></div>
+        </if>
+        <div
+            attr="data.usp_color.attributes"
+            ko-style="data.usp_color.style"
+            css="data.usp_color.css"
+            hidden
+        ></div>
+    </div>
+    <div
+        attr="data.block_directive.attributes"
+        html="data.block_directive.html"
+    ></div>
+</div>

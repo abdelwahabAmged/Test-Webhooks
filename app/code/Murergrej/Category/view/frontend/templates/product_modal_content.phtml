@@ -1,0 +1,672 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Category
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+use Magento\Catalog\Model\Product;
+use Hyva\Theme\ViewModel\ProductListItem;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Magento\Catalog\Block\Product\View;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Magento\Catalog\Pricing\Price\FinalPrice;
+use Magento\Catalog\Pricing\Price\RegularPrice;
+use Magento\Catalog\Pricing\Price\TierPrice;
+use Magento\Framework\Pricing\Render;
+use Magento\Msrp\Pricing\Price\MsrpPrice;
+use Hyva\Theme\ViewModel\Wishlist;
+use Hyva\Theme\ViewModel\ProductPage;
+use Hyva\Theme\ViewModel\ProductStockItem;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+
+/** @var View $block */
+/** @var Escaper $escaper */
+/** @var Product $product */
+$product = $block->getData('product');
+$supplierOrders = $product->getData('supplier_orders');
+$shouldDisplayProductStockStatus = $block->getData('should_display_stock_status') ?? true;
+$shouldRenderQty = $block->getData('product_type_config');
+$defaultQty = $block->getData('product_default_qty') ?: null;
+$attributes = $block->getData('config_product_attributes') ?: null;
+$jsonConfig = $block->getData('json_config') ?: null;
+$jsonSwatchConfig = $block->getData('json_swatch_config') ?: null;
+
+/** @var ViewModelRegistry $viewModels */
+$productListItemViewModel = $viewModels->require(ProductListItem::class);
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+/** @var ProductPrice $productPriceViewModel */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+
+$imageDisplayArea = $block->getData('image_display_area') ?? 'product_page_image_medium';
+$imageUrl = $block->getImage($product, $imageDisplayArea)->getImageUrl();
+$imageCustomAttributes = $product->getData('image_custom_attributes')
+    ?? $block->getData('image_custom_attributes')
+    ?? [];
+$productId = $product->getId();
+
+$deliveringDaysFromWarehouse = $block->getData('delivering_days');
+$inStock = $product->getIsSalable();
+/** @var ProductPrice $productPriceViewModel */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+$regularPrice = $productPriceViewModel->getPriceValue(RegularPrice::PRICE_CODE, $product);
+$finalPrice = $productPriceViewModel->getPriceValue(FinalPrice::PRICE_CODE, $product);
+$tierPrices = $productPriceViewModel->getTierPrices(TierPrice::PRICE_CODE, $product);
+
+if ($productPriceViewModel->displayPriceInclAndExclTax()) {
+    $regularPriceExclTax = $productPriceViewModel->getPriceValueExclTax(RegularPrice::PRICE_CODE, $product);
+    $finalPriceExclTax = $productPriceViewModel->getPriceValueExclTax(FinalPrice::PRICE_CODE, $product);
+}
+
+$displayTax = $productPriceViewModel->displayPriceIncludingTax();
+
+// We expect to refactor MSRP Support on the product detail page, which is why we put this code here
+// and not in a view model. Once it is a method on a view model, it is part of the public API and
+// removing it is a backward compatibility-breaking change.
+// So we won't do that. Removing it from the template, however, is backward compatible, so here it is.
+if ($msrpPrice = iterator_to_array($product->getPriceInfo()->getPrices())[MsrpPrice::PRICE_CODE] ?? null) {
+    if ($msrpPrice->canApplyMsrp($product) && $msrpPrice->isMinimalPriceLessMsrp($product)) {
+        if (! ($priceRender = $block->getLayout()->getBlock('product.price.render.default'))) {
+            $priceRender = $block->getLayout()->createBlock(
+                Render::class,
+                'product.price.render.default',
+                ['data' => ['price_render_handle' => 'catalog_product_prices']]
+            );
+        }
+        echo /** @noEscape */ $priceRender->render(FinalPrice::PRICE_CODE, $product);
+        return;
+    }
+}
+// start qty view models
+/** @var ProductStockItem $stockItemViewModel */
+$stockItemViewModel = $viewModels->require(ProductStockItem::class);
+$minSalesQty = $stockItemViewModel->getMinSaleQty($product);
+$maxSalesQty = $stockItemViewModel->getMaxSaleQty($product);
+$defaultQty = $block->getProductDefaultQty($product) * 1;
+
+$step = $stockItemViewModel->getQtyIncrements($product)
+    ? $stockItemViewModel->getQtyIncrements($product)
+    : null;
+
+/**
+ * sets minimum and maximum values taking into account the values set in the admin,
+ * but taking into account the value of Qty Increments
+ */
+if ($step) {
+    $minSalesQty = ceil($minSalesQty / $step) * $step;
+    $maxSalesQty = floor($maxSalesQty / $step) * $step;
+    $defaultQty = ceil($defaultQty / $step) * $step;
+}
+
+$maxSalesQtyLength = ($maxSalesQty ? strlen((string) $maxSalesQty) : 4)
+    + (/* add one if decimal for separator */ (int) $stockItemViewModel->isQtyDecimal($product));
+// end qty view models
+
+//wishlist
+/** @var Wishlist $wishlistViewModel */
+$wishlistViewModel = $viewModels->require(Wishlist::class);
+/**
+ * When visiting wishlist/index/configure, the current class is Magento\Wishlist\Block\Item\Configure
+ * In that case we take the form parameters from the existing wishlist item
+ */
+$updateParams = $block->getData('product_type_config') ?: null;
+$uniqueId = '_' . uniqid();
+?>
+<div id="config-modal">
+    <?php if ($product): ?>
+        <div class="relative" x-init="setIsTierPriceTableInitialized()">
+            <button @click.prevent="hide" class="close cursor-pointer absolute top-4 right-4">
+                <?= $hyvaIcons->renderHtml('close-icon', '', 24, 24); ?>
+            </button>
+            <div class="flex">
+                <div class="image-gallery max-w-[308px] pt-10 mx-10 text-center">
+                    <div class="overflow-hidden product photo product-item-photo block mb-3 mx-auto w-full
+                            relative md:mb-0 md:shrink-0"
+                         tabindex="-1">
+                        <?= $block->getImage($product, $imageDisplayArea)
+                            ->setTemplate('Magento_Catalog::product/list/image.phtml')
+                            ->setData('custom_attributes', $imageCustomAttributes)
+                            ->setProductId($productId)
+                            ->toHtml(); ?>
+                    </div>
+                </div>
+                <div class="overflow-x-hidden flex-1">
+                    <h4 class="font-extrabold text-2xl pt-10 px-10 pb-2 bg-secondary-lighter">
+                        <?=$product->getName() ?>
+                    </h4>
+                    <div class="content bg-secondary-lighter flex-1 overflow-x-hidden overflow-y-visible max-h-[560px]">
+                        <div class="border-b-2 border-white">
+                            <div class="px-10 pb-6">
+                                <div class="text-sm pb-4">
+                                    <span class="font-normal"><?= $escaper->escapeHtml(__('SKU')) ?>: </span>
+                                    <span class="font-extrabold"><?= $escaper->escapeUrl($product->getSku()) ?></span>
+                                </div>
+                                <span class="item-listing-description overflow-hidden text-ellipsis text-sm">
+                                <p class="overflow-hidden break-words block"
+                                   style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;">
+                                    <?= $product->getListingDescription() ?>
+                                </p>
+                                <div class="flex pt-2">
+                                    <a href="<?= $product->getProductUrl() ?>"
+                                       class="btn text-sm self-start text-left pr-2 uppercase"
+                                    >
+                                        <?= $escaper->escapeHtml(__('See product details')) ?>
+                                    </a>
+                                    <img class="-mt-0.5" src="<?= $block->getViewFileUrl('images/blue-arrow.svg'); ?>"/>
+                                </div>
+                            </span>
+                            </div>
+                        </div>
+                        <?php if ($product->isSaleable() && count($attributes)): ?>
+                            <form
+                              method="post"
+                              action="<?= $escaper->escapeUrl($block->getSubmitUrl($product)) ?>"
+                              id="product_addtocart_form_quickshop"<?php if ($product->getOptions()): ?> enctype="multipart/form-data"<?php endif; ?>
+                            >
+                                <input type="hidden" name="product" value="<?= (int)$product->getId() ?>" />
+                                <input type="hidden" name="selected_configurable_option" value=""  />
+                                <input type="hidden" name="related_product" id="related-products-field" value="" />
+                                <input type="hidden" name="item"  value="<?= (int)$block->getRequest()->getParam('id') ?>">
+                                <?= $block->getBlockHtml('formkey') ?>
+                                <?php
+                                $optionsBlock = $block->getLayout()->getBlock('product.info.options.configurable');
+                                if ($optionsBlock) {
+                                    $optionsBlock->setData(
+                                        [
+                                            'product' => $product,
+                                            'config_product_attributes' => $attributes,
+                                            'json_config' => $jsonConfig,
+                                            'json_swatch_config' => $jsonSwatchConfig
+                                        ]
+                                    );
+                                }
+                                ?>
+                                <div
+                                  x-data="initQuickshopConfigurableOptions(
+                                    '<?= (int) $productId ?>',
+                                    <?= htmlspecialchars($jsonConfig, ENT_QUOTES, 'UTF-8') ?>
+                                  )"
+                                  x-init="init()"
+                                  class="flex flex-col gap-5 px-10 py-6 border-b-2 border-white"
+                                >
+                                    <?= $optionsBlock->toHtml(); ?>
+                                </div>
+                            </form>
+                            <?php
+                                $tierPriceBlock = $block->getLayout()->getBlock('product.tier.prices');
+
+                                if ($tierPriceBlock) {
+                                    $tierPriceBlock->setData('product', $product);
+                                }
+                            ?>
+                            <?= $tierPriceBlock->toHtml(); ?>
+                        <?php endif;?>
+                        <template x-if="isTierPriceTableInitialized">
+                            <div id="palletCountTotalWrapperQuickshop" class="hidden flex-col gap-y-1 pt-6 px-10">
+                                 <span class="text-xs font-extrabold">
+                                    <?= $escaper->escapeHtml(__('Current container details')) ?>:
+                                </span>
+                                <div>
+                                    <span class="text-sm">
+                                        <?= $escaper->escapeHtml(__('Pallet count')) ?>:
+                                    </span>
+                                    <span class="text-base font-extrabold" id="totalPalletCountQuickshop">0</span>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="pb-16" x-data="deliveryModalHandler()">
+                            <div class="delivery-and-returns flex justify-center gap-x-0.5 pt-6 px-10">
+                                <div class="flex justify-between px-3 py-1.5 bg-white w-6/12">
+                                    <div class="flex gap-x-1 items-center">
+                                        <?= $hyvaIcons->renderHtml('order', '', 16, 16); ?>
+                                        <span class="text-sm font-bold">
+                                        <?= $escaper->escapeHtml(__('Fast delivery')) ?>
+                                    </span>
+                                    </div>
+                                    <div class="viewPopup flex items-center">
+                                        <div @click="openModal('fastDelivery')" class="text-sm btn pr-1.5 cursor-pointer">
+                                            <?= $escaper->escapeHtml(__('VIEW')) ?>
+                                        </div>
+                                        <span @click="openModal('fastDelivery')" class="cursor-pointer">
+                                        <?= $hyvaIcons->renderHtml('open-in-new', '', 16, 16); ?>
+                                    </span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between px-3 py-1.5 bg-white w-6/12">
+                                    <div class="flex gap-x-1 items-center">
+                                        <?= $hyvaIcons->renderHtml('reload', '', 16, 16); ?>
+                                        <span class="text-sm font-bold">
+                                        <?= $escaper->escapeHtml(__('Easy returns')) ?>
+                                    </span>
+                                    </div>
+                                    <div class="viewPopup flex items-center">
+                                        <div @click="openModal('easyReturns')" class="text-sm btn pr-1.5 cursor-pointer">
+                                            <?= $escaper->escapeHtml(__('VIEW')) ?>
+                                        </div>
+                                        <span @click="openModal('easyReturns')" class="cursor-pointer">
+                                        <?= $hyvaIcons->renderHtml('open-in-new', '', 16, 16); ?>
+                                    </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal Structure -->
+                            <?=
+                            $this->getLayout()
+                                ->createBlock('Magento\Framework\View\Element\Template')
+                                ->setTemplate('Magento_Catalog::product/delivery-returns-modal.phtml')
+                                ->setData('modal_title', __('Delivery & pickup options'))
+                                ->setData('modal_block_id', 'delivery_and_pickup')
+                                ->setData('modal_name', 'fastDelivery')
+                                ->toHtml();
+
+                            ?>
+                            <?=
+                            $this->getLayout()
+                                ->createBlock('Magento\Framework\View\Element\Template')
+                                ->setTemplate('Magento_Catalog::product/delivery-returns-modal.phtml')
+                                ->setData('modal_title', 'Returns')
+                                ->setData('modal_block_id', 'returns')
+                                ->setData('modal_name', 'easyReturns')
+                                ->toHtml();
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between w-full bg-secondary-lighter border-t border-secondary">
+                <div class="prices py-3 pl-10">
+                    <template x-if="isTierPriceTableInitialized">
+                        <div
+                          id="productTotalPriceWrapperQuickhop"
+                          class="text-right"
+                          style="<?= $product->getTypeId() === 'configurable' ? 'display: none;' : '' ?>"
+                        >
+                            <p>
+                                <span class="font-extrabold text-sm text-primary-lighter">
+                                    <?= $escaper->escapeHtml(__('Total price')) ?>:
+                                </span>
+                                <span class="text-xl font-extrabold" id="grandTotalQuickshop">
+                                    <?= $productViewModel->format($regularPriceExclTax) ?>
+                                </span>
+                            </p>
+                            <p id="percentageDataQuickshop" class="text-xs text-green hidden">
+                                <?= $escaper->escapeHtml(__('save')) ?>
+                                <span class="text-green" id="totalSavedQuickshop">0 </span>
+                                (-<span id="discountPercentageQuickshop" class="text-green">0</span>%)
+                            </p>
+                        </div>
+                    </template>
+                    <div x-data="{...initVatSwitcherPrice(), ...initPrice(<?= (int)$product->getId() ?>, {
+                            regularPriceKey: '<?= $displayTax ? 'oldPrice' : 'baseOldPrice' ?>',
+                            finalPriceKey: '<?= $displayTax ? 'finalPrice' : 'basePrice' ?>',
+                            initialFinalPrice: '<?= (float)$finalPrice ?>',
+                            initialTierPrices: '<?= htmlspecialchars(json_encode($tierPrices), ENT_QUOTES, 'UTF-8') ?>',
+                            showRegularPriceLabel: '<?= $finalPrice < $regularPrice ?>',
+                            productIsSalable: '<?= $product->isSaleable() ?>',
+                            initialBasePrice: '<?= $productPriceViewModel->displayPriceInclAndExclTax() ?
+                                $finalPriceExclTax : null ?>'
+                        })}"
+                         x-bind="eventListeners"
+                         class="price-box price-final_price md:order-[-1]"
+                         id="productPriceBoxQuickshop"
+                    >
+                    <div x-show="!activeProductsPriceData && !isPriceHidden()">
+                        <div class="price-container">
+                            <div class="flex items-baseline">
+                                <?php if ($finalPrice < $regularPrice && $productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                                <div class="old-price-excl-tax">
+                                    <span
+                                      class="font-regular"
+                                      :class="{
+                                        'excluding-tax text-base': isExcludingTax(),
+                                        'regular-price text-xs': !isExcludingTax()
+                                      }"
+                                    >
+                                        <span
+                                          class="price font-extrabold line-through text-secondary mr-1"
+                                          x-html="hyva.formatPrice(<?= (float)$regularPriceExclTax ?> + getCustomOptionBasePrice())"
+                                        >
+                                            <?= /** @noEscape */ $productViewModel->format($regularPriceExclTax) ?>
+                                        </span>
+                                    </span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                                <div class="final-price-excl-tax">
+                                    <span
+                                      class="font-regular"
+                                      :class="{ 'excluding-tax': isExcludingTax(), 'regular-price': !isExcludingTax() }"
+                                    >
+                                        <span
+                                          class="price font-extrabold"
+                                          :class="isExcludingTax() ?
+                                           'text-xl <?= $finalPrice < $regularPrice ? 'text-red' : '' ?>' : 'text-base'"
+                                          x-html="getFormattedBasePrice()"
+                                        >
+                                            <?= /** @noEscape */ $productViewModel->format($finalPriceExclTax) ?>
+                                        </span>
+                                        <span
+                                          class="text-primary-lighter font-bold"
+                                          :class="{ 'text-sm': isExcludingTax(), 'text-xs': ! isExcludingTax() }"
+                                        >
+                                            <?= $escaper->escapeHtml(__('Excl. Tax')) ?>
+                                        </span>
+                                    </span>
+                                </div>
+                                <?php endif; ?>
+                                </div>
+                                <div
+                                  class="final-price inline-block"
+                                  itemprop="offers" itemscope="" itemtype="http://schema.org/Offer"
+                                >
+                                    <div
+                                      class="flex items-baseline"
+                                      :class="{ 'including-tax': isIncludingTax(), 'regular-price': !isIncludingTax() }"
+                                    >
+                                        <?php if ($finalPrice < $regularPrice): ?>
+                                            <div class="old-price mr-1 flex">
+                                                <span
+                                                  id="product-price-<?= (int)$product->getId() ?>"
+                                                  class="price-wrapper title-font font-regular"
+                                                  :class="{
+                                                    'text-base': isIncludingTax(),
+                                                    'text-xs': !isIncludingTax()
+                                                  }"
+                                                >
+                                                    <span
+                                                      class="price font-extrabold text-secondary line-through"
+                                                      x-html="hyva.formatPrice(<?= (float)$regularPrice ?> + getCustomOptionPrice())"
+                                                    >
+                                                        <?= /** @noEscape */ $productViewModel->format($regularPrice) ?>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <span
+                                          id="product-price-<?= (int)$product->getId() ?>"
+                                          class="price-wrapper title-font font-medium"
+                                        >
+                                            <span
+                                              class="price font-extrabold"
+                                              :class="{
+                                                'text-xl <?= $finalPrice < $regularPrice ? 'text-red' : '' ?>': isIncludingTax(),
+                                                'text-base': !isIncludingTax()
+                                               }"
+                                              x-html="getFormattedFinalPrice()">
+                                                <?= /** @noEscape */ $productViewModel->format($finalPrice) ?>
+                                            </span>
+                                            <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                                                <span
+                                                  class="text-primary-lighter font-bold"
+                                                  :class="{ 'text-sm': isIncludingTax(), 'text-xs': ! isIncludingTax() }"
+                                                >
+                                                    <?= $escaper->escapeHtml(__('Incl. Tax')) ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </span>
+                                    </div>
+                                    <meta itemprop="price" content="<?= $escaper->escapeHtmlAttr($finalPrice) ?>">
+                                    <meta
+                                      itemprop="priceCurrency"
+                                      content="<?= $escaper->escapeHtmlAttr($productViewModel->getCurrencyData()['code']) ?>"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                        <template x-if="activeProductsPriceData">
+                            <div class="price-excl-taxinline-block flex items-baseline">
+                                <template x-if="activeProductsPriceData &&
+                                    activeProductsPriceData.oldPrice &&
+                                    activeProductsPriceData[finalPriceKey].amount < activeProductsPriceData[regularPriceKey].amount"
+                                >
+                                    <div class="old-price-excl-tax">
+                                        <span class="font-regular">
+                                            <span
+                                              class="price font-extrabold line-through text-secondary mr-1"
+                                              :class="{
+                                                'excluding-tax text-base': isExcludingTax(),
+                                                'regular-price text-xs': !isExcludingTax()
+                                              }"
+                                              x-html="hyva.formatPrice(<?= (float)$regularPriceExclTax ?> + getCustomOptionBasePrice())"
+                                            >
+                                                <?= /** @noEscape */ $productViewModel->format($regularPriceExclTax) ?>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </template>
+                                <span class="font-regular">
+                                    <span
+                                      class="price font-extrabold"
+                                      :class="{
+                                      'text-red': isExcludingTax() && activeProductsPriceData &&
+                                          activeProductsPriceData.oldPrice &&
+                                          activeProductsPriceData[finalPriceKey].amount < activeProductsPriceData[regularPriceKey].amount,
+                                          'text-xl': isExcludingTax(),
+                                          'text-base': !isExcludingTax()
+                                      }"
+                                      x-html="getFormattedBasePrice()"
+                                    ></span>
+                                    <span class="text-primary-lighter text-base font-bold">
+                                        <?= $escaper->escapeHtml(__('Excl. Tax')) ?>
+                                    </span>
+                                </span>
+                            </div>
+                        </template>
+                        <?php endif; ?>
+                        <template x-if="activeProductsPriceData">
+                            <div class="final-price inline-block flex items-baseline">
+                                <template x-if="activeProductsPriceData &&
+                                    activeProductsPriceData.oldPrice &&
+                                    activeProductsPriceData[finalPriceKey].amount < activeProductsPriceData[regularPriceKey].amount"
+                                >
+                                    <div class="old-price flex mr-1">
+                                        <span
+                                          id="product-price-<?= (int)$product->getId() ?>"
+                                          class="price-wrapper title-font"
+                                        >
+                                            <span
+                                                class="price font-extrabold text-secondary line-through"
+                                                :class="{
+                                                    'text-base': isIncludingTax(),
+                                                    'text-xs': !isIncludingTax()
+                                                  }"
+                                                x-html="hyva.formatPrice(
+                                                    activeProductsPriceData[regularPriceKey].amount + getCustomOptionPrice()
+                                                )"
+                                            ></span>
+                                        </span>
+                                    </div>
+                                </template>
+                                <span
+                                  id="product-price-<?= (int)$product->getId() ?>"
+                                  class="price-wrapper title-fontl"
+                                >
+                                    <span
+                                      class="price font-extrabold"
+                                      x-html="getFormattedFinalPrice()"
+                                      :class="{
+                                        'text-red': isIncludingTax() && activeProductsPriceData &&
+                                        activeProductsPriceData.oldPrice &&
+                                        activeProductsPriceData[finalPriceKey].amount < activeProductsPriceData[regularPriceKey].amount,
+                                        'text-xl': isIncludingTax(),
+                                        'text-base': !isIncludingTax()
+                                      }"
+                                    ></span>
+                                    <span
+                                      class="text-primary-lighter font-bold"
+                                      :class="{ 'text-sm': isIncludingTax(), 'text-xs': ! isIncludingTax() }"
+                                    >
+                                        <?= $escaper->escapeHtml(__('Incl. Tax')) ?>
+                                    </span>
+                                </span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="delivery py-3.5">
+                    <div class="product-information">
+                        <?php if ($supplierOrders === '0'): ?>
+                            <?php if ($shouldDisplayProductStockStatus): ?>
+                                <div class="stock-delivery text-center flex flex-col items-center">
+                                    <p class="stock-status flex w-[92px] justify-self-center py-1 pr-3 rounded-full
+                                     items-center align-middle gap-x-1 stock inline
+                                        text-sm font-extrabold text-white
+                                        before:w-4 before:h-4 before:rounded-full before:shrink-0
+                                    <?= $inStock ? 'available before:bg-white' : 'unavailable before:bg-white' ?>"
+                                       title="<?= $escaper->escapeHtmlAttr(__('Availability')) ?>"
+                                    ><?= $escaper->escapeHtml($inStock ? __('In stock') : __('Out of stock')) ?></p>
+                                    <p class="self-center text-xs font-extrabold pt-2">
+                                        <?= $escaper->escapeHtmlAttr(__('(delivered in 1-2 days)')) ?>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php if ($supplierOrders === '1'): ?>
+                            <div class="stock-delivery text center">
+                                <p class="stock-status-warehouse flex justify-self-center  py-1 rounded-full
+                                 inline items-center align-middle gap-x-1 stock text-sm font-extrabold text-white"
+                                   title="<?= $escaper->escapeHtmlAttr(__('Availability')) ?>">
+                                    <?= $hyvaIcons->renderHtml('trailing-icons', '', 16, 16) ?>
+                                    <?= $escaper->escapeHtml(__('In remote warehouse')) ?>
+                                </p>
+                                <p class="self-center text-xs font-extrabold pt-2">
+                                    <?= $escaper->escapeHtmlAttr(
+                                      __('(delivery in ' . $deliveringDaysFromWarehouse . ' days)')
+                                    ) ?>
+                                </p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="qty-select-wishlist flex py-3">
+                    <?php if ($shouldRenderQty): ?>
+                    <div x-data="initQtyField(<?= (int)$product->getId() ?>, <?= $defaultQty ?>)"
+                         x-init="$dispatch('update-qty-<?= (int)$product->getId() ?>', qty)"
+                         class="product-cart-quantity flex items-center pr-3 h-[52px]">
+                        <?php if ($product->isSaleable()): ?>
+                            <div
+                              class="product-qty-wrapper flex items-center w-[80px] h-[52px] bg-white
+                               border-2 border-primary grid"
+                              style="grid-template-columns: 1fr 24px;"
+                            >
+                                <label for="qty[<?= (int)$product->getId() ?>]" class="sr-only">
+                                    <?= $escaper->escapeHtml(__('Quantity')) ?>
+                                </label>
+                                <input name="qty"
+                                       @private-content-loaded.window="onGetCartData($event.detail, $dispatch)"
+                                       id="qty[<?= (int)$product->getId() ?>]"
+                                       form="product_addtocart_form_quickshop"
+                                    <?php if ($stockItemViewModel->isQtyDecimal($product)): ?>
+                                        type="text"
+                                        pattern="[0-9]+(\.[0-9]{1,<?= /** @noEscape */ $maxSalesQtyLength ?>})?"
+                                        inputmode="decimal"
+                                    <?php else: ?>
+                                        type="number"
+                                        pattern="[0-9]{0,<?= /** @noEscape */ $maxSalesQtyLength ?>}"
+                                        inputmode="numeric"
+                                        <?php if ($minSalesQty): ?>min="<?= /** @noEscape */ $minSalesQty ?>"<?php endif; ?>
+                                        <?php $maxSalesQty = min($maxSalesQty ?: 999, 999); ?>
+                                        <?php if ($step): ?>step="<?= /** @noEscape */ $step ?>"<?php endif; ?>
+                                    <?php endif; ?>
+                                       :value="qty"
+                                       value="<?= $defaultQty * 1 ?>"
+                                       class="form-input pl-4 py-[10px] pr-2 text-center w-full font-semibold border-0
+                                        focus:outline-none shadow-none border-transparent"
+                                       x-model.number="qty"
+                                       @input="$dispatch('update-qty-<?= (int)$product->getId() ?>', qty)"
+                                       required
+                                       x-ref="qtyInput"
+                                />
+                                <div class="product-qty-buttons flex flex-col justify-between">
+                                    <button
+                                      type="button"
+                                      class="up m-0.5 w-fit hover:bg-primary-lighter"
+                                      onclick="this.parentNode.previousElementSibling.stepUp()"
+                                      @click="
+                                          qty = parseFloat($refs.qtyInput.value);
+                                          $dispatch('update-qty-<?= (int)$product->getId() ?>', qty)
+                                      "                                    >
+                                        <?= $hyvaIcons->renderHtml('up', '', 12, 12) ?>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      class="down m-0.5 w-fit hover:bg-primary-lighter"
+                                      onclick="this.parentNode.previousElementSibling.stepDown()"
+                                      @click="
+                                          qty = parseFloat($refs.qtyInput.value);
+                                          $dispatch('update-qty-<?= (int)$product->getId() ?>', qty)
+                                      "
+                                    >
+                                        <?= $hyvaIcons->renderHtml('down', '', 12, 12) ?>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                    <button
+                      type="button"
+                      @click.prevent="submitForm"
+                      title="<?= $escaper->escapeHtmlAttr(__('Select variant')) ?>"
+                      class="btn btn-primary px-6 h-[52px]"
+                    >
+                        <?= $escaper->escapeHtml(__('Select variant')) ?>
+                    </button>
+                    <?php if ($wishlistViewModel->isEnabled()): ?>
+                        <button x-data="initWishlistInProductModal(<?= json_encode($updateParams ?: []) ?>)"
+                                x-defer="intersect"
+                                @click.prevent="addToWishlist(<?= (int)$product->getId() ?>)"
+                                title="<?= $escaper->escapeHtmlAttr(
+                                    ($updateParams) ? __('Update Wish List') : __('Add to Wish List')
+                                ) ?>"
+                                aria-label="<?= $escaper->escapeHtmlAttr(
+                                    ($updateParams) ? __('Update Wish List') : __('Add to Wish List')
+                                ) ?>"
+                                id="add-to-wishlist_quickshop"
+                                class="border-2 btn-secondary inline-flex items-center justify-center ml-3
+                                 mr-10 w-[52px] h-[52px] p-3"
+                                data-addto="wishlist"
+                        >
+                            <?php
+                            $titleText = $escaper->escapeHtmlAttr(
+                                ($updateParams) ? __('Update Wish List') : __('Add to Wish List')
+                            );
+                            $svg = $heroicons->heartHtml(
+                              '',
+                              24,
+                              24,
+                              ['stroke' => '#1D1F22', 'stroke-width' => '2', 'fill' => 'none']
+                            );
+
+                            // Replace the content of the existing <title> element
+                            $svgWithUpdatedTitle = preg_replace(
+                                '/<title>.*?<\/title>/',
+                                "<title>{$titleText}</title>",
+                                $svg
+                            );
+                            // Output the SVG with the dynamic title
+                            echo $svgWithUpdatedTitle;
+                            ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>

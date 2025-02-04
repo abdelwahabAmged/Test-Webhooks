@@ -1,0 +1,888 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Category
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Magento\Tax\Model\Config;
+use Hyva\Theme\ViewModel\ProductPage;
+use Magento\Framework\Escaper;
+
+/** @var ViewModelRegistry $viewModels */
+/** @var Escaper $escaper */
+
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+
+/** @var ProductPrice $productPriceViewModel */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+
+$displayTax = $productPriceViewModel->displayPriceIncludingTax();
+
+$uniqueId = uniqid('_');
+
+$swiperUrl = $this->getViewFileUrl('js/swiper.min.js');
+$swiperCssUrl = $this->getViewFileUrl('css/swiper.min.css');
+?>
+
+<div class="modal">
+    <div id="modal-content-config">
+        <!-- Fetched content will be injected here -->
+    </div>
+</div>
+
+<script>
+    function productDataLoader() {
+        return {
+            ...hyva.modal(),
+            isLoading: false,
+            isTierPriceTableInitialized: false,
+            isFormSubmitError: false,
+
+            fetchProductData(productId) {
+                this.isLoading = true;
+
+                fetch(`/configmodallayout/product/productModal?id=${productId}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.querySelector('#modal-content-config').innerHTML = html;
+                        this.isLoading = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching product data:', error);
+                        this.isLoading = false;
+                    });
+            },
+            init() {
+                window.openConfigModal = (event, productId) => {
+                    event.preventDefault();
+
+                    document.querySelector('#modal-content-config').innerHTML = '';
+                    this.show('config-modal', event);
+                    this.fetchProductData(productId);
+                };
+            },
+            submitForm() {
+                const form = document.getElementById('product_addtocart_form_quickshop');
+                const actionUrl = form.action;
+                const formData = new FormData(form);
+
+                if (!form.reportValidity()) {
+                    return;
+                }
+
+                this.isLoading = true;
+
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                })
+                  .then(response => response.text())
+                  .then(() => {
+                      window.location.reload();
+                      this.isLoading = false;
+                  })
+                  .catch(error => {
+                      this.isLoading = false;
+                      console.error('Error submitting form in Quickshop modal:', error);
+                  });
+            },
+            setIsTierPriceTableInitialized() {
+                this.isTierPriceTableInitialized = document.getElementById('tierPriceTableQuickshop') !== null;
+            }
+        };
+    }
+
+    function deliveryModalHandler() {
+        return {
+            currentModal: null,
+
+            closeModal() {
+                this.currentModal = null;
+            },
+
+            openModal(modal) {
+                this.currentModal = modal;
+            }
+        };
+    }
+
+    function initModalConfigurableSwatchOptions(productId, jsonConfig, jsonSwatchConfig) {
+        const configurableOptionsComponent = initConfigurableOptions(
+          productId,
+          jsonConfig
+        );
+        const swatchOptionsComponent = initSwatchOptions(jsonSwatchConfig);
+
+        return Object.assign(
+          configurableOptionsComponent,
+          swatchOptionsComponent
+        );
+    }
+
+    function initSliderComponent(uniqueId) {
+        return {
+            init() {
+                if (!window.Swiper) {
+                    this.addJsScript();
+                    this.addCss();
+                } else {
+                    this.initializeSwiper(uniqueId);
+                }
+            },
+            initializeSwiper(uniqueId) {
+                const swiperElement = this.$el.querySelector('.swiper_' + uniqueId);
+
+                if (!swiperElement) {
+                    return;
+                }
+
+                const swiper = new Swiper(swiperElement, {
+                    slidesPerView: 'auto',
+                    spaceBetween: 8,
+                    draggable: true,
+                    touchEventsTarget: 'container',
+                    navigation: {
+                        nextEl: '.swiper-next_' + uniqueId,
+                        prevEl: '.swiper-prev_' + uniqueId,
+                    },
+                    scrollbar: {
+                        el: '.swiper-scrollbar_' + uniqueId,
+                        draggable: true,
+                    }
+                });
+            },
+            addJsScript() {
+                const self = this;
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.addEventListener('load', () => {
+                    self.initializeSwiper(uniqueId);
+                });
+                script.src = '<?= $escaper->escapeJs($escaper->escapeHtml($swiperUrl)) ?>';
+                document.head.appendChild(script);
+            },
+            addCss() {
+                const link = document.createElement('link');
+                link.type = 'text/css';
+                link.rel = 'stylesheet';
+                link.href = '<?= $escaper->escapeJs($escaper->escapeHtml($swiperCssUrl)) ?>';
+                document.head.appendChild(link);
+            },
+        }
+    }
+
+    function initVatSwitcherPrice() {
+        return {
+            vatMode: sessionStorage.getItem('vatToggle') === 'incl' ? 'including' : 'excluding',
+            isIncludingTax() {
+                return this.vatMode === 'including';
+            },
+
+            isExcludingTax() {
+                return this.vatMode === 'excluding';
+            }
+        }
+    }
+
+    function initPrice(productId, config) {
+        <?php /* All four of these keys are used - they are rendered by PHP */ ?>
+        const regularPriceInclTaxKey = 'oldPrice',
+          regularPriceExclTaxKey = 'baseOldPrice',
+          finalPriceInclTaxKey = 'finalPrice',
+          finalPriceExclTaxKey = 'basePrice';
+
+        function calculateCustomOptionPrices(activeCustomOptions, customOptionPrices) {
+            return activeCustomOptions.reduce((priceAccumulator, activeCustomOptionId) => {
+                const customOptionPrice = customOptionPrices[activeCustomOptionId];
+                if (customOptionPrice) {
+                    return Number.parseFloat(priceAccumulator) + Number.parseFloat(customOptionPrice);
+                }
+                return priceAccumulator;
+            }, 0);
+        }
+
+        return {
+            ...config,
+            activeProductsPriceData: false,
+            calculatedFinalPrice: false,
+            calculatedFinalPriceWithCustomOptions: false,
+            customOptionPrices: [],
+            <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+            calculatedBasePrice: false,
+            customOptionBasePrices: [],
+            calculatedBasePriceWithCustomOptions: false,
+            <?php endif; ?>
+            activeCustomOptions: [],
+            qty: 1,
+            updateCustomOptionActive(data) {
+                let activeCustomOptions = this.activeCustomOptions;
+                const customOptionId = data.customOptionId;
+
+                if (data.active) {
+                    if (!activeCustomOptions.includes(customOptionId)) {
+                        activeCustomOptions.push(data.customOptionId);
+                    }
+                } else {
+                    if (customOptionId && activeCustomOptions.includes(customOptionId)) {
+                        let index = activeCustomOptions.indexOf(customOptionId);
+                        activeCustomOptions.splice(index, 1);
+                    }
+                }
+                this.calculateFinalPriceWithCustomOptions()
+            },
+            updateCustomOptionPrices(prices, basePrices) {
+                if (prices) {
+                    this.customOptionPrices = prices;
+                }
+
+                <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                if (basePrices) {
+                    this.customOptionBasePrices = basePrices;
+                }
+                <?php endif; ?>
+
+                this.calculateFinalPriceWithCustomOptions();
+            },
+            calculateFinalPrice() {
+                <?php /* Magento\ConfigurableProduct\Block\Product\View\Type\Configurable::getTierPricesByProduct option prices */ ?>
+                <?php /* only sets the basePrice key if display "display incl + excl" is set. Other product types always set it. */ ?>
+                <?php /* If display is set to excl tax, we need to fall back to 'price' for configurable products. */ ?>
+                const getOptionTierPrice = (tierPrice, withTax) => {
+                    <?php if ($productPriceViewModel->getPriceDisplayType() === Config::DISPLAY_TYPE_EXCLUDING_TAX): ?>
+                    return tierPrice['price'];
+                    <?php else: ?>
+                    return tierPrice[withTax ? 'price' : 'basePrice'];
+                    <?php endif; ?>
+                }
+
+                const findApplicableTierPrice = (initialPrice, withTax) => {
+                    if (this.activeProductsPriceData && this.activeProductsPriceData.tierPrices) {
+                        return this.activeProductsPriceData.tierPrices.reduce((acc, tierPrice) => {
+                            const tierPriceCandidate = getOptionTierPrice(tierPrice, withTax);
+                            if (this.qty >= tierPrice.qty && tierPriceCandidate < acc) {
+                                return tierPriceCandidate;
+                            }
+                            return acc;
+                        }, this.activeProductsPriceData[withTax ? finalPriceInclTaxKey : finalPriceExclTaxKey].amount);
+
+                    } else {
+                        const key = withTax ? 'price_incl_tax' : 'price_excl_tax';
+                        return Object.values(this.initialTierPrices).reduce((acc, tierPrice) => {
+                            if (this.qty >= tierPrice.price_qty && tierPrice[key] < acc) {
+                                return tierPrice[key];
+                            }
+                            return acc;
+                        }, initialPrice);
+
+                    }
+                }
+
+                this.calculatedFinalPrice =
+                  findApplicableTierPrice(this.initialFinalPrice, <?= $displayTax ? 'true' : 'false' ?>);
+                window.dispatchEvent(
+                  new CustomEvent("update-product-final-price", {detail: this.calculatedFinalPrice})
+                );
+
+                <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                this.calculatedBasePrice = findApplicableTierPrice(parseFloat(this.initialBasePrice), false);
+                window.dispatchEvent(
+                  new CustomEvent("update-product-base-price", { detail: { basePrice: this.calculatedBasePrice } })
+                );
+                <?php endif; ?>
+            },
+            calculatePriceLabelVisibility() {
+                this.showRegularPriceLabel =
+                  (this.calculatedFinalPrice === this.activeProductsPriceData[this.regularPriceKey].amount) &&
+                  this.activeProductsPriceData.isMinimalPrice;
+            },
+            calculateFinalPriceWithCustomOptions() {
+                const finalPrice = this.calculatedFinalPrice || this.initialFinalPrice;
+                this.calculatedFinalPriceWithCustomOptions = finalPrice + this.getCustomOptionPrice();
+                <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                const basePrice = this.calculatedBasePrice || this.initialBasePrice;
+                this.calculatedBasePriceWithCustomOptions = basePrice + this.getCustomOptionBasePrice();
+                <?php endif; ?>
+            },
+            getCustomOptionPrice() {
+                return calculateCustomOptionPrices(this.activeCustomOptions, this.customOptionPrices);
+            },
+            <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+            getCustomOptionBasePrice() {
+                return calculateCustomOptionPrices(this.activeCustomOptions, this.customOptionBasePrices);
+            },
+            <?php endif; ?>
+            getFormattedFinalPrice() {
+                return hyva.formatPrice(
+                  this.calculatedFinalPriceWithCustomOptions ||
+                  this.calculatedFinalPrice ||
+                  this.initialFinalPrice
+                )
+            },
+            <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+            getFormattedBasePrice() {
+                return hyva.formatPrice(
+                  this.calculatedBasePriceWithCustomOptions ||
+                  this.calculatedBasePrice ||
+                  this.initialBasePrice
+                )
+            },
+            <?php endif; ?>
+            isPriceHidden() {
+                const finalPrice = this.calculatedFinalPriceWithCustomOptions ||
+                  this.calculatedFinalPrice ||
+                  this.initialFinalPrice;
+                return this.productIsSalable && finalPrice === 0;
+            },
+            eventListeners: {
+                ['@update-prices-' + productId + '.window'](event) {
+                    this.activeProductsPriceData = event.detail;
+                    document.getElementById(`qty[${productId}]`).value = this.qty || 1;
+
+                    this.calculateFinalPrice();
+                    this.calculateFinalPriceWithCustomOptions();
+                    this.calculatePriceLabelVisibility();
+                },
+                ['@update-qty-' + productId + '.window'](event) {
+                    this.qty = event.detail;
+                    this.calculateFinalPrice();
+                    this.calculateFinalPriceWithCustomOptions();
+                },
+                ['@update-custom-option-active.window'](event) {
+                    this.updateCustomOptionActive(event.detail);
+                },
+                ['@update-custom-option-prices.window'](event) {
+                    this.updateCustomOptionPrices(event.detail);
+                },
+                ['@vat-switch.window'](event) {
+                    this.vatMode = event.detail;
+                },
+                <?php if ($productPriceViewModel->displayPriceInclAndExclTax()): ?>
+                ['@update-custom-option-base-prices.window'](event) {
+                    this.updateCustomOptionPrices(null, event.detail);
+                }
+                <?php endif; ?>
+            }
+        }
+    }
+
+    function initWishlistInProductModal(updateParams) {
+        return {
+            addToWishlist(productId) {
+                const postParams = updateParams && Object.keys(updateParams).length
+                  ? updateParams
+                  : {
+                      action: BASE_URL + "wishlist/index/add/",
+                      data: {
+                          product: productId,
+                          uenc: hyva.getUenc()
+                      }
+                  };
+
+                postParams.data['form_key'] = hyva.getFormKey();
+                postParams.data['qty'] = document.getElementById(`qty[${productId}]`)
+                  ? document.getElementById(`qty[${productId}]`).value || 1
+                  : 1;
+
+                let postData = Object.keys(postParams.data).map(key => {
+                    return `${key}=${postParams.data[key]}`;
+                }).join('&');
+
+                // take the all the input fields that configure this product
+                // includes custom, configurable, grouped and bundled options
+                Array.from(document.querySelectorAll(
+                  '[name^=options], [name^=super_attribute], [name^=bundle_option], [name^=super_group], [name^=links]')
+                ).map(input => {
+                    if (input.type === "select-multiple") {
+                        Array.from(input.selectedOptions).forEach(option => {
+                            postData += `&${input.name}=${option.value}`
+                        })
+                    } else {
+                        // skip "checkable inputs" that are not checked
+                        if(!(['radio', 'checkbox', 'select'].includes(input.type) && !input.checked)) {
+                            postData += `&${input.name}=${input.value}`
+                        }
+                    }
+                });
+                fetch(postParams.action, {
+                    "headers": {
+                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    },
+                    "body": postData,
+                    "method": "POST",
+                    "mode": "cors",
+                    "credentials": "include"
+                }).then((response) => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else if (response.ok) {
+                        return response.json();
+                    } else {
+                        typeof window.dispatchMessages !== "undefined" && window.dispatchMessages(
+                          [{
+                              type: "warning",
+                              text: "<?= $escaper->escapeHtml(__('Could not add item to wishlist.')) ?>"
+                          }], 5000
+                        );
+                    }
+                }).then((response) => {
+                    if (!response) {
+                        return;
+                    }
+                    typeof window.dispatchMessages !== "undefined" && window.dispatchMessages(
+                      [{
+                          type: (response.success) ? "success" : "error",
+                          text: (response.success)
+                            ? "<?= $escaper->escapeHtml(
+                                  __("%1 has been added to your Wish List.", __("Product"))
+                              ) ?>"
+                            : response.error_message
+                      }], 5000
+                    );
+                    const reloadCustomerDataEvent = new CustomEvent("reload-customer-section-data");
+                    window.dispatchEvent(reloadCustomerDataEvent);
+                }).catch((error) => {
+                    typeof window.dispatchMessages !== "undefined" && window.dispatchMessages(
+                      [{
+                          type: "error",
+                          text: error
+                      }], 5000
+                    );
+                });
+            }
+        }
+    }
+
+    function initQtyField(productId, defaultQty) {
+        function findPathParam(key) {
+            const baseUrl = (BASE_URL.substring(0, 2) === '//' ? 'http:' : '') + BASE_URL;
+            const baseUrlParts = (new URL(baseUrl)).pathname.replace(/\/$/, '').split('/');
+            const pathParts = window.location.pathname.split('/').slice(baseUrlParts.length + 3);
+            for (let i = 0; i < pathParts.length; i += 2) {
+                if (pathParts[i] === key && pathParts.length > i) {
+                    return pathParts[i + 1];
+                }
+            }
+        }
+
+        function updateDivVisibility() {
+            const mainProductQty = document.getElementById(`qty[${productId}]`);
+
+            if (mainProductQty) {
+                // Find the spinner buttons related only to the main product's quantity field
+                const mainProductSpinnerButtons =
+                  mainProductQty.closest('.custom-spinner')?.querySelector('.spinner-buttons');
+
+                if (mainProductQty.disabled) {
+                    if (mainProductSpinnerButtons) {
+                        mainProductSpinnerButtons.classList.add('hidden');
+                    }
+                } else {
+                    if (mainProductSpinnerButtons) {
+                        mainProductSpinnerButtons.classList.remove('hidden');
+                    }
+                }
+            }
+        }
+
+        return {
+            qty: defaultQty,
+            itemId: (new URLSearchParams(window.location.search)).get('id') || findPathParam('id'),
+            productId: productId,
+            onGetCartData: function onGetCartData(data, $dispatch) {
+                const cart = data && data.data && data.data.cart;
+                if (this.itemId && cart && cart.items) {
+                    const cartItem = cart.items.find((item) => {
+                        return item.item_id === this.itemId && item.product_id === this.productId;
+                    });
+                    if (cartItem && cartItem.qty) {
+                        this.qty = cartItem.qty;
+                        $dispatch('update-qty-' + this.productId, this.qty);
+                    }
+                }
+            },
+            init: function() {
+                // Initialize the visibility of the div based on the input's disabled state
+                updateDivVisibility();
+            }
+        };
+    }
+
+    function initQuickshopConfigurableOptions(productId, optionConfig) {
+        function findPathParam(key) {
+            <?php /* get all path pairs after BASE_URL/front_name/action_path/action */ ?>
+            const baseUrl = (BASE_URL.substring(0, 2) === '//' ? 'http:' : '') + BASE_URL;
+            const baseUrlParts = (new URL(baseUrl)).pathname.replace(/\/$/, '').split('/');
+            const pathParts = window.location.pathname.split('/').slice(baseUrlParts.length + 3);
+            for (let i = 0; i < pathParts.length; i += 2) {
+                if (pathParts[i] === key && pathParts.length > i) {
+                    return pathParts[i + 1];
+                }
+            }
+        }
+
+        return {
+            optionConfig,
+            productId,
+            itemId: (new URLSearchParams(window.location.search)).get('id') || findPathParam('id'),
+            allowedAttributeOptions: [],
+            selectedValues: [],
+            init() {
+                this.findAllowedAttributeOptions();
+                this.$nextTick(() => {
+                    if (typeof this.optionConfig.defaultValues === 'object') {
+                        for (const [attributeId, value] of Object.entries(this.optionConfig.defaultValues)) {
+                            this.changeOption(attributeId, value + '');
+                        }
+                    }
+                });
+            },
+            findSimpleIndex() {
+                <?php /* a better method name would be `updateSelectedSimpleIndex` but keeping for bc */ ?>
+                this.productIndex = this.calculateSimpleIndexForPartialSelection(this.selectedValues);
+            },
+            calculateSimpleIndexForPartialSelection(selectedValues) {
+                if (selectedValues.length === 0) return 0;
+                let productIndexIds = Object.keys(this.optionConfig.index);
+                Object.keys(this.optionConfig.attributes).forEach((attribute) => {
+                    <?php
+                    // for each attribute, check if a value is selected for the attribute
+                    // if it is, filter all products to only include those that match the selected attribute value
+                    ?>
+                    const productsWithAttributeMatch = selectedValues[attribute]
+                      ? productIndexIds.filter((productIndex) => {
+                          return this.optionConfig.index[productIndex][attribute] === this.selectedValues[attribute]
+                      })
+                      : [];
+
+                    <?php /* if we found matches, only keep the ones that match, otherwise, keep all products */ ?>
+                    productIndexIds = productsWithAttributeMatch.length ? productsWithAttributeMatch : productIndexIds
+                })
+                return productIndexIds[0];
+            },
+            calculateSimpleIndexForFullSelection(selectedValues) {
+                const productIndexes = this.optionConfig.index;
+                return Object.keys(productIndexes).find(productIndex => {
+                    const productCandidateOptions = productIndexes[productIndex];
+
+                    for (const productOption in productCandidateOptions) {
+                        if (
+                          ! selectedValues[productOption] ||
+                          selectedValues[productOption] !== productCandidateOptions[productOption]
+                        ) {
+                            return false;
+                        }
+                    }
+                    return productIndex;
+                });
+            },
+            productIndex: 0,
+            findAllowedAttributeOptions() {
+                <?php /* a better method name would be `updateAllowedAttributeOptions` but keeping for bc */ ?>
+                this.allowedAttributeOptions = this.calculateAllowedAttributeOptions(this.selectedValues);
+            },
+            calculateAllowedAttributeOptions(selectedValues) {
+                const allAttributes = this.optionConfig.attributes;
+                const allAttributesSorted = Object.values(allAttributes).sort((a,b) => {
+                    return a.position - b.position
+                });
+
+                const newAllowedAttributeOptions = [];
+
+                allAttributesSorted.forEach(attribute => {
+                    const selectionWithoutAttr = Object.assign({}, this.removeAttrFromSelection(selectedValues, attribute.id));
+                    const availableIndexes = this.calculateAvailableProductIndexes(selectionWithoutAttr);
+                    newAllowedAttributeOptions[attribute.id] = allAttributes[attribute.id].options.filter(option => {
+                        return !!option.products.find(product => {
+                            return availableIndexes.includes(product);
+                        })
+                    });
+                });
+                return newAllowedAttributeOptions;
+            },
+            calculateAvailableProductIndexes(selectedOptions) {
+                if (Object.keys(selectedOptions).length === 0) {
+                    <?php /* for Magento >= 2.4.4 when out-of-stock products are shown */ ?>
+                    if (Object.values(this.optionConfig.salable || {}).length) {
+                        <?php
+                        // The object this.optionConfig.salable is a map {attrId: {optionId: [productIndexes]}}
+                        // This turns the objects into arrays and flattens them, and removes duplicates
+                        // avoiding Array.flat and Set because they don't quite make our coverage requirement on caniuse.com.
+                        // This ends up returning an array of salable product indexes.
+                        ?>
+                        return [].concat.apply([], [].concat.apply([], Object.values(this.optionConfig.salable).map(Object.values))).filter((x, i, a) => a.indexOf(x) === i)
+                    }
+                    <?php /* no selected options mean all products are available for selection */ ?>
+                    return Object.keys(this.optionConfig.index);
+                }
+
+                <?php
+                // when cataloginventory/options/show_out_of_stock is set, this.optionConfig.index contains
+                // out of stock products. Since 2.4.4 this.optionConfig.salable was introduced, which reflects
+                // the actual salable state of a product, but only if the option is set, otherwise it is an empty object.
+                // So if this.optionConfig.salable is available, it should be used.
+                // Otherwise, the code checks which products match the given current selection as it was for older
+                // Magento versions, but then options of out of stock products are shown if the config option is set.
+                ?>
+                const selectedIds = Object.keys(selectedOptions);
+                if (Object.values(this.optionConfig.salable || {}).length) {
+                    <?php /* for Magento >= 2.4.4 when out-of-stock products are shown: */ ?>
+                    const selectedOptionIndexes = selectedIds.map(attrId => {
+                        const optionValue = selectedOptions[attrId];
+                        return this.optionConfig.salable[attrId] && this.optionConfig.salable[attrId][optionValue] || []
+                    })
+                    <?php /* intersection of optionIndexes */ ?>
+                    return selectedOptionIndexes.reduce((acc, optionIndexes) => {
+                        return acc.filter(index => optionIndexes.includes(index));
+                    });
+                } else {
+                    <?php /* for Magento < 2.4.4 or when out-of-stock-products are hidden: */ ?>
+                    const productIndexes = this.optionConfig.index;
+                    return Object.keys(productIndexes).filter(index => {
+                        <?php /* selectedIds.every() doesn't have enough browser support at the time of writing according to https://caniuse.com/mdn-javascript_builtins_array_every */ ?>
+                        for (const attrId of selectedIds) {
+                            if (productIndexes[index][attrId] !== `${selectedOptions[attrId]}`) return false
+                        }
+                        return true
+                    });
+                }
+            },
+            findAttributeByOptionId(optionId) {
+                for (const attributeId in this.optionConfig.attributes) {
+                    const attributeOptions = this.optionConfig.attributes[attributeId].options || [];
+                    if (attributeOptions.find(option => option.id === optionId)) {
+                        return attributeId;
+                    }
+                }
+            },
+            getAllowedAttributeOptions(attributeId) {
+                return this.allowedAttributeOptions[attributeId] || []
+            },
+            isSwatchText(attributeId) {
+                const options = this.getAllowedAttributeOptions(attributeId);
+                return options.length <= 5;
+            },
+            getProductIdsForOption(option) {
+                const attributeId = this.findAttributeByOptionId(option.id);
+                const allOptions = this.optionConfig.attributes[attributeId];
+                const opt = (allOptions && allOptions.options || []).find(o => o.id === option.id);
+                return opt && opt.products
+                  ? opt.products
+                  : [];
+            },
+            findProductIdsForPartialSelection(optionSelection) {
+                const candidateProducts = Object.values(optionSelection).reduce((candidates, optionId) => {
+                    const newCandidates = this.getProductIdsForOption({id: optionId});
+                    return candidates === null
+                      ? newCandidates
+                      : candidates.filter(productId => newCandidates.includes(productId));
+                }, null);
+                return candidateProducts || [];
+            },
+            findCheapestProductForPartialSelection(optionSelection) {
+                const candidateProducts = this.findProductIdsForPartialSelection(optionSelection);
+                return candidateProducts.reduce((cheapest, simpleIdx) => {
+                    // in the first iteration we start with simpleIdx as the currently cheapest product
+                    if (! this.optionConfig.optionPrices[cheapest]) return simpleIdx;
+                    const knownCheapestPrice = this.optionConfig.optionPrices[cheapest].finalPrice.amount;
+                    return knownCheapestPrice > this.optionConfig.optionPrices[simpleIdx].finalPrice.amount
+                      ? simpleIdx
+                      : cheapest;
+                }, 0)
+            },
+            findProductIdToUseForOptionPrice(option) {
+                // try to find a product for a complete selection
+                const attributeId = this.findAttributeByOptionId(option.id);
+                const optionSelection = Object.assign({}, this.selectedValues, {[attributeId]: option.id});
+                const matchingSimpleIndex = this.calculateSimpleIndexForFullSelection(optionSelection);
+                // if there is no complete selection, use the cheapest product for the option
+                return matchingSimpleIndex || this.findCheapestProductForPartialSelection(optionSelection);
+            },
+            getAttributeOptionLabel(option) {
+                const optionProduct = this.findProductIdToUseForOptionPrice(option);
+                if ((! optionProduct) || (optionProduct === this.productIndex)) {
+                    return option.label;
+                }
+
+                const currentPrice = this.getOptionPriceAdjustmentBasePrice();
+
+                if (this.optionConfig.optionPrices[optionProduct]) {
+                    const optionPrice = this.optionConfig.optionPrices[optionProduct].finalPrice.amount;
+                    if (optionPrice !== currentPrice){
+                        return option.label + ' ' + hyva.formatPrice(optionPrice - currentPrice, true);
+                    }
+                }
+                return option.label;
+            },
+            getOptionPriceAdjustmentBasePrice() {
+                if (this.optionConfig.optionPrices[this.productIndex]) {
+                    return this.optionConfig.optionPrices[this.productIndex].finalPrice.amount
+                }
+                const cheapestForSelection = this.findCheapestProductForPartialSelection(this.selectedValues);
+                return this.optionConfig.optionPrices[cheapestForSelection]
+                  ? this.optionConfig.optionPrices[cheapestForSelection].finalPrice.amount
+                  : this.optionConfig.prices.finalPrice.amount; // default price if no option selection
+            },
+            clearOptionIfActive(optionId, value) {
+                if (this.selectedValues[optionId] === value) {
+                    this.blurLabel()
+                    this.changeOption(optionId, '')
+                }
+            },
+            removeAttrFromSelection(selectedValues, attributeId) {
+                <?php /* create new array so the length property is reset if no option is selected (avoiding delete) */ ?>
+                attributeId = parseInt(attributeId);
+                return selectedValues.reduce((newSelection, val, attr) => {
+                    if (attr !== attributeId) {
+                        newSelection[attr] = val;
+                    }
+                    return newSelection;
+                }, []);
+            },
+            changeOption(attributeId, value) {
+                if (value === '') {
+                    this.selectedValues = this.removeAttrFromSelection(this.selectedValues, attributeId)
+                } else if (value && this.getAllowedAttributeOptions(attributeId).find(option => option.id === value)) {
+                    <?php /* Only set as selected value if it is valid */ ?>
+                    this.selectedValues[attributeId] = value;
+                }
+                this.findSimpleIndex();
+                this.findAllowedAttributeOptions();
+                this.updatePricess();
+                this.updateGallery();
+                window.dispatchEvent(
+                  new CustomEvent(
+                    'configurable-selection-changed',
+                    {
+                        detail: {
+                            productId: this.productId,
+                            optionId: attributeId,
+                            value: value,
+                            productIndex: this.productIndex,
+                            selectedValues: this.selectedValues,
+                            candidates: this.findProductIdsForPartialSelection(this.selectedValues),
+                        }
+                    }
+                  )
+                );
+            },
+            calculateIsMinimalPrice() {
+                return (
+                  this.selectedValues.filter(value => !!value).length <
+                  Object.keys(this.optionConfig.attributes).length
+                );
+            },
+            updatePricess() {
+                const value = this.productIndex ?
+                  this.optionConfig.optionPrices[this.productIndex] :
+                  this.optionConfig.prices;
+
+                const optionWeight = this.productIndex ?
+                  this.optionConfig.optionWeight[this.productIndex] : 0;
+
+                window.dispatchEvent(
+                  new CustomEvent(
+                    "update-prices-" + this.productId,
+                    {
+                        detail: Object.assign(
+                          value,
+                          { isMinimalPrice: this.calculateIsMinimalPrice() },
+                          { optionWeight }
+                        )
+                    }
+                  )
+                );
+            },
+            updateGallery () {
+                if (this.productIndex) {
+                    const images = this.optionConfig.images[this.productIndex];
+                    images && window.dispatchEvent(new CustomEvent(
+                      "update-gallery",
+                      { detail: this.sortImagesByPosition(images) }
+                    ));
+                } else {
+                    window.dispatchEvent(new Event("reset-gallery"));
+                }
+            },
+            sortImagesByPosition(images) {
+                return images.sort((x, y) => {
+                    return x.position === y.position ? 0 : (parseInt(x.position) > parseInt(y.position) ? 1 : -1)
+                });
+            },
+            onGetCartData(data) {
+
+            },
+            preselectCartItems(data) {
+                // pre-select options based on cart data for current (quote) itemId
+                const cart = data && data.cart;
+                if (cart && cart.items) {
+                    const cartItem = cart.items.find((item) => {
+                        return (
+                          item.item_id === this.itemId
+                          && item.product_id === this.productId
+                        )
+                    });
+                    if (cartItem && cartItem.options && cartItem.options.length) {
+                        cartItem.options.map(option => {
+                            this.changeOption(option.option_id, option.option_value);
+                        })
+                    }
+                }
+            },
+            preselectQuerystringItems() {
+                // pre-select option like ?size=167
+                const urlQueryParams = new URLSearchParams(window.location.search.replace('?',''));
+                this.preselectItemsBasedOnLocation(attribute => urlQueryParams.get(attribute.code));
+            },
+            preselectLocationHashItems() {
+                // pre-select option like #144=167
+                const urlHashParams = new URLSearchParams(window.location.hash.replace('#',''));
+                this.preselectItemsBasedOnLocation(attribute => urlHashParams.get(attribute.id));
+            },
+            preselectItemsBasedOnLocation(getLocationValue) {
+                Object.values(this.optionConfig.attributes).map(attribute => {
+                    this.changeOption(attribute.id, getLocationValue(attribute))
+                });
+            }
+        }
+    }
+
+    function initDropdown(options) {
+        return {
+            isOpen: false,
+            selectedOptionValue: options.length > 0 ? options[0].value : null,
+            activeIndex: -1,
+            handleOptionSelect(value) {
+                this.isOpen = false;
+                this.selectedOptionValue = value;
+                this.$refs['select'].value = value;
+                this.$refs['select'].dispatchEvent(new Event('change'));
+            },
+            select() {
+                const selectedOption = this.$refs.dropdown.getElementsByClassName('form-select-option-selected');
+
+                if (!Array.from(selectedOption).length) {
+                    return;
+                }
+
+                this.$refs.dropdown.scrollTo(0, selectedOption[0].offsetTop);
+            },
+            init() {
+                this.$watch('isOpen', value => {
+                    if (!value) {
+                        this.activeIndex = -1;
+                    } else {
+                        this.$nextTick(() => {
+                            this.$refs['select'].focus();
+                            this.select();
+                        });
+                    }
+                });
+            }
+        }
+    }
+</script>

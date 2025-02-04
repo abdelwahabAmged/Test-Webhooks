@@ -1,0 +1,40 @@
+.USPA-Wrapper {
+
+  .USPA-ContentWrapper {
+    display: grid;
+    margin-top: 2rem;
+    gap: 3rem;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .USPA-ItemWrapper {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .USPA-ImageWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 9999px;
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .USPA-Image {
+    border-radius: 9999px;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .USPA-SectionTitle {
+    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    color: #1F2937;
+  }
+}

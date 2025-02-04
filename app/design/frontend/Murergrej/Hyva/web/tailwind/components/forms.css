@@ -1,0 +1,129 @@
+.form-input,
+.form-email,
+.form-select,
+.form-multiselect,
+.form-textarea {
+    @apply border-2 border-secondary min-h-a11y py-3.5 px-5;
+
+    &:focus {
+        @apply border-2 border-primary-darker ring ring-blue-lighter;
+
+        &::placeholder {
+            @apply text-primary;
+        }
+    }
+
+    &:active {
+        @apply text-primary border-primary-lighter;
+
+        &::placeholder {
+            @apply text-primary;
+        }
+    }
+
+    &:hover {
+        @apply border-primary-darker;
+    }
+
+    &:disabled {
+        @apply text-secondary border-secondary bg-secondary-lighter;
+    }
+
+    &::placeholder {
+        @apply text-secondary;
+    }
+
+    &[type=number] {
+        @apply font-extrabold text-primary;
+    }
+
+    &[type="search"]::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}
+
+.field {
+    &-error {
+        .form-input {
+            @apply border-red;
+        }
+    }
+
+    .label {
+        @apply text-sm font-bold;
+    }
+}
+
+.required .label::after {
+    /* Applying required element start */
+    /* content: ' *';
+    @apply text-red-500; */
+}
+
+/* This is used as custom selector, since native <select> tag is not possible to make as per design */
+.form-select {
+    @apply relative bg-none text-secondary;
+
+    &:hover,
+    &:focus {
+        @apply text-primary;
+    }
+
+    &-option {
+        @apply px-3.5 py-2.5;
+
+        &:hover {
+            @apply bg-primary-lighter cursor-pointer;
+        }
+
+        &-selected {
+            @apply bg-primary-darker text-white;
+
+            &:hover {
+                @apply bg-primary-darker;
+            }
+        }
+
+        &-disabled {
+            /* Styling for disabled option */
+            @apply pointer-events-none;
+        }
+    }
+
+    &-options-list {
+        /* Dropdown container styling */
+        @apply absolute z-[100] overflow-y-auto w-full list-none bg-secondary-lighter;
+    }
+
+    &-wrapper {
+        /* Styling for select element wrapper */
+        @apply relative;
+
+        .chevron {
+            /* In case if chevron used, can style here. Also good to have animation of opening/closing */
+            @apply absolute top-5 right-4 transition-transform transform duration-300 ease-in-out pointer-events-none;
+
+            &-opened {
+                @apply rotate-180
+            }
+        }
+    }
+}
+
+form,
+fieldset {
+    .label {
+        @apply text-primary;
+    }
+}
+
+@screen md {
+    .field-number {
+        @apply !mt-9;
+    }
+}
+
+.newsletter-email {
+    @apply !text-primary;
+}

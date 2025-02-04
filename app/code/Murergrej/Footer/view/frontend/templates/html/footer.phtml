@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Footer Template
+ *
+ * This template file is used to render the footer section in the frontend.
+ *
+ * @category    Murergrej
+ * @package     Murergrej_Footer
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ * @license     https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+?>
+<div class="flex flex-col bg-cream">
+    <!-- subscribe-form -->
+  <div class="w-full bg-white" id="subscribe-form">
+      <?= $block->getChildHtml('subscribe.form') ?>
+  </div>
+
+    <?= $block->getBlockHtml('footer-static-links') ?>
+
+    <!-- Start Footer secondary -->
+    <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-0 md:pl-8 justify-between w-full bg-white items-center pt-2"
+        id="footer-secondry">
+        <!-- Trustpilot for Mobile -->
+        <div class=" md:hidden order-6 mt-4 pl-3 flex items-center justify-center" id="trustpilot-mobile">
+            <?= $block->getChildHtml('trustpilot.mobile.widget') ?>
+        </div>
+        <!-- Footer Secure Payment -->
+        <div class="flex items-center justify-center md:justify-start FooterSecurePayment order-8 md:order-6">
+            <?= $block->getChildHtml('footer.secure.payment') ?>
+        </div>
+        <!-- Payment Methods and Faktura -->
+        <div class="flex flex-col md:flex-row items-center justify-center PaymentMethod order-7 md:order-8 md:pl-7"
+             id="payment-faktura">
+            <?= $block->getChildHtml('payment.methods') ?>
+            <div class="p-0 md:pb-3">
+                <?= $block->getChildHtml('faktura') ?>
+            </div>
+        </div>
+        <!-- copyright -->
+        <div id="copyright"
+             class="flex items-center justify-center md:justify-center copy_write order-9 md:order-7 pl-0">
+            <?= $block->getChildHtml('copyright') ?>
+        </div>
+    </div>
+</div>

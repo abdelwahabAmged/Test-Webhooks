@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="dv_tab" translate="label" sortOrder="200">
+            <label>ProfitMetrics</label>
+        </tab>
+
+        <section id="profit_metrics" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>ProfitMetrics Settings</label>
+            <tab>dv_tab</tab>
+            <resource>DV_ProfitMetrics::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="profit_metrics_id" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Store Public Id</label>
+                    <comment>Store ID from ProfitMetrics</comment>
+                </field>
+
+                <field id="buy_price_attribute" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Price Buy Attribute Code</label>
+                    <comment>Attribute code for buy price attribute. There is a default attribute, created by this module, its code is 'buy_price'. In the case of different attribute, please look for the attribute in Magento admin (Catalog > Attributes > Manage Attributes) and specify the attribute code</comment>
+                </field>
+
+                <field id="secret_code" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Secret Code</label>
+                    <comment>This code is required to secure the access to feed data. Please generate the random value, save it and provide the generated value to Profitmetrics support team.</comment>
+                </field>
+
+                <field id="random_code" translate="label comment" type="button" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <frontend_model>DV\ProfitMetrics\Block\System\Config\RandomCode</frontend_model>
+                    <label>Generate Random Secret Code</label>
+                </field>
+
+                <field id="feed_filename" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Feed Filename</label>
+                    <comment model="DV\ProfitMetrics\Model\Config\Source\FeedFilenameComment" />
+                </field>
+
+                <field id="generate_feed_now" translate="label comment" type="button" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <frontend_model>DV\ProfitMetrics\Block\System\Config\GenerateFeed</frontend_model>
+                    <label>Generate Feed Now</label>
+                </field>
+                <field id="order_statuses" translate="label" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Order Statuses to send to ProfitMetrics</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
+                <field id="send_orders_now" translate="label comment" type="button" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <frontend_model>DV\ProfitMetrics\Block\System\Config\OrdersSend</frontend_model>
+                    <label>Send Orders Data Now</label>
+                </field>
+
+                <field id="all_pages_javascript" translate="label comment" type="textarea" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Script to include on all pages except order confirmation</label>
+                    <comment>Please provide the script without script tag, it will be wrapped while renering</comment>
+                </field>
+
+            </group>
+
+            <group id="cron" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Cron</label>
+                <field id="frequency" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Feeds Generation Frequency</label>
+                    <source_model>DV\ProfitMetrics\Model\Config\Source\Frequency</source_model>
+                </field>
+
+                <field id="time" translate="label" type="time" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Start Time</label>
+                    <depends>
+                        <field id="frequency" separator=",">D,W,M</field>
+                    </depends>
+                </field>
+                <field id="orders_send_frequency" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Orders Send Frequency</label>
+                    <source_model>DV\ProfitMetrics\Model\Config\Source\Frequency</source_model>
+                </field>
+
+                <field id="orders_send_time" translate="label" type="time" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Orders Send Start Time</label>
+                    <depends>
+                        <field id="orders_send_frequency" separator=",">D,W,M</field>
+                    </depends>
+                </field>
+                <field id="tracking_data_lifetime" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Tracking data lifetime, days</label>
+                    <source_model>DV\ProfitMetrics\Model\Config\Source\TrackingDataLifetimeDays</source_model>
+                    <comment>Visitor data will be cleared from the database if they are not updated for more than the specified number of days.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

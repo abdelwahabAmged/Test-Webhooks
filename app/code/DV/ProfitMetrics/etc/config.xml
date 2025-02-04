@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <profit_metrics>
+            <general>
+                <enabled>1</enabled>
+                <profit_metrics_id></profit_metrics_id>
+                <source_products_price>1</source_products_price>
+                <buy_price_attribute>buy_price</buy_price_attribute>
+                <secret_code>0z8zpifbg2a04oo6wj0h</secret_code>
+                <feed_filename>products_{{store}}.xml</feed_filename>
+                <order_statuses>pending,processing,complete</order_statuses>
+                <all_pages_javascript></all_pages_javascript>
+            </general>
+            <cron>
+                <frequency>D</frequency>
+                <orders_send_frequency>2</orders_send_frequency>
+                <tracking_data_lifetime>90</tracking_data_lifetime>
+            </cron>
+        </profit_metrics>
+        <crontab>
+            <default>
+                <jobs>
+                    <profit_metrics>
+                        <schedule>
+                            <cron_expr><![CDATA[*/15 * * * *]]></cron_expr>
+                        </schedule>
+                        <profit_metrics_orders_send>
+                            <cron_expr><![CDATA[*/2 * * * *]]></cron_expr>
+                        </profit_metrics_orders_send>
+                    </profit_metrics>
+                </jobs>
+            </default>
+        </crontab>
+    </default>
+</config>

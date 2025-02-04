@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Scandiweb
+ * @package     Scandiweb_HyvaUi
+ * @author      Scandiweb <info@scandiweb.com>
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd"
+      extends="pagebuilder_base_form">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">pagebuilder_scandiweb_product_slider_form.pagebuilder_scandiweb_product_slider_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">SW Product Slider</item>
+    </argument>
+    <settings>
+        <deps>
+            <dep>pagebuilder_scandiweb_product_slider_form.pagebuilder_scandiweb_product_slider_form_data_source</dep>
+        </deps>
+        <namespace>pagebuilder_scandiweb_product_slider_form</namespace>
+    </settings>
+    <dataSource name="pagebuilder_scandiweb_product_slider_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_PageBuilder/js/form/provider</item>
+            </item>
+        </argument>
+        <dataProvider name="pagebuilder_scandiweb_product_slider_form_data_source"
+                      class="Magento\PageBuilder\Model\ContentType\DataProvider">
+            <settings>
+                <requestFieldName/>
+                <primaryFieldName/>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <fieldset name="appearance_fieldset" sortOrder="10" component="Magento_PageBuilder/js/form/element/dependent-fieldset">
+        <settings>
+            <label translate="true">Appearance</label>
+            <additionalClasses>
+                <class name="admin__fieldset-visual-select-large">true</class>
+            </additionalClasses>
+            <collapsible>false</collapsible>
+            <opened>true</opened>
+            <imports>
+                <link name="hideFieldset">${$.name}.appearance:options</link>
+                <link name="hideLabel">${$.name}.appearance:options</link>
+            </imports>
+        </settings>
+        <field name="appearance" formElement="select" sortOrder="10" component="Magento_PageBuilder/js/form/element/dependent-visual-select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">default</item>
+                </item>
+            </argument>
+            <settings>
+                <additionalClasses>
+                    <class name="admin__field-wide">true</class>
+                    <class name="admin__field-visual-select-container">true</class>
+                </additionalClasses>
+                <dataType>text</dataType>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <elementTmpl>Magento_PageBuilder/form/element/visual-select</elementTmpl>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="AppearanceSourceSW"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+    </fieldset>
+    <fieldset name="block_data" sortOrder="20">
+        <settings>
+            <label translate="true">Main</label>
+            <collapsible>true</collapsible>
+            <opened>true</opened>
+        </settings>
+        <field name="title" sortOrder="10" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">View our products</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Title</label>
+                <dataType>text</dataType>
+                <dataScope>title</dataScope>
+                <validation>
+                    <rule name="validate-string" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+<!--        <field name="categories" sortOrder="20" formElement="input">-->
+<!--            <settings>-->
+<!--                <label translate="true">Categories</label>-->
+<!--                <dataType>text</dataType>-->
+<!--                <dataScope>categories</dataScope>-->
+<!--                <validation>-->
+<!--                    <rule name="validate-string" xsi:type="boolean">true</rule>-->
+<!--                </validation>-->
+<!--            </settings>-->
+<!--        </field>-->
+        <field name="categories" sortOrder="20" formElement="multiselect">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Scandiweb\HyvaUi\Model\Config\Source\CategoryList</item>
+            </argument>
+            <settings>
+                <label translate="true">Categories</label>
+                <dataType>text</dataType>
+                <dataScope>categories</dataScope>
+            </settings>
+        </field>
+        <field name="products_limit" sortOrder="20" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">10</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Maximum products per category</label>
+                <dataType>text</dataType>
+                <dataScope>products_limit</dataScope>
+                <validation>
+                    <rule name="validate-string" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="show_category_count" formElement="checkbox">
+            <settings>
+                <label>Show total products count in each category</label>
+                <tooltip>
+                    <description translate="true">Select this option if you want show total products count in each category
+                    </description>
+                </tooltip>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <prefer>toggle</prefer>
+                        <valueMap>
+                            <map name="false" xsi:type="string">false</map>
+                            <map name="true" xsi:type="string">true</map>
+                        </valueMap>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="view_all_button_text" sortOrder="20" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">View all</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">View all button text</label>
+                <dataType>text</dataType>
+                <dataScope>view_all_button_text</dataScope>
+                <validation>
+                    <rule name="validate-string" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+    </fieldset>
+</form>

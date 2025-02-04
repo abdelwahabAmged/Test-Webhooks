@@ -1,0 +1,67 @@
+<!--
+/**
+ * Scandiweb_HyvaUi
+ *
+ * @category Scandiweb
+ * @package  Scandiweb_HyvaUi
+ * @author   Amr Osama <amr.osama@scandiweb.com>
+ */
+-->
+
+<div
+    attr="data.main.attributes"
+    ko-style="data.main.style"
+    class="pagebuilder-content-type"
+    css="data.main.css"
+    event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false"
+>
+    <h3
+        attr="data.title.attributes"
+        class="mb-8 text-bold"
+        data-bind="liveEdit: { field: 'title', placeholder: $t('Enter TITLE') }"
+    ></h3>
+    <div
+        class="Testimonial"
+        ko-style="data.testimonial_content_background_color.style"
+        attr="data.testimonial_content_background_color.attributes"
+    >
+        <div class="Testimonial-AuthorImage">
+            <img
+                src="https://via.placeholder.com/150"
+                attr="data.author_image.attributes"
+                alt="Testimonial Image"
+            />
+        </div>
+        <div class="Testimonial-Content">
+            <div class="relative">
+                <div class="text-[#CBD5E1] text-9xl font-bold absolute left-0 -top-8 lg:-ml-6">
+                    “
+                </div>
+                <div class="relative">
+                    <div
+                        attr="data.author_content.attributes"
+                        ko-style="data.author_content.style"
+                        css="data.author_content.css"
+                        data-bind="liveEdit: { field: 'author_content', placeholder: $t('Auth content sample, edit here') }"
+                        class="Testimonial-Content-Text text-2xl font-medium text-gray-800"
+                    ></div>
+                </div>
+            </div>
+            <div
+                attr="data.author.attributes"
+                ko-style="data.author.style"
+                css="data.author.css"
+                data-bind="liveEdit: { field: 'author', placeholder: $t('Enter Auth content') }"
+                class="Testimonial-Content-Author text-lg font-bold" 
+            ></div>
+            <div
+                attr="data.company.attributs"
+                ko-style="data.company.style"
+                css="data.company.css"
+                data-bind="liveEdit: { field: 'company', placeholder: $t('Enter company content') }"
+                class="Testimonial-Content-Company"
+            ></div>
+        </div>
+    </div>
+    <render args="getOptions().template" />
+</div>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <route id="profitmetrics" frontName="profitmetrics">
+            <module name="DV_ProfitMetrics" before="Magento_Backend" />
+        </route>
+    </router>
+</config>

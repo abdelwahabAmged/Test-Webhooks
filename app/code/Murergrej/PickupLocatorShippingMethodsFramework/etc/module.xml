@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Murergrej
+ * @package     Murergrej_PickupLocatorShippingMethodsFramework
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2025 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<config
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Murergrej_PickupLocatorShippingMethodsFramework"/>
+</config>

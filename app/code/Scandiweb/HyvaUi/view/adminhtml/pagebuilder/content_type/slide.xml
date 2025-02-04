@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Scandiweb
+ * @author      Scandiweb <info@scandiweb.com>
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_PageBuilder:etc/content_type.xsd">
+    <type name="slide">
+        <appearances>
+            <appearance name="collage-left"
+                preview_template="Scandiweb_HyvaUi/content-type/slide/collage-left/preview"
+                master_template="Scandiweb_HyvaUi/content-type/slide/collage-left/master"
+            >
+            </appearance>
+            <appearance name="collage-centered"
+                preview_template="Scandiweb_HyvaUi/content-type/slide/collage-centered/preview"
+                master_template="Scandiweb_HyvaUi/content-type/slide/collage-centered/master"
+            >
+            </appearance>
+            <appearance name="collage-right"
+                preview_template="Scandiweb_HyvaUi/content-type/slide/collage-right/preview"
+                master_template="Scandiweb_HyvaUi/content-type/slide/collage-right/master"
+            >
+            </appearance>
+            <appearance name="poster"
+                preview_template="Scandiweb_HyvaUi/content-type/slide/poster/preview"
+                master_template="Scandiweb_HyvaUi/content-type/slide/poster/master"
+            >
+            </appearance>
+        </appearances>
+    </type>
+</config>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <murergrej_priceshape>
+            <general>
+                <enable>1</enable>
+                <cron_expression>0 11,23 * * *</cron_expression>
+            </general>
+        </murergrej_priceshape>
+    </default>
+</config>

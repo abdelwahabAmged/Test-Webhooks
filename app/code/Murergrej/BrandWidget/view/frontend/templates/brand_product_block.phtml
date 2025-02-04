@@ -1,0 +1,84 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_BrandWidget
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+use Hyva\Theme\ViewModel\Slider;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+
+/** @var \Magento\Framework\View\Element\Template $block */
+$mediaUrl = $block->getViewFileUrl('images/reco.png');
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Slider $sliderViewModel */
+$sliderViewModel = $viewModels->require(Slider::class);
+
+$recommendedProducts = $block->getRecommendedProducts();
+$recommendedProductsCollection = $recommendedProducts[0]['collection'] ?? null;
+$productTrackingCodes = $recommendedProducts[0]['products'] ?? [];
+$sliderHtml = '';
+
+if ($recommendedProductsCollection && $recommendedProductsCollection->getSize() > 0) {
+    $containerTemplate = 'Murergrej_BrandWidget::product/slider/brand-block-recom-product-slider.phtml';
+
+    $sliderHtml = $sliderViewModel->getSliderForItems(
+        'Magento_Catalog::product/list/item.phtml',
+        $recommendedProductsCollection,
+        $containerTemplate
+    )
+        ->setData('hide_details', false)
+        ->setData('hide_rating_summary', false)
+        ->setData('title', '')
+        ->setData('item_relation_type', 'generic')
+        ->setData('heading_tag', 'h3')
+        ->setData('product_tracking_codes', $productTrackingCodes)
+      ->toHtml();
+}
+?>
+<div class="relative">
+    <div>
+        <div>
+            <?php if ($desktopHeroImage = $block->getDesktopHeroImage()): ?>
+                <img
+                  class="object-cover hidden md:block max-w-none w-full h-[588px]"
+                  src="<?= $block->escapeUrl($desktopHeroImage) ?>"
+                  alt="Desktop Hero Image"
+                />
+            <?php endif; ?>
+            <?php if ($mobileHeroImage = $block->getMobileHeroImage()): ?>
+                <img
+                  class="md:hidden max-w-none w-full"
+                  src="<?= $block->escapeUrl($mobileHeroImage) ?>" alt="Mobile Hero Image"
+                />
+            <?php endif; ?>
+        </div>
+        <div class="md:py-[42px] md:w-[43.1%] w-full flex justify-center md:block py-4">
+            <?php if ($desktopBrandImage = $block->getDesktopBrandImage()): ?>
+                <img
+                  class="hidden md:block mx-auto"
+                  src="<?= $block->escapeUrl($desktopBrandImage) ?>"
+                  alt="Desktop Brand Image"
+                />
+            <?php endif; ?>
+
+            <?php if ($mobileBrandImage = $block->getMobileBrandImage()): ?>
+                <img class="md:hidden" src="<?= $block->escapeUrl($mobileBrandImage) ?>" alt="Mobile Brand Image" />
+            <?php endif; ?>
+        </div>
+    </div>
+    <div
+      class="bg-secondary-lighter md:ml-0 md:w-[58.94%] h-[562px] md:h-[652px] md:absolute top-[68px] right-0"
+      style="background-image: url('<?= $mediaUrl ?>');"
+    >
+        <div class="reco-hello-retail-slider relative top-2/4 left-2/4" style="transform: translate(-50%, -50%);">
+            <?php if ($sliderHtml): ?>
+                <?= /* @noEscape */ $sliderHtml ?>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

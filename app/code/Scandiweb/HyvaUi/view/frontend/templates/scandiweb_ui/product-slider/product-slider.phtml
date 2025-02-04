@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * @category    Scandiweb
+ * @author      Amr osama <amr.osama@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scandiweb\HyvaUi\Block\ProductSlider;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var Escaper $escaper */
+/** @var ProductSlider $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+
+$uniqueId = uniqid('_');
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+$categories = $block->getCategories();
+?>
+
+<div x-data="initProductSliderWidget_<?= $uniqueId; ?>()"
+     x-init="fetchProducts()"
+     class="wrapper flex flex-col relative">
+    <div>
+        <p class="text-primary text-xl leading-8 font-semibold mb-10 lg:text-3xl lg:leading-16 lg:font-bold lg:mb-10">
+            <?= $escaper->escapeHtml($block->getTitle()) ?>
+        </p>
+    </div>
+    <div class="flex justify-between flex-col lg:flex-row">
+        <div>
+            <div class="flex flex-wrap gap-3">
+                <?php
+                foreach ($categories as $index => $category): ?>
+                    <div
+                            x-on:click="!loading ? changeSelectedCategory(<?= $category['entity_id'] ?>) : ''"
+                            :class="{'py-3 px-6 font-medium rounded-xl shadow cursor-pointer transition-all ease-linear duration-500':true, 'opacity-20 animate-pulse cursor-default':loading, 'shadow-xl bg-primary text-white': ('<?= $category['entity_id'] ?>' == selectedCategory)}"
+                    >
+                        <p>
+                            <?= $escaper->escapeHtml(
+                                sprintf(
+                                    '%s %s',
+                                    $category['name'],
+                                    $this->getData('show_category_count') == "true" ? "({$category['products_count']})" : ""
+                                )
+                            ) ?>
+                        </p>
+                    </div>
+                <?php
+                endforeach; ?>
+            </div>
+        </div>
+        <div class="flex justify-center mt-8 lg:mt-0">
+            <button class="rounded flex bg-primary text-white py-3 px-6 hover:bg-primary-darker">
+                <a :href="getCurrentCategoryUrl()">
+                    <span class="font-semibold">View All</span>
+                </a>
+                <?= $heroicons->renderHtml('arrow-right', "ml-2") ?>
+            </button>
+        </div>
+    </div>
+
+    <div x-ref="scandiweb_product_slider_widget_child_<?= $uniqueId; ?>">
+        <div>Loading...</div>
+    </div>
+
+</div>
+
+<script>
+    function replaceSliderElement(content, elementToReplace) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        const contentNode = doc.querySelector(".product-slider");
+
+        if (!contentNode) {
+            return;
+        }
+
+        const tmpScripts = contentNode.getElementsByTagName('script');
+
+        if (tmpScripts.length > 0) {
+            const scripts = [];
+            for (let i = 0; i < tmpScripts.length; i++) {
+                scripts.push(tmpScripts[i]);
+            }
+
+            for (let i = 0; i < scripts.length; i++) {
+                let script = document.createElement('script');
+                script.innerHTML = scripts[i].innerHTML;
+
+                document.head.appendChild(script);
+
+                scripts[i].parentNode.removeChild(scripts[i]);
+            }
+        }
+
+        elementToReplace.replaceChild(contentNode, elementToReplace.firstElementChild);
+    }
+
+    function categoryQuery(categoryId) {
+        return `{
+            category(
+                id:${categoryId},
+            ) {
+                id
+                name
+                canonical_url
+            }
+        }`;
+    }
+
+    function initProductSliderWidget_<?= $uniqueId; ?>() {
+        return {
+            selectedCategory: <?= $categories[0]["entity_id"] ?? 0; ?>,
+            loading: false,
+            productsList: [],
+            fetchProducts() {
+                if (!this.selectedCategory) return;
+                this.loading = true;
+                const url = '/hyvaui/index/GetProductSlider?' + new URLSearchParams({
+                    category_id: this.selectedCategory,
+                    products_limit: <?= $block->getData('products_limit') ?? "4"; ?>
+                });
+                this.productsList = [];
+
+                fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                    }
+                }).then((response) => {
+                    return response.text()
+                }).then((response) => {
+                    const productSlider = this.$refs.scandiweb_product_slider_widget_child_<?= $uniqueId; ?>;
+
+                    if (!response) {
+                        const noResultsFound = "<div class='product-slider h-[570px] flex justify-center items-center'>No products found! </div>"
+                        replaceSliderElement(noResultsFound, productSlider);
+                        this.loading = false;
+
+                        return;
+                    }
+
+                    replaceSliderElement(response, productSlider);
+                    this.loading = false;
+                });
+            },
+            changeSelectedCategory(categoryId) {
+                this.selectedCategory = categoryId;
+                this.fetchProducts();
+            },
+            async getCurrentCategoryUrl() {
+                if (!this.selectedCategory) return "#";
+
+                let response = await fetch('/graphql?' + new URLSearchParams({query: categoryQuery(this.selectedCategory)}))
+                let result = await response.json();
+                if (!result) return "#";
+                const {data: {category: {canonical_url = "#"}}} = result;
+                return BASE_URL + canonical_url;
+            }
+        };
+    }
+</script>

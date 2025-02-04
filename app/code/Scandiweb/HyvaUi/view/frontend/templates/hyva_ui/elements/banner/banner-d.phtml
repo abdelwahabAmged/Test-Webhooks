@@ -1,0 +1,94 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$imageUrl1 = "https://unsplash.com/photos/v37kr3k_G3M/download?force=true&auto=format&fit=crop&w=340&q=80";
+// Or, get an image from `web/images/` in your theme:
+// $imageUrl1 = $escaper->escapeHtmlAttr($block->getViewFileUrl('images/banner.jpg'));
+
+$imageUrl2 = "https://unsplash.com/photos/0_aAhxoXOSo/download?force=true&auto=format&fit=crop&w=340&q=80";
+$imageUrl3 = "https://unsplash.com/photos/FYD0o4Q5lXE/download?force=true&auto=format&fit=crop&w=340&q=80";
+$imageUrl4 = "https://unsplash.com/photos/Op6ZGEwnwrI/download?force=true&auto=format&fit=crop&w=340&q=80";
+?>
+<div class="grid grid-cols-2 md:grid-cols-4 my-2 gap-4">
+    <div class="relative h-80">
+        <img class="absolute w-full h-full object-cover"
+             alt="Tennis balls on a court"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl1) ?>"
+             width="340"
+             height="610"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11 bg-gradient-to-t to-transparent from-gray-800/75">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Tennis
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute w-full h-full object-cover"
+             alt="Sport shoes"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl2) ?>"
+             width="340"
+             height="510"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11 bg-gradient-to-t to-transparent from-gray-800/75">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Only at Hyvä
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute w-full h-full object-cover"
+             alt="Basketball hoop"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl3) ?>"
+             width="340"
+             height="510"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11 bg-gradient-to-t to-transparent from-gray-800/75">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Basketball
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute w-full h-full object-cover"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl4) ?>"
+             width="480"
+             height="320"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11 bg-gradient-to-t to-transparent from-gray-800/75">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+
+    The module overrides the getJsonCategoryData method to be compatible with Hello Retail
+
+    @category  Scandiweb
+    @package   Scandiweb_Mageworx
+    @author    Ingy El-Khateeb
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework/ObjectManager/etc/config.xsd">
+    <preference for="MageWorx\SeoMarkup\Helper\Json\Category" type="Scandiweb\Mageworx\Helper\Json\Category" />
+</config>

@@ -1,0 +1,126 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Hairtalk_Hyva
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+declare(strict_types=1);
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Cart\ItemOutput;
+use Hyva\Theme\ViewModel\Modal;
+use Magento\Checkout\Block\Cart\Grid;
+use Magento\Checkout\ViewModel\Cart as CartViewModel;
+use Magento\Framework\Escaper;
+
+/** @var Grid $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var Escaper $escaper */
+
+/** @var CartViewModel $cartViewModel */
+$cartViewModel = $viewModels->require(CartViewModel::class);
+
+/** @var Modal $modalViewModel */
+$modalViewModel = $viewModels->require(Modal::class);
+
+/** @var ItemOutput $cartItemOutputViewModel */
+$cartItemOutputViewModel = $viewModels->require(ItemOutput::class);
+?>
+<?php $mergedCells = ($cartItemOutputViewModel->isItemPriceDisplayBoth() ? 2 : 1); ?>
+<?= $block->getChildHtml('form_before') ?>
+<form action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>"
+      x-data="{}"
+      @submit.prevent="hyva.postCart($event.target)"
+      method="post"
+      id="form-validate"
+      class="form form-cart w-full float-left"
+>
+    <?= $block->getBlockHtml('formkey') ?>
+    <div
+        x-data="{ cartItems: [] }"
+        @private-content-loaded.window="cartItems = $event.detail.data.cart.items"
+        class="cart table-wrapper lg:pl-10<?= $mergedCells == 2 ? ' detailed' : '' ?>"
+    >
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="cart-products-toolbar cart-products-toolbar-top toolbar">
+                <?= $block->getPagerHtml() ?>
+            </div>
+        <?php endif ?>
+        <table id="shopping-cart-table"
+               class="cart items data table w-full table-row-items"
+        >
+            <caption class="table-caption text-[32px] sr-only">
+                <?= $escaper->escapeHtml(__('Shopping Cart Items')) ?>
+            </caption>
+            <thead class="hidden bg-secondary-lighter sm:table-header-group text-sm">
+            <tr class="text-right flex lg:table-row sm:justify-between">
+                <th class="col item text-left font-extrabold py-3 px-6 w-4/12 sm:w-[35%] lg:w-7/12" scope="col">
+                    <?= $escaper->escapeHtml(__('Product')) ?>
+                </th>
+                <th
+                  class="col qty font-extrabold py-3 px-6 text-left sm:w-2/6 sm:text-right sm:w-auto lg:text-center"
+                  scope="col"
+                >
+                    <?= $escaper->escapeHtml(__('Quantity')) ?>
+                </th>
+                <th class="col subtotal font-extrabold py-3 px-6 sm:w-2/6" scope="col">
+                    <?= $escaper->escapeHtml(__('Price')) ?>
+                </th>
+            </tr>
+            </thead>
+            <template x-for="item in cartItems" :key="item.item_id">
+                <tbody
+                  x-data="{ cartItemHtml: '' }"
+                  x-init="
+                    fetch(`/murergrej_checkout/cart/renderItem?item_id=${item.item_id}`)
+                    .then(response => response.text())
+                    .then(html => cartItemHtml = html)
+                    .catch(error => console.error('Error fetching item content:', error));
+                  "
+                  x-html="cartItemHtml"
+                  :id="'cart-item-' + item.item_id"
+                  class="cart item bg-secondary-lighter border-2 border-white"
+                ></tbody>
+            </template>
+        </table>
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="cart-products-toolbar cart-products-toolbar-bottom toolbar">
+                <?= $block->getPagerHtml() ?>
+            </div>
+        <?php endif ?>
+    </div>
+    <div>
+        <?php if ($cartViewModel->isClearShoppingCartEnabled()): ?>
+            <script>
+                function initClearShoppingCartModal() {
+                    return Object.assign(
+                      hyva.modal(),
+                      {
+                          postData: {
+                              action: '<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>',
+                              data: {update_cart_action: 'empty_cart'}
+                          }
+                      }
+                    );
+                }
+            </script>
+            <div x-data="initClearShoppingCartModal()">
+                <?= /** @noEscape */ ($confirmation = $modalViewModel
+                    ->confirm(__('Are you sure?'))
+                    ->withDetails(__('Are you sure you want to remove all items from your shopping cart?'))
+                ) ?>
+                <button @click="<?= /** @noEscape */ $confirmation->getShowJs() ?>.then(result => result && hyva.postForm(postData))"
+                        type="button" title="<?= $escaper->escapeHtmlAttr(__('Clear Shopping Cart')) ?>"
+                        class="action clear" id="empty_cart_button">
+                    <span><?= $escaper->escapeHtml(__('Clear Shopping Cart')) ?></span>
+                </button>
+            </div>
+        <?php endif ?>
+    </div>
+</form>
+<?= $block->getChildHtml('checkout.cart.order.actions') ?>
+<?= $block->getChildHtml('shopping.cart.table.after') ?>

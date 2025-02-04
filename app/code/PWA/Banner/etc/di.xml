@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="pwa_banner_image_listing_data_source" xsi:type="string">PWA\Banner\Model\ResourceModel\BannerImage\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="PWA\Banner\Model\ResourceModel\BannerImage\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">pwa_banner_image</argument>
+            <argument name="eventPrefix" xsi:type="string">pwa_banner_image_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">pwa_banner_image_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">PWA\Banner\Model\ResourceModel\BannerImage</argument>
+        </arguments>
+    </type>
+    <type name="PWA\Banner\Ui\Component\Listing\DataProvider\SearchFilter">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="title" xsi:type="string">title</item>
+                <item name="filename" xsi:type="string">filename</item>
+                <item name="link" xsi:type="string">link</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="PWA\Banner\Ui\Component\Listing\DataProvider\FilterPool" type="Magento\Framework\View\Element\UiComponent\DataProvider\FilterPool">
+        <arguments>
+            <argument name="appliers" xsi:type="array">
+                <item name="regular" xsi:type="object">Magento\Framework\View\Element\UiComponent\DataProvider\RegularFilter</item>
+                <item name="fulltext" xsi:type="object">PWA\Banner\Ui\Component\Listing\DataProvider\SearchFilter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PWA\Banner\Ui\Component\Listing\DataProvider\Reporting" type="Magento\Framework\View\Element\UiComponent\DataProvider\Reporting">
+        <arguments>
+            <argument name="filterPool" xsi:type="object">PWA\Banner\Ui\Component\Listing\DataProvider\FilterPool</argument>
+        </arguments>
+    </virtualType>
+    <type name="PWA\Banner\Ui\Component\DataProvider">
+        <arguments>
+            <argument name="reporting" xsi:type="object">PWA\Banner\Ui\Component\Listing\DataProvider\Reporting</argument>
+        </arguments>
+    </type>
+    <type name="PWA\Banner\Model\Banner\ImageUploader">
+        <arguments>
+            <argument name="baseTmpPath" xsi:type="string">pwa_banner/tmp</argument>
+            <argument name="basePath" xsi:type="string">pwa_banner/original</argument>
+            <argument name="allowedExtensions" xsi:type="array">
+                <item name="jpg" xsi:type="string">jpg</item>
+                <item name="jpeg" xsi:type="string">jpeg</item>
+                <item name="gif" xsi:type="string">gif</item>
+                <item name="png" xsi:type="string">png</item>
+                <item name="webp" xsi:type="string">webp</item>
+            </argument>
+            <argument name="allowedMimeTypes" xsi:type="array">
+                <item name="jpg" xsi:type="string">image/jpg</item>
+                <item name="jpeg" xsi:type="string">image/jpeg</item>
+                <item name="gif" xsi:type="string">image/gif</item>
+                <item name="png" xsi:type="string">image/png</item>
+                <item name="webp" xsi:type="string">image/webp</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="PWA\Banner\Api\Data\BannerImageInterface" type="PWA\Banner\Model\BannerImage"/>
+    <preference for="PWA\Banner\Api\BannerImageRepositoryInterface" type="PWA\Banner\Model\BannerImageRepository"/>
+</config>

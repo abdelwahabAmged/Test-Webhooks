@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @category Murergrej
+ * @package Murergrej_Theme
+ * @author Jorgena Shinjatari <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ *
+ * This template renders a popup UI component for displaying content.
+ *
+ * @var string $uniqueId        A unique identifier for the popup element, generated using uniqid().
+ * @var string $title           The title of the popup.
+ * @var string $content         The content to be displayed within the popup, retrieved from the block.
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var Escaper $escaper */
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$uniqueId = uniqid('_');
+$title = $block->getData('title') ?? '';
+$content = $block->getContent();
+?>
+
+<script>
+    function initPopup<?= /** @noEscape */  $uniqueId ?>() {
+        return {
+            isOpen: false,
+            open() {
+                this.isOpen = true;
+            },
+            close() {
+                this.isOpen = false;
+            },
+            toggle() {
+                this.isOpen = !this.isOpen;
+            }
+        }
+    }
+</script>
+
+<div x-data="initPopup<?= /** @noEscape */  $uniqueId ?>()" class="component-popup-wrapper">
+    <!-- Popup Overlay -->
+    <div class="z-50 fixed inset-0" style="background-color: #1D1F2266;" x-show="isOpen" @click="close"></div>
+
+    <!-- Popup Container -->
+    <div
+        class="component-popup-container z-50 fixed inset-0 mx-4 p-4 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out"
+        x-show="isOpen"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="translate-x-full"
+    >
+        <div class="p-5">
+            <div class="flex justify-end items-start">
+                <button @click="close()"
+                        type="button"
+                        class="text-gray-500 p-3 hover:text-gray-600 focus:text-gray-600
+                            transition ease-in-out duration-150"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Close fullscreen')) ?>"
+                >
+                    <?= $heroicons->xHtml('', 24, 24, ['aria-hidden' => 'true']) ?>
+                </button>
+            </div>
+            <h2 class="text-xl font-bold"><?= $title ?></h2>
+            <p><?= $content ?></p>
+        </div>
+    </div>
+
+    <!-- Button to Trigger Popup -->
+    <button class="px-4 py-2" @click="open">Open</button>
+</div>

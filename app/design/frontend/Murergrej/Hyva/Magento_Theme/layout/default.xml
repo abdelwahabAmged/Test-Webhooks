@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="hyva_form_validation"/>
+    <update handle="hyva_modal"/>
+    <!-- Injecting global variables through scripts -->
+    <referenceContainer name="head.additional">
+        <block name="device" template="Magento_Theme::page/device.phtml" />
+    </referenceContainer>
+    <body>
+        <referenceContainer name="content">
+            <block name="quickshop.product.modal" template="Magento_Catalog::product/quickshop-modal.phtml">
+                <block name="quickshop-modal-loading" as="loading" template="Hyva_Theme::ui/loading.phtml">
+                    <block name="product.info.options.swatch.js"
+                           as="options_swatch_js"
+                           template="Magento_Swatches::product/js/swatch-options.phtml"
+                    />
+                    <block name="product.info.options.configurable"
+                           template="Magento_Swatches::product/modal/view/renderer.phtml"
+                    />
+                    <block name="product.tier.prices.js"
+                           template="Magento_Catalog::product/view/modal/tier_price_js.phtml"
+                    />
+                    <block name="product.tier.prices"
+                           template="Magento_Catalog::product/view/modal/tier_price.phtml"
+                    />
+                </block>
+            </block>
+        </referenceContainer>
+        <referenceBlock name="script-alpine-js">
+            <block name="alpine-plugin-collapse" template="Magento_Theme::page/js/plugins/collapse.phtml"/>
+        </referenceBlock>
+        <move element="topmenu_desktop" destination="header-content" after="-"/>
+        <referenceContainer name="after.body.start">
+            <container name="trustpilot.widget.top.container" htmlTag="div" htmlClass="trustpilot-widget-top-container">
+                <block class="Magento\Framework\View\Element\Text" name="trustpilot.widget.top">
+                    <arguments>
+                        <argument name="text" xsi:type="string">
+                            <![CDATA[
+                            <!-- TrustBox widget - Mini -->
+                            <div class="trustpilot-widget" data-locale="da-DK" data-template-id="5406e65db0d04a09e042d5fc" data-businessunit-id="5701692e0000ff00058b00e1" data-style-height="28px" data-style-width="100%" data-theme="light">
+                              <a href="https://nl.trustpilot.com/review/murergrej.dk" target="_blank" rel="noopener">Trustpilot</a>
+                            </div>
+                            <!-- End TrustBox widget -->
+                            <!-- TrustBox script -->
+                            <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+                            <!-- End TrustBox script -->
+                            ]]>
+                        </argument>
+                    </arguments>
+                </block>
+            </container>
+        </referenceContainer>
+        <referenceContainer name="before.body.end">
+            <referenceContainer name="before.body.end">
+                <block name="private-business-modal" template="Magento_Theme::private-business-modal.phtml" />
+            </referenceContainer>
+        </referenceContainer>
+        <referenceBlock name="header-content">
+            <block name="vat-switcher" template="Magento_Theme::html/header/vat-switcher.phtml"/>
+            <block class="Murergrej\Checkout\Block\Cart\Minicart" name="cart-drawer" template="Magento_Theme::html/cart/cart-drawer.phtml" ifconfig="checkout/sidebar/display">
+                <block name="free.shipping.progress.minicart" template="Magento_Checkout::php-cart/free-shipping-progress.phtml"/>
+                <block class="Magento\Checkout\Block\Cart\Coupon" name="minicart.cart.coupon" as="minicart-coupon" template="Magento_Checkout::php-cart/coupon.phtml"/>
+                <block name="cart-drawer-loading" as="loading" template="Hyva_Theme::ui/loading.phtml"/>
+                <block class="Magento\Cms\Block\Block" name="minicart_bottom_block">
+                    <arguments>
+                        <argument name="block_id" xsi:type="string">minicart_bottom_block</argument>
+                    </arguments>
+                </block>
+                <container name="extra_actions"/>
+                <container name="cart-drawer.top"/>
+                <container name="cart-drawer.items.before"/>
+                <container name="cart-drawer.totals.before"/>
+                <container name="cart-drawer.bottom"/>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

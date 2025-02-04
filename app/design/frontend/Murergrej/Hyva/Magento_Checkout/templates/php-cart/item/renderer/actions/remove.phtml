@@ -1,0 +1,40 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Hairtalk_Hyva
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Checkout\Block\Cart\Item\Renderer\Actions\Remove;
+use Magento\Framework\Escaper;
+
+/** @var Remove $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var Escaper $escaper */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+$item = $block->getItem();
+
+if ($item->getProductType() === 'configurable') {
+    $productOptions = $item->getProduct()->getTypeInstance()->getOrderOptions($item->getProduct());
+    $productName = $productOptions["simple_name"] ?? '';
+} else {
+    $productName = $item->getName();
+}
+?>
+<button
+    class="flex action action-delete items-center"
+    x-data="{}"
+    @click.prevent="deleteItemFromCart(<?= $item->getId() ?>)"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Remove %1', $productName)) ?>"
+    type="button"
+>
+    <?= $heroicons->trashHtml('w-5 h-5', 20, 20, ['aria-hidden' => 'true']) ?>
+    <span class="font-extrabold text-xs ml-1.5">Remove</span>
+</button>

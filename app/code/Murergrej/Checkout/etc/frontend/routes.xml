@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Routes configuration for the Murergrej_Checkout module.
+ *
+ * This file defines the routes for the frontend of the Murergrej_Checkout module.
+ *
+ * @category   Murergrej
+ * @package    Murergrej_Checkout
+ * @developer  Abanoub Youssef <info@scandiweb.com>
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="murergrej_checkout" frontName="murergrej_checkout">
+            <module name="Murergrej_Checkout" />
+        </route>
+    </router>
+</config>
