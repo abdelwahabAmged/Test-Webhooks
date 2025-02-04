@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @category Murergrej
+ * @package Murergrej_Catalog
+ * @author Jorgena Shinjatari <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$productId = $block->getProductId();
+$attributeId = $block->getAttributeId();
+$productName = $block->getData('product-name');
+$imgWidth = $block->getData('width');
+$imgHeight = $block->getData('height');
+$thumbsSlides = $block->getData('thumbs_slides');
+?>
+
+<img
+    :alt="image.caption || '<?= $escaper->escapeJs($productName) ?>'"
+    :title="image.caption || '<?= $escaper->escapeJs($productName) ?>'"
+    class="object-contain object-center m-auto"
+    width="<?= /* @noEscape */ $imgWidth ?>"
+    height="<?= /* @noEscape */ $imgHeight ?>"
+    :loading="active !== index ? 'lazy' : 'eager'"
+    :src="<?= $thumbsSlides ? 'image.thumb' : 'image.img' ?>"
+    x-transition.opacity.duration.500ms
+/>

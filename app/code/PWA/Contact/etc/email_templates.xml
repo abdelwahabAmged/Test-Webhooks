@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="contact_bestil_email_email_template" label="Bestil Contact Form" file="bestil_submitted_form.html" type="html" module="PWA_Contact" area="frontend"/>
+</config>

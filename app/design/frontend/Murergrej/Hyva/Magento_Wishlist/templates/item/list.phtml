@@ -1,0 +1,40 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Block\Customer\Wishlist\Items;
+
+/** @var Escaper $escaper */
+/** @var Items $block */
+$columns = $block->getColumns();
+?>
+
+<div class="products-grid wishlist">
+    <?php if (count($block->getItems())): ?>
+    <div class="product-items grid grid-cols-2 lg:grid-cols-3 gap-2 max-sm:grid-cols-1">
+        <?php foreach ($block->getItems() as $item): ?>
+            <div class="bg-white product-item w-full"
+                id="item_<?= $escaper->escapeHtmlAttr($item->getId()) ?>">
+                <div class="product-item-info card card-interactive flex grow flex-col w-full h-full">
+                    <?php foreach ($columns as $column): ?>
+                        <?= $column->setItem($item)->toHtml();?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+        <div class="message info empty">
+            <span><?= $escaper->escapeHtml(__('This Wish List has no Items')) ?></span>
+        </div>
+    <?php endif; ?>
+</div>
+
+<?php foreach ($columns as $column): ?>
+    <?= $column->getAdditionalHtml() ?>
+<?php endforeach; ?>

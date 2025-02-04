@@ -1,0 +1,30 @@
+<div attr="data.main.attributes"
+     css="data.main.css"
+     ko-style="data.main.style"
+     event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false">
+    <span
+     attr="data.menu_identifier.attributes"
+     css="data.menu_identifier.css"
+     hidden
+     ko-style="data.menu_identifier.style">
+    </span>
+    <div class="scandiweb-menu-parent-container">
+        <if args="!data.menuItems().length">
+            <span class="scandiweb-menu-preview-placeholder">
+                Select a Menu to display
+            </span>
+        </if>
+        <div class="scandiweb-menu-container" data-bind="foreach: {data: data.menuItems, as: 'menuItem'}">
+            <div class="scandiweb-menu-column">
+                <h4 class="scandiweb-menu-column-title" data-bind="text: menu.title"></h4>
+
+                <ul data-bind="foreach: {data: Object.values(items), as: 'item'}" class="scandiweb-menu-column-children-wrapper">
+                    <li>
+                         <a data-bind="href: item.url, text: item.title"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <render args="getOptions().template"/>
+</div>

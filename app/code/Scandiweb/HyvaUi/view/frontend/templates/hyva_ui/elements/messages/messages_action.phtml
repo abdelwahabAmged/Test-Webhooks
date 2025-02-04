@@ -1,0 +1,27 @@
+<?php
+/**
+ * @category    Scandiweb
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+?>
+<div class="flex flex-row gap-4" x-data="initMessagesTrigger()">
+    <button class="btn btn-secondary btn-size-sm" @click="triggerMessage('success')">Trigger Success Message</button>
+    <button class="btn btn-secondary btn-size-sm" @click="triggerMessage('error')">Trigger Error Message</button>
+    <button class="btn btn-secondary btn-size-sm" @click="triggerMessage('info')">Trigger Info Message</button>
+</div>
+<script>
+    function initMessagesTrigger() {
+        return {
+            triggerMessage: function (type = 'success') {
+                dispatchMessages([
+                    {
+                        type: type,
+                        text: 'Well done! Make haste, my friend, because this message as ephemeral all good things are!'
+                    }
+                ], 2000);
+            }
+        };
+    }
+</script>

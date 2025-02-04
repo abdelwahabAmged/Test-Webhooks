@@ -1,0 +1,142 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Hyva\Theme\ViewModel\ProductPage;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Catalog\Pricing\Price\RegularPrice;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var ProductPrice $productPriceViewModel */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+
+/** @var ViewModelRegistry $viewModels */
+$currentProduct = $viewModels->require(CurrentProduct::class);
+
+/** @var Product $product */
+$product = $this->getProduct();
+
+if (!$product) {
+    return '';
+}
+
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+
+$regularPrice = $productPriceViewModel->getPriceValue(RegularPrice::PRICE_CODE, $product);
+$regularPriceExclTax = $productPriceViewModel->displayPriceInclAndExclTax()
+    ? $productPriceViewModel->getPriceValueExclTax(RegularPrice::PRICE_CODE, $product)
+    : $regularPrice;
+
+$variants = $product->getTypeInstance()->getUsedProducts($product);
+$lowestBasePriceVariant = null;
+$tierPriceData = [];
+
+// Loop through variants to find the one with the lowest base price
+foreach ($variants as $variant) {
+    $variantTierPrices = $variant->getTierPrice();
+
+    if (!empty($variantTierPrices)) {
+        $basePrice = $variant->getPrice();
+
+        if (
+          is_null($lowestBasePriceVariant) ||
+          $basePrice < $lowestBasePriceVariant?->getPrice()
+        ) {
+            $lowestBasePriceVariant = $variant;
+        }
+    }
+}
+
+if ($lowestBasePriceVariant !== null) {
+    $tierPriceData = array_map(function($tierPrice) use ($regularPriceExclTax) {
+        $discount = 0;
+
+        if ($tierPrice['percentage_value']) {
+            // If percentage is defined, use it
+            $discount = (float)$tierPrice['percentage_value'];
+        } else {
+            // If percentage is not defined, calculate the discount from the fixed price
+            $discount = (1 - (float)$tierPrice['price'] / $regularPriceExclTax) * 100;
+        }
+
+        return [
+            'qty' => (int)$tierPrice['price_qty'],
+            'basePrice' => (float)$tierPrice['price'],
+            'percentage' => round($discount)
+        ];
+    }, $lowestBasePriceVariant->getTierPrice());
+}
+
+$filteredTierPriceData = [];
+foreach ($tierPriceData as $tierPrice) {
+    $key = $tierPrice['percentage'];
+    // Only add the tier price if it's not already present with the same percentage
+    if (!isset($filteredTierPriceData[$key]) || $tierPrice['qty'] < $filteredTierPriceData[$key]['qty']) {
+        $filteredTierPriceData[$key] = $tierPrice;
+    }
+}
+
+$tierPriceData = array_values($filteredTierPriceData);
+?>
+
+<div
+  x-data="initQuickshopTierPrices(
+        '<?= (int)$product->getId() ?>',
+        <?= htmlspecialchars(json_encode($tierPriceData), ENT_QUOTES, 'UTF-8') ?>,
+        '<?= $lowestBasePriceVariant?->getPrice() ?>'
+    )"
+  x-bind="eventListeners"
+  x-show="tierPriceData.length > 0"
+  x-cloak
+>
+    <div class="px-10 py-6 bg-secondary-lighter border-b-2 border-white">
+        <div class="cursor-pointer flex justify-between items-center" @click="open = !open">
+            <div class="flex items-baseline flex-col sm:flex-row">
+                <span class="font-extrabold text-base"><?= $escaper->escapeHtml(__('Buy more, save more')) ?></span>
+                <span class="ml-1 text-sm text-primary-lighter"><?= $escaper->escapeHtml(__('(select quantity)')) ?></span>
+            </div>
+            <span class="self-start mt-1" x-show="!open">
+                <?= $heroicons->plusHtml('', 16, 16, ["aria-hidden" => "true"]) ?>
+            </span>
+            <span class="self-start mt-1" x-cloak x-show="open">
+                <?= $heroicons->minusHtml('', 16, 16, ["aria-hidden" => "true"]) ?>
+            </span>
+        </div>
+        <div x-show="open" class="pt-3">
+            <table id="tierPriceTableQuickshop" class="w-full text-left">
+                <thead>
+                <tr>
+                    <th class="font-normal text-xs pb-2"><?= $escaper->escapeHtml(__('Quantity')) ?></th>
+                    <th class="font-normal text-xs pb-2" id="priceHeaderQuickshop">
+                        <?= $escaper->escapeHtml(__('Price from/Item')) ?>
+                    </th>
+                    <th class="font-normal text-xs pb-2 text-right"><?= $escaper->escapeHtml(__('Total')) ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

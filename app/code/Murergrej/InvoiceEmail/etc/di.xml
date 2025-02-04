@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Murergrej\InvoiceEmail\Api\Data\InvoiceEmailInterface" type="Murergrej\InvoiceEmail\Model\Data\InvoiceEmail" />
+    <preference for="Murergrej\InvoiceEmail\Api\InvoiceEmailManagementInterface" type="Murergrej\InvoiceEmail\Model\InvoiceEmailManagement" />
+    <preference for="Murergrej\InvoiceEmail\Api\GuestInvoiceEmailManagementInterface" type="Murergrej\InvoiceEmail\Model\GuestInvoiceEmailManagement" />
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="invoice_email" xsi:type="object">InvoiceEmailExpression</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <preference for="Magento\Sales\Model\Order\Email\Sender\InvoiceSender" type="Murergrej\InvoiceEmail\Model\Order\Email\Sender\InvoiceSender" />
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Invoice\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="invoice_email" xsi:type="object">InvoiceEmailExpression</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="InvoiceEmailExpression" type="Murergrej\InvoiceEmail\Db\Sql\CoalesceExpression">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="0" xsi:type="string">sales_order.invoice_email</item>
+                <item name="1" xsi:type="string">sales_order.customer_email</item>
+            </argument>
+        </arguments>
+    </virtualType>
+</config>

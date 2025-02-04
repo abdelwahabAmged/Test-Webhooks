@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 Dependency Injection
+ * This XML file is used to declare the dependency injection for the Murergrej_Catalog module.
+ * @category   Custom Module
+ * @package    Murergrej_Catalog
+ * @author     Abanoub Youssef <Abanoub.youssef@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\Catalog\Block\Product\ListProduct" type="Murergrej\Catalog\Block\Product\ListProduct"/>
+    <!-- handle GET  /products and /product{sku}  -->
+    <preference for="Magento\Catalog\Model\Product\Type\Price" type="Murergrej\Catalog\Model\Product\Type\Price"/>
+    <preference for="Magento\Catalog\Block\Product\AbstractProduct"
+                type="Murergrej\Catalog\Block\Product\AbstractProduct"/>
+    <preference for="Magento\Catalog\Model\Category" type="Murergrej\Catalog\Model\Category"/>
+    <type name="Magento\Catalog\Model\ResourceModel\Category">
+        <plugin name="category_resource_model_plugin" type="Murergrej\Catalog\Plugin\CategoryResourceModelPlugin" />
+    </type>
+</config>

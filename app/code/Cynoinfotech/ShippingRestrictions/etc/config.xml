@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author CynoInfotech Team
+ * @package Cynoinfotech_ShippingRestrictions
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <cynoinfotech_shippingrestrictions>		
+            <general>
+                <active>1</active>
+				<display_error>0</display_error>
+				<restrict_for_admin>1</restrict_for_admin>
+				<apply_conditions>1</apply_conditions>
+				<apply_coupons>0</apply_coupons>
+			</general>			
+        </cynoinfotech_shippingrestrictions>
+    </default>
+</config>

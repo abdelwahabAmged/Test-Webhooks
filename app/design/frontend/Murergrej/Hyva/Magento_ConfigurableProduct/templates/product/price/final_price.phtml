@@ -1,0 +1,54 @@
+<?php
+/**
+ * @category Murergrej
+ * @package Magento_ConfigurableProduct
+ * @author Irmantas Dvareckas <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+use Magento\ConfigurableProduct\Pricing\Render\FinalPriceBox;
+use Magento\Framework\Pricing\Price\PriceInterface;
+
+/** @var FinalPriceBox$block */
+/** @var PriceInterface $priceModel */
+
+$priceModel = $block->getPriceType('regular_price');
+/** @var PriceInterface $finalPriceModel */
+$finalPriceModel = $block->getPriceType('final_price');
+$idSuffix = $block->getIdSuffix() ? $block->getIdSuffix() : '';
+$schema = ($block->getZone() == 'item_view') ? true : false;
+?>
+<span class="normal-price order-2 <?= $block->hasSpecialPrice() ? 'discount-red' : '' ?>">
+    <?= /* @noEscape */ $block->renderAmount($finalPriceModel->getAmount(), [
+        'display_label' => __('As low as'),
+        'price_id' => $block->getPriceId('product-price-' . $idSuffix),
+        'price_type' => 'finalPrice',
+        'include_container' => true,
+        'schema' => $schema,
+    ]);
+?>
+</span>
+
+<?php if ($block->hasSpecialPrice()) : ?>
+    <span class="old-price sly-old-price no-display">
+        <?= /* @noEscape */ $block->renderAmount($priceModel->getAmount(), [
+            'display_label'     => __('Regular Price'),
+            'price_id'          => $block->getPriceId('old-price-' . $idSuffix),
+            'price_type'        => 'oldPrice',
+            'include_container' => true,
+            'skip_adjustments'  => true
+        ]); ?>
+    </span>
+<?php endif; ?>
+
+<?php if ($block->showMinimalPrice()) : ?>
+    <?php if ($block->getUseLinkForAsLowAs()) :?>
+        <a href="<?= $block->escapeUrl($block->getSaleableItem()->getProductUrl()) ?>" class="minimal-price-link">
+            <?= /* @noEscape */ $block->renderAmountMinimal() ?>
+        </a>
+    <?php else :?>
+        <span class="minimal-price-link">
+            <?= /* @noEscape */ $block->renderAmountMinimal() ?>
+        </span>
+    <?php endif?>
+<?php endif; ?>

@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright  Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp/etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="googletagmanager" type="host">*.googletagmanager.com</value>
+
+                <value id="facebook" type="host">*.facebook.net</value>
+                
+				<value id="facebook" type="host">connect.facebook.net</value>
+
+                <value id="google-analytics" type="host">*.google-analytics.com</value>
+
+                <value id="googleadservices" type="host">*.googleadservices.com</value>
+
+                <value id="vimeo" type="host">*.vimeo.com</value>
+
+                <value id="truspilot" type="host">*.trustpilot.com</value>
+
+                <value id="paypal" type="host">*.paypal.com</value>
+
+                <value id="evolution360" type="host">*.evolution360.com</value>
+
+                <value id="report360" type="host">*.report360.io</value>
+
+                <value id="youtube" type="host">*.youtube.com</value>
+
+                <value id="addwish" type="host">*.addwish.com</value>
+
+                <value id="gstatic" type="host">*.gstatic.com</value>
+
+                <value id="googleapis" type="host">*.googleapis.com</value>
+
+                <value id="cloudflare" type="host">*.cloudflare.com</value>
+
+                <value id="cloudfront" type="host">*.cloudfront.net</value>
+            </values>
+        </policy>
+
+           <policy id="style-src">
+            <values>
+                <value id="cloudflare" type="host">*.cloudflare.com</value>
+                <value id="fontawesome" type="host">*.fontawesome.com</value>
+                <value id="maxcdn" type="host">*.bootstrapcdn.com</value>
+                <value id="jsdelivr" type="host">*.jsdelivr.net</value>
+                <value id="googleapis" type="host">*.googleapis.com</value>
+                <value id="cloudfront" type="host">*.cloudfront.net</value>
+            </values>
+        </policy>
+
+        <policy id="img-src">
+            <values>
+                <value id="cloudflare" type="host">*.cloudflare.com</value>
+                <value id="report360" type="host">*.report360.io</value>
+                <value id="cloudfront" type="host">*.cloudfront.net</value>
+                <value id="doubleclick.net" type="host">*.doubleclick.net</value>
+                <value id="google.de" type="host">*.google.de</value>
+                <value id="google.com" type="host">*.google.com</value>
+                <value id="facebook.com" type="host">*.facebook.com</value>
+            </values>
+        </policy>
+
+         <policy id="connect-src">
+            <values>
+                <value id="cloudflare" type="host">*.cloudflare.com</value>
+                <value id="truspilot" type="host">*.trustpilot.com</value>
+                <value id="evolution360" type="host">*.evolution360.com</value>
+                <value id="cloudfront" type="host">*.cloudfront.net</value>
+            </values>
+        </policy>
+        <policy id="font-src">
+            <values>
+                <value id="cloudflare" type="host">*.cloudflare.com</value>
+                <value id="maxcdn" type="host">*.bootstrapcdn.com</value>
+                <value id="googleapis" type="host">*.googleapis.com</value>
+                <value id="gstatic" type="host">*.gstatic.com</value>
+                <value id="cloudfront" type="host">*.cloudfront.net</value>
+                <value id="fontawesome" type="host">*.fontawesome.com</value>
+            </values>
+        </policy>
+
+         <policy id="frame-src">
+         <values>
+            <value id="truspilot" type="host">*.trustpilot.com</value>
+            </values>
+         </policy>
+
+    </policies>
+</csp_whitelist>

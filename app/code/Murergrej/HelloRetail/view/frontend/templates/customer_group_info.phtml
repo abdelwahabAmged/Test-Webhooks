@@ -1,0 +1,19 @@
+<?php
+/**
+ * HelloRetail Customer Group Info Template
+ *
+ * @category    Murergrej
+ * @package     Murergrej_HelloRetail
+ * @author      Abanoub Youssef <abanoub.youssef@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Murergrej\HelloRetail\Block\CustomerGroupInfo;
+
+/** @var CustomerGroupInfo $block */
+$customerSession = $block->getCustomerSession();
+
+$customerGroupId = $customerSession->isLoggedIn() ? $customerSession->getCustomerGroupId() : $block::GUEST_ID;
+?>
+<div id="hr-customer-group-information" x-data="{ customerGroupId: <?= $customerGroupId; ?> }" data-cust-group='{"customerGroupId": <?= $customerGroupId; ?>}'></div>

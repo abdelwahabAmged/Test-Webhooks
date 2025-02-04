@@ -1,0 +1,35 @@
+<?php
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+
+use DV\ProfitMetrics\Block\System\Config\RandomCode;
+
+/* @var $block RandomCode */
+?>
+
+<script>
+    require([
+        'jquery',
+        'prototype'
+    ], function ($) {
+
+        $('#generate_random_code_button').click(function () {
+            let code = (Math.random().toString(36) + Math.random().toString(36) +
+                Math.random().toString(36)).replace(/[^a-z0-9]+/g, '').substr(0,20);
+
+            if ($('#profit_metrics_general_secret_code').prop('disabled')) {
+                $('#profit_metrics_general_secret_code_inherit').trigger('click');
+            }
+
+            $('#profit_metrics_general_secret_code').val(code);
+        });
+
+    });
+</script>
+
+<?= $block->getButtonHtml() ?>

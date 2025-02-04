@@ -1,0 +1,157 @@
+.snap {
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+.snap::-webkit-scrollbar {
+    display: none;
+}
+.snap > div {
+    scroll-snap-align: start;
+}
+.prev-arrow, .next-arrow {
+    @apply bg-white border border-gray-300 p-3 z-10 cursor-pointer;
+}
+.prev-arrow {
+    @apply mr-2;
+}
+.next-arrow {
+    @apply ml-2;
+}
+.js_slides {
+    @apply flex overflow-x-auto;
+    scroll-snap-type: x mandatory;
+}
+.js_slide {
+    scroll-snap-align: start;
+    @apply flex-shrink-0 w-1/4;
+}
+.scroll-container::-webkit-scrollbar {
+    height: 4px;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+    @apply bg-primary;
+}
+.scroll-container::-webkit-scrollbar-track {
+    @apply bg-gray-300;
+}
+.scroll-container::-webkit-scrollbar-button {
+    @apply hidden;
+}
+.scroll-container{
+    @apply [scrollbar-width:thin] [scrollbar-color:var(--primary-color)_var(--secondary-gray-lighter)]
+}
+.scroll-container::-moz-scrollbar-button {
+    @apply hidden;
+}
+.scroll-container::-webkit-scrollbar-button:decrement,
+.scroll-container::-webkit-scrollbar-button:increment {
+    @apply hidden;
+}
+.product-slider-1 {
+    @apply bg-white;
+
+    .out-of-stock {
+        @apply bg-inherit;
+    }
+
+    .swiper-slide {
+        @apply bg-secondary-lighter;
+    }
+}
+.product-slider-1 .product-item {
+    @apply bg-cream !pt-0;
+}
+
+.product-slider-1 .product-image-photo {
+    @apply border-t-2 border-x-2 border-secondary-lighter;
+}
+
+.product-slider-1 .item-listing-description {
+    @apply !border-white;
+}
+.swiper-scrollbar-drag {
+    @apply !bg-primary !rounded-none;
+}
+.swiper-scrollbar {
+    @apply !left-0 !w-full !mt-6 !relative;
+}
+
+.hello-retail-products-slider,
+.reco-hello-retail-slider,
+.hello-retail-slider-wrapper {
+    .out-of-stock {
+        @apply mb-4;
+
+        p {
+            @apply !mb-0;
+        }
+    }
+}
+
+.reco-hello-retail-slider {
+    .swiper-next {
+        @apply absolute z-10 right-0;
+    }
+
+    .product-image-photo {
+        @apply h-[182px] md:h-[200px];
+    }
+
+    .swiper-scrollbar {
+        @apply xl:!w-[85%];
+    }
+}
+
+.minicart-hr-recom-product-slider {
+    .swiper-slide {
+        @apply border-2 border-secondary-lighter;
+    }
+}
+
+.swiper {
+    .product-item {
+        .price-box {
+            @apply h-16 md:h-[72px] lg:h-[70px];
+        }
+
+        .item-listing-description {
+            @apply text-sm h-[90px] md:h-[70px];
+
+            p {
+                @apply overflow-hidden break-words;
+
+                display: -webkit-box;
+                -webkit-line-clamp: 4;
+                -webkit-box-orient: vertical;
+
+                @media screen(md) {
+                    -webkit-line-clamp: 3;
+                }
+            }
+        }
+    }
+}
+
+.swiper-prev,
+.swiper-next {
+    svg {
+        @apply p-1;
+    }
+}
+
+.swiper-autoheight, .swiper-autoheight .swiper-slide {
+    @apply !h-auto;
+}
+
+.swiper-autoheight .swiper-wrapper {
+    @apply !items-stretch;
+}
+
+.swiper-wrapper {
+    @apply !items-stretch;
+}
+
+.swiper-slide {
+    @apply !h-auto;
+}

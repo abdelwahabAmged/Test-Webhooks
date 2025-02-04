@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Scandiweb
+ * @author      Amr Osama <info@scandiweb.com>
+ * @author      Larbi Sahli <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<page layout="3columns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="page-js-dependencies">
+			<arguments>
+				<argument name="blockOutputPatternMap" xsi:type="array">
+					<item name="page_builder.slider" xsi:type="array">
+						<item name="regex" xsi:type="string">/data-content-type="slider"|data-content-type="scandiweb_reviews"|data-content-type="scandiweb_product_slider"|data-content-type="scandiweb_slider"|data-content-type="products"|class="product-slider/</item>
+						<item name="template" xsi:type="string">Scandiweb_HyvaUi::scandiweb_ui/scripts/carousel.phtml</item>
+					</item>
+				</argument>
+			</arguments>
+		</referenceBlock>
+		<referenceContainer name="before.body.end">
+            <block name="lazy-load" template="Scandiweb_HyvaUi::lazy-load.phtml" />
+        </referenceContainer>
+    </body>
+</page>

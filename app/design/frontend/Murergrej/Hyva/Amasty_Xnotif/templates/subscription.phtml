@@ -1,0 +1,95 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Out Of Stock Notifications Hyva Compatibility
+ */
+
+use Magento\Framework\Escaper;
+use Amasty\Xnotif\Block\AbstractBlock;
+
+/** @var Escaper $escaper */
+/** @var AbstractBlock $block */
+
+$subscriptions = $block->getSubscriptions();
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+
+<?php if ($subscriptions->getSize()): ?>
+    <div class="table-container overflow-x-auto">
+        <table class="table table-wrapper data-table mb-4 p-4 rounded-sm bg-container-lighter shadow border-collapse w-full text-left"
+               id="my-subscriptions-table">
+            <thead>
+            <tr>
+                <th class="image text-sm text-secondary font-normal p-2 w-[50px] content-start"><?= $escaper->escapeHtml(__('Image')) ?></th>
+                <th class="text-sm text-secondary font-normal p-2 content-start"><?= $escaper->escapeHtml(__('Product')) ?></th>
+                <th class="text-sm text-secondary font-normal p-2 content-start"><?= $escaper->escapeHtml(__('Subscribed On')) ?></th>
+                <th class="text-sm text-secondary font-normal p-2 content-start"><?= $escaper->escapeHtml(__('Notification Status')) ?></th>
+                <th class="text-sm text-secondary font-normal p-2 content-start"><?= $escaper->escapeHtml(__('Stock Status')) ?></th>
+                <th class="text-sm text-secondary font-normal p-2 content-start"><?= $escaper->escapeHtml(__('Price')) ?></th>
+                <th class="text-sm text-secondary font-normal p-2 content-start"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($subscriptions as $product): ?>
+                <?php $productUrl = $block->getUrlProduct($product); ?>
+                <tr class="even:bg-container-darker">
+                    <td class="p-2 content-start">
+                        <a href="<?= $escaper->escapeUrl($productUrl) ?>">
+                            <img src="<?= $escaper->escapeUrl($block->getImageSrc($product)) ?>"
+                                 alt="<?= $escaper->escapeHtmlAttr($product->getName()) ?>"
+                                 width="45" height="45"/>
+                        </a>
+                    </td>
+                    <td class="p-2 content-start">
+                        <a title="<?= $escaper->escapeHtmlAttr($product->getName()) ?>"
+                           href="<?= $escaper->escapeUrl($productUrl) ?>">
+                            <?= $escaper->escapeHtml($product->getName()) ?>
+                        </a>
+                    </td>
+                    <td class="p-2 content-start">
+                        <span class="nobr">
+                            <?= $escaper->escapeHtml(
+                                $block->formatDate($product->getAddDate())
+                            ) ?>
+                        </span>
+                    </td>
+                    <td class="p-2 content-start">
+                        <?= $escaper->escapeHtml($block->getNotificationStatus($product)) ?>
+                    </td>
+                    <td class="p-2 content-start">
+                        <span class="nobr"><?= $escaper->escapeHtml($block->getStockStatus($product)) ?></span>
+                    </td>
+                    <td class="p-2 content-start">
+                        <span class="nobr"><?= /* @noEscape */ $block->getPriceBlock($product) ?></span>
+                    </td>
+                    <td class="p-2 content-start">
+                        <a href="<?= $escaper->escapeUrl($block->getRemoveUrl($product)) ?>"
+                           title="<?= $escaper->escapeHtmlAttr(__('Remove This Item')) ?>"
+                           onclick="return confirm('<?= $escaper->escapeHtml($block->getConfirmationText()) ?>');"
+                           class="btn-remove text-primary text-sm inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 width="20"
+                                 height="20">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
+                                      4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                </path>
+                            </svg>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php else: ?>
+    <div class="message info empty">
+        <span><?= $escaper->escapeHtml(__('There are no active subscriptions.')) ?></span>
+    </div>
+<?php endif ?>

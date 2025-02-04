@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\GroupedProduct\Model\Product\Type\Grouped" type="Murergrej\GroupedProduct\Model\Product\Type\Grouped" />
+    <type name="Magento\Catalog\Model\Product\Type\Price">
+        <plugin name="grouped_link_price" type="Murergrej\GroupedProduct\Plugin\Model\Product\Price" />
+    </type>
+    <type name="Magento\Catalog\Pricing\Price\TierPrice">
+        <plugin name="grouped_link_price" type="Murergrej\GroupedProduct\Plugin\Pricing\Price\TierPrice" />
+    </type>
+    <type name="Magento\Catalog\Model\Product\Initialization\Helper\ProductLinks">
+        <plugin name="GroupedProductPrice" type="Murergrej\GroupedProduct\Plugin\Model\Product\Initialization\Helper\ProductLinks" sortOrder="-1"/>
+    </type>
+    <type name="Magento\GroupedProduct\Ui\DataProvider\Product\GroupedProductDataProvider">
+        <plugin name="grouped_link_price" type="Murergrej\GroupedProduct\Plugin\Ui\DataProvider\Product\GroupedProductDataProvider" />
+    </type>
+    <type name="Magento\Catalog\Model\ProductLink\Converter\ConverterInterface">
+        <plugin name="grouped_link_price" type="Murergrej\GroupedProduct\Plugin\Model\Product\Link\ProductEntity\Converter" />
+    </type>
+</config>

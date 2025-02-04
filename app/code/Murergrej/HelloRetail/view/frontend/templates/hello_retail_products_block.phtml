@@ -1,0 +1,55 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_BrandWidget
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+use Hyva\Theme\ViewModel\Slider;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+
+/** @var \Magento\Framework\View\Element\Template $block */
+$mediaUrl = $block->getViewFileUrl('images/reco.png');
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Slider $sliderViewModel */
+$sliderViewModel = $viewModels->require(Slider::class);
+
+$sliderTitle = $block->getData('hello_retail_products_slider_title');
+
+$recommendedProducts = $block->getRecommendedProducts();
+$recommendedProductsCollection = $recommendedProducts[0]['collection'] ?? null;
+$productTrackingCodes = $recommendedProducts[0]['products'] ?? [];
+$sliderHtml = '';
+
+if ($recommendedProductsCollection && $recommendedProductsCollection->getSize() > 0) {
+    $containerTemplate = 'Murergrej_HelloRetail::product/slider/hello_retail_products_slider.phtml';
+
+    $sliderHtml = $sliderViewModel->getSliderForItems(
+        'Magento_Catalog::product/list/item.phtml',
+        $recommendedProductsCollection,
+        $containerTemplate
+    )
+        ->setData('hide_details', false)
+        ->setData('hide_rating_summary', false)
+        ->setData('title', $sliderTitle)
+        ->setData('item_relation_type', 'generic')
+        ->setData('heading_tag', 'h3')
+        ->setData('product_tracking_codes', $productTrackingCodes)
+        ->setData('slide_count_desktop', 3.25)
+        ->setData('slide_count_large_desktop', 5)
+        ->setData('display_arrows', true)
+        ->setData('slides_gap', 16)
+      ->toHtml();
+}
+?>
+<div class="relative">
+    <div class="hello-retail-products-slider">
+        <?php if ($sliderHtml): ?>
+            <?= /* @noEscape */ $sliderHtml ?>
+        <?php endif; ?>
+    </div>
+</div>

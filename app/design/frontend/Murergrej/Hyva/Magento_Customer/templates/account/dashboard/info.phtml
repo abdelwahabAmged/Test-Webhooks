@@ -1,0 +1,107 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Customer\Block\Account\Dashboard\Info;
+use Magento\Framework\Escaper;
+
+/** @var Info $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$customer = $block->getCustomer();
+$customAttributes = $customer->getCustomAttributes('mp_sms_telephone');
+
+$mpSmsTelephone = isset($customAttributes['mp_sms_telephone'])
+    ? $customAttributes['mp_sms_telephone']?->getValue()
+    : null;
+?>
+<h2 class="mb-6 text-2xl block-title">
+    <?= $escaper->escapeHtml(__('Account Information')) ?>
+</h2>
+<div class="flex flex-wrap justify-between">
+    <div class="w-full lg:pr-4 max-lg:py-4 lg:w-1/2">
+        <div class="px-4 py-5 card">
+            <div class="flex flex-col h-full sm:flex-row gap-4">
+                <div
+                    class="inline-flex items-center justify-center shrink-0 w-16 h-16
+                        rounded-full bg-container-darker">
+                    <?= $heroicons->userHtml('', 32, 32, ['aria-hidden' => 'true']) ?>
+                </div>
+                <div class="flex grow flex-col gap-y-2">
+                    <p class="font-bold title-font">
+                        <span><?= $escaper->escapeHtml(__('Contact Information')) ?></span>
+                    </p>
+                    <p><?= $escaper->escapeHtml($block->getName()) ?></p>
+                    <p class="break-all"><?= $escaper->escapeHtml($block->getCustomer()->getEmail()) ?></p>
+                    <p class="break-all"><?= $escaper->escapeHtml($mpSmsTelephone) ?></p>
+                    </p>
+                    <?= $block->getChildHtml('customer.account.dashboard.info.extra'); ?>
+
+                </div>
+            </div>
+            <div>
+                <a
+                    class="btn btn-primary inline-flex items-center w-full md:text-sm my-2"
+                    href="<?= $escaper->escapeUrl($block->getUrl('customer/account/edit')) ?>"
+                    aria-label="<?= $escaper->escapeHtml(__('Edit contact information')) ?>"
+                >
+                    <span><?= $escaper->escapeHtml(__('Edit')) ?></span>
+                    <?= $heroicons->arrowRightHtml('ml-2', 16, 16, ['aria-hidden' => 'true']); ?>
+                </a>
+                <a
+                    class="btn btn-secondary inline-flex items-center w-full md:text-sm"
+                    href="<?= $escaper->escapeUrl($block->getChangePasswordUrl()) ?>"
+                >
+                    <?= $escaper->escapeHtml(__('Change Password')) ?>
+                    <?= $heroicons->arrowRightHtml('ml-2', 16, 16, ['aria-hidden' => 'true']); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php if ($block->isNewsletterEnabled()): ?>
+        <div class="w-full lg:pl-4 max-lg:py-4 lg:w-1/2">
+            <div class="h-full px-4 py-5 card flex flex-col justify-between">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div
+                        class="inline-flex items-center justify-center shrink-0 w-16 h-16
+                            rounded-full bg-container-darker">
+                        <?= $heroicons->mailHtml('', 32, 32, ['aria-hidden' => 'true']) ?>
+                    </div>
+                    <div class="flex grow flex-col gap-y-2">
+                        <p class="font-bold title-font">
+                            <?= $escaper->escapeHtml(__('Newsletters')) ?>
+                        </p>
+                        <p>
+                            <?php if ($block->getIsSubscribed()): ?>
+                                <?= $escaper->escapeHtml(__('You are subscribed to "General Subscription".')) ?>
+                            <?php else: ?>
+                                <?= $escaper->escapeHtml(__('You aren\'t subscribed to our newsletter.')) ?>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <a
+                        class="btn btn-primary w-full inline-flex items-center max-lg:my-3 md:text-sm mt-auto"
+                        href="<?= $escaper->escapeUrl($block->getUrl('newsletter/manage')) ?>"
+                        aria-label="<?= $escaper->escapeHtml(__('Edit newsletters')) ?>"
+                    >
+                        <span><?= $escaper->escapeHtml(__('Edit')) ?></span>
+                        <?= $heroicons->arrowRightHtml('ml-2', 16, 16, ['aria-hidden' => 'true']); ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    <?= $block->getChildHtml('additional_blocks'); ?>
+</div>

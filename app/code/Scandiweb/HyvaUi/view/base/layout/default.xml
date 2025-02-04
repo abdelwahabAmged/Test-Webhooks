@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="Scandiweb_HyvaUi::js/vendor/lazysizes/lazysizes.min.js" defer="defer"/>
+    </head>
+    <body>
+        <referenceBlock name="after.body.start">
+            <block name="head.helper" class="Magento\Framework\View\Element\Template" template="Scandiweb_HyvaUi::page/js/helper.phtml" />
+        </referenceBlock>
+    </body>
+</page>

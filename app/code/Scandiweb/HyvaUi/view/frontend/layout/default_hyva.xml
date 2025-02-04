@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+* @category    Scandiweb
+* @author      Scandiweb <info@scandiweb.com>
+*/
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="head.additional">
+            <block name="theme-head.js" class="Magento\Framework\View\Element\Template" template="Scandiweb_HyvaUi::page/js/custom-variables.phtml"/>
+        </referenceContainer>
+        <referenceBlock name="alpine-defer-rules">
+            <arguments>
+                <argument name="deferred_components" xsi:type="array">
+                    <item name="[data-content-type='scandiweb_slider'] [x-init='initCarousel($el);']" xsi:type="string">intersect</item>
+                    <item name="[data-content-type='slider']" xsi:type="string">intersect</item>
+                    <item name="[data-content-type='scandiweb_product_slider'] [x-data^='initProductSliderWidget_']" xsi:type="string">intersect</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

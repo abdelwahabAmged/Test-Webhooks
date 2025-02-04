@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Murergrej
+ * @package     Murergrej_HelloRetail
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget_file.xsd">
+    <widget id="hello_retail_products_slider" class="Murergrej\HelloRetail\Block\HelloRetailProducts">
+        <label translate="true">Hello Retail Products Slider</label>
+        <description>Widget to display slider with popular products from Hello Retail</description>
+        <parameters>
+            <parameter name="hello_retail_products_slider_title" xsi:type="text" required="false"
+                       visible="true" sort_order="50">
+                <label translate="true">Title</label>
+            </parameter>
+            <parameter name="recommendation_key" xsi:type="text" required="true" visible="true" sort_order="60">
+                <label translate="true">Recommendation Key</label>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

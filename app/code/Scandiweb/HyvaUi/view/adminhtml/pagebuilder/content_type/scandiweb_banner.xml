@@ -1,0 +1,651 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_PageBuilder:etc/content_type.xsd">
+    <type name="scandiweb_banner"
+          label="Banner"
+          menu_section="sw_components"
+          component="Magento_PageBuilder/js/content-type"
+          master_component="Magento_PageBuilder/js/content-type/master"
+          form="pagebuilder_scandiweb_banner_a_form"
+          icon="icon-pagebuilder-sw"
+          sortOrder="21"
+          translate="label">
+        <children default_policy="deny"/>
+        <parents default_policy="deny">
+            <parent name="row" policy="allow"/>
+            <parent name="column" policy="allow"/>
+        </parents>
+        <appearances>
+            <appearance name="banner_a"
+                        default="true"
+                        preview_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-a/preview"
+                        master_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-a/master"
+                        reader="Magento_PageBuilder/js/master-format/read/configurable">
+                <elements>
+                    <element name="main">
+                        <style name="text_align" source="text_align"/>
+                        <style name="border" source="border_style"
+                               converter="Magento_PageBuilder/js/converter/style/border-style"/>
+                        <style name="border_color" source="border_color"/>
+                        <style name="background_color" source="background_color"/>
+                        <style name="background_image" source="background_image"
+                               converter="Magento_PageBuilder/js/converter/style/background-image"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/background-image"/>
+                        <style name="border_width" source="border_width"
+                               converter="Magento_PageBuilder/js/converter/style/border-width"/>
+                        <style name="border_radius" source="border_radius"
+                               converter="Magento_PageBuilder/js/converter/style/remove-px"/>
+                        <style name="margins" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/margins"
+                               converter="Magento_PageBuilder/js/converter/style/margins"/>
+                        <style name="padding" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/paddings"
+                               converter="Magento_PageBuilder/js/converter/style/paddings"/>
+                        <style name="display" source="display"
+                               converter="Magento_PageBuilder/js/converter/style/display"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/display"/>
+                        <attribute name="name" source="data-content-type"/>
+                        <attribute name="appearance" source="data-appearance"/>
+                        <css name="css_classes"/>
+                    </element>
+                    <element name="banner_title_1">
+                        <html name="banner_title_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_subtitle_1">
+                        <html name="banner_subtitle_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="link_1">
+                        <attribute name="link_url_1"
+                                   reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href"
+                                   storage_key="link_url_1"
+                                   source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_1" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_1" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="banner_image_1">
+                        <attribute name="banner_image_1_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_1_alt" source="alt" />
+                    </element>
+                    <element name="block_directive">
+                        <html name="block_directive" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                </elements>
+                <converters>
+                    <converter component="Scandiweb_HyvaUi/js/content-type/scandiweb-banner/block-directive" name="block_directive">
+                        <config>
+                            <item name="html_variable" value="block_directive"/>
+                            <item name="block_class" value="Scandiweb\HyvaUi\Block\ScandiwebBanner"/>
+                        </config>
+                    </converter>
+                </converters>
+            </appearance>
+            <appearance name="banner_b"
+                        preview_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-b/preview"
+                        master_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-b/master"
+                        reader="Magento_PageBuilder/js/master-format/read/configurable">
+                <form>pagebuilder_scandiweb_banner_b_form</form>
+                <elements>
+                    <element name="main">
+                        <style name="text_align" source="text_align"/>
+                        <style name="border" source="border_style"
+                               converter="Magento_PageBuilder/js/converter/style/border-style"/>
+                        <style name="border_color" source="border_color"/>
+                        <style name="background_color" source="background_color"/>
+                        <style name="background_image" source="background_image"
+                               converter="Magento_PageBuilder/js/converter/style/background-image"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/background-image"/>
+                        <style name="border_width" source="border_width"
+                               converter="Magento_PageBuilder/js/converter/style/border-width"/>
+                        <style name="border_radius" source="border_radius"
+                               converter="Magento_PageBuilder/js/converter/style/remove-px"/>
+                        <style name="margins" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/margins"
+                               converter="Magento_PageBuilder/js/converter/style/margins"/>
+                        <style name="padding" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/paddings"
+                               converter="Magento_PageBuilder/js/converter/style/paddings"/>
+                        <style name="display" source="display"
+                               converter="Magento_PageBuilder/js/converter/style/display"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/display"/>
+                        <attribute name="name" source="data-content-type"/>
+                        <attribute name="appearance" source="data-appearance"/>
+                        <css name="css_classes"/>
+                    </element>
+                    <element name="banner_title_1">
+                        <html name="banner_title_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_subtitle_1">
+                        <html name="banner_subtitle_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="link_1">
+                        <attribute name="link_url_1" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_1" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_1" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_1" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="banner_image_1">
+                        <attribute name="banner_image_1_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_1_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_2">
+                        <attribute name="banner_image_2_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_2_alt" source="alt" />
+                    </element>
+                    <element name="block_directive">
+                        <html name="block_directive" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                </elements>
+                <converters>
+                    <converter component="Scandiweb_HyvaUi/js/content-type/scandiweb-banner/block-directive" name="block_directive">
+                        <config>
+                            <item name="html_variable" value="block_directive"/>
+                            <item name="block_class" value="Scandiweb\HyvaUi\Block\ScandiwebBanner"/>
+                        </config>
+                    </converter>
+                </converters>
+            </appearance>
+            <appearance name="banner_c"
+                        preview_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-c/preview"
+                        master_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-c/master"
+                        reader="Magento_PageBuilder/js/master-format/read/configurable">
+                <form>pagebuilder_scandiweb_banner_c_form</form>
+                <elements>
+                    <element name="main">
+                        <style name="text_align" source="text_align"/>
+                        <style name="border" source="border_style"
+                               converter="Magento_PageBuilder/js/converter/style/border-style"/>
+                        <style name="border_color" source="border_color"/>
+                        <style name="background_color" source="background_color"/>
+                        <style name="background_image" source="background_image"
+                               converter="Magento_PageBuilder/js/converter/style/background-image"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/background-image"/>
+                        <style name="border_width" source="border_width"
+                               converter="Magento_PageBuilder/js/converter/style/border-width"/>
+                        <style name="border_radius" source="border_radius"
+                               converter="Magento_PageBuilder/js/converter/style/remove-px"/>
+                        <style name="margins" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/margins"
+                               converter="Magento_PageBuilder/js/converter/style/margins"/>
+                        <style name="padding" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/paddings"
+                               converter="Magento_PageBuilder/js/converter/style/paddings"/>
+                        <style name="display" source="display"
+                               converter="Magento_PageBuilder/js/converter/style/display"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/display"/>
+                        <attribute name="name" source="data-content-type"/>
+                        <attribute name="appearance" source="data-appearance"/>
+                        <css name="css_classes"/>
+                    </element>
+                    <element name="banner_title_1">
+                        <html name="banner_title_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_subtitle_1">
+                        <html name="banner_subtitle_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_2">
+                        <html name="banner_title_2" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_subtitle_2">
+                        <html name="banner_subtitle_2" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="link_1">
+                        <attribute name="link_url_1" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_1" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_1" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_1" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_2">
+                        <attribute name="link_url_2" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_2" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_2" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_2" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="banner_image_1">
+                        <attribute name="banner_image_1_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_1_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_2">
+                        <attribute name="banner_image_2_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_2_alt" source="alt" />
+                    </element>
+                    <element name="block_directive">
+                        <html name="block_directive" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                </elements>
+                <converters>
+                    <converter component="Scandiweb_HyvaUi/js/content-type/scandiweb-banner/block-directive" name="block_directive">
+                        <config>
+                            <item name="html_variable" value="block_directive"/>
+                            <item name="block_class" value="Scandiweb\HyvaUi\Block\ScandiwebBanner"/>
+                        </config>
+                    </converter>
+                </converters>
+            </appearance>
+            <appearance name="banner_d"
+                        preview_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-d/preview"
+                        master_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-d/master"
+                        reader="Magento_PageBuilder/js/master-format/read/configurable">
+                <form>pagebuilder_scandiweb_banner_d_form</form>
+                <elements>
+                    <element name="main">
+                        <style name="text_align" source="text_align"/>
+                        <style name="border" source="border_style"
+                               converter="Magento_PageBuilder/js/converter/style/border-style"/>
+                        <style name="border_color" source="border_color"/>
+                        <style name="background_color" source="background_color"/>
+                        <style name="background_image" source="background_image"
+                               converter="Magento_PageBuilder/js/converter/style/background-image"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/background-image"/>
+                        <style name="border_width" source="border_width"
+                               converter="Magento_PageBuilder/js/converter/style/border-width"/>
+                        <style name="border_radius" source="border_radius"
+                               converter="Magento_PageBuilder/js/converter/style/remove-px"/>
+                        <style name="margins" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/margins"
+                               converter="Magento_PageBuilder/js/converter/style/margins"/>
+                        <style name="padding" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/paddings"
+                               converter="Magento_PageBuilder/js/converter/style/paddings"/>
+                        <style name="display" source="display"
+                               converter="Magento_PageBuilder/js/converter/style/display"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/display"/>
+                        <attribute name="name" source="data-content-type"/>
+                        <attribute name="appearance" source="data-appearance"/>
+                        <css name="css_classes"/>
+                    </element>
+                    <element name="banner_title_1">
+                        <html name="banner_title_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_2">
+                        <html name="banner_title_2" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_3">
+                        <html name="banner_title_3" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_4">
+                        <html name="banner_title_4" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="link_1">
+                        <attribute name="link_url_1" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_1" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_1" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_1" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_2">
+                        <attribute name="link_url_2" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_2" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_2" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_2" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_3">
+                        <attribute name="link_url_3" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_3" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_3" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_3" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_4">
+                        <attribute name="link_url_4" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_4" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_4" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_4" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="banner_image_1">
+                        <attribute name="banner_image_1_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_1_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_2">
+                        <attribute name="banner_image_2_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_2_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_3">
+                        <attribute name="banner_image_3_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_3_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_4">
+                        <attribute name="banner_image_4_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_4_alt" source="alt" />
+                    </element>
+                    <element name="block_directive">
+                        <html name="block_directive" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                </elements>
+                <converters>
+                    <converter component="Scandiweb_HyvaUi/js/content-type/scandiweb-banner/block-directive" name="block_directive">
+                        <config>
+                            <item name="html_variable" value="block_directive"/>
+                            <item name="block_class" value="Scandiweb\HyvaUi\Block\ScandiwebBanner"/>
+                        </config>
+                    </converter>
+                </converters>
+            </appearance>
+            <appearance name="banner_e"
+                        preview_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-e/preview"
+                        master_template="Scandiweb_HyvaUi/content-type/scandiweb-banner/banner-e/master"
+                        reader="Magento_PageBuilder/js/master-format/read/configurable">
+                <form>pagebuilder_scandiweb_banner_e_form</form>
+                <elements>
+                    <element name="main">
+                        <style name="text_align" source="text_align"/>
+                        <style name="border" source="border_style"
+                               converter="Magento_PageBuilder/js/converter/style/border-style"/>
+                        <style name="border_color" source="border_color"/>
+                        <style name="background_color" source="background_color"/>
+                        <style name="background_image" source="background_image"
+                               converter="Magento_PageBuilder/js/converter/style/background-image"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/background-image"/>
+                        <style name="border_width" source="border_width"
+                               converter="Magento_PageBuilder/js/converter/style/border-width"/>
+                        <style name="border_radius" source="border_radius"
+                               converter="Magento_PageBuilder/js/converter/style/remove-px"/>
+                        <style name="margins" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/margins"
+                               converter="Magento_PageBuilder/js/converter/style/margins"/>
+                        <style name="padding" storage_key="margins_and_padding"
+                               reader="Magento_PageBuilder/js/property/paddings"
+                               converter="Magento_PageBuilder/js/converter/style/paddings"/>
+                        <style name="display" source="display"
+                               converter="Magento_PageBuilder/js/converter/style/display"
+                               preview_converter="Magento_PageBuilder/js/converter/style/preview/display"/>
+                        <attribute name="name" source="data-content-type"/>
+                        <attribute name="appearance" source="data-appearance"/>
+                        <css name="css_classes"/>
+                    </element>
+                    <element name="banner_main_title">
+                        <html name="banner_main_title" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_1">
+                        <html name="banner_title_1" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_2">
+                        <html name="banner_title_2" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_3">
+                        <html name="banner_title_3" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_4">
+                        <html name="banner_title_4" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_5">
+                        <html name="banner_title_5" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_6">
+                        <html name="banner_title_6" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_7">
+                        <html name="banner_title_7" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_8">
+                        <html name="banner_title_8" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_9">
+                        <html name="banner_title_9" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="banner_title_10">
+                        <html name="banner_title_10" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                    <element name="link_1">
+                        <attribute name="link_url_1" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_1" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_1" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_1" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_2">
+                        <attribute name="link_url_2" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_2" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_2" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_2" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_3">
+                        <attribute name="link_url_3" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_3" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_3" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_3" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_4">
+                        <attribute name="link_url_4" reader="Magento_PageBuilder/js/property/link"
+                                   persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_4" source="href"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-href"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_4" source="target"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-target"
+                                   persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_4" source="data-link-type"
+                                   converter="Magento_PageBuilder/js/converter/attribute/link-type"
+                                   persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_5">
+                        <attribute name="link_url_5" reader="Magento_PageBuilder/js/property/link" persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_5" source="href" converter="Magento_PageBuilder/js/converter/attribute/link-href" persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_5" source="target" converter="Magento_PageBuilder/js/converter/attribute/link-target" persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_5" source="data-link-type" converter="Magento_PageBuilder/js/converter/attribute/link-type" persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_6">
+                        <attribute name="link_url_6" reader="Magento_PageBuilder/js/property/link" persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_6" source="href" converter="Magento_PageBuilder/js/converter/attribute/link-href" persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_6" source="target" converter="Magento_PageBuilder/js/converter/attribute/link-target" persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_6" source="data-link-type" converter="Magento_PageBuilder/js/converter/attribute/link-type" persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_7">
+                        <attribute name="link_url_7" reader="Magento_PageBuilder/js/property/link" persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_7" source="href" converter="Magento_PageBuilder/js/converter/attribute/link-href" persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_7" source="target" converter="Magento_PageBuilder/js/converter/attribute/link-target" persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_7" source="data-link-type" converter="Magento_PageBuilder/js/converter/attribute/link-type" persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_8">
+                        <attribute name="link_url_8" reader="Magento_PageBuilder/js/property/link" persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_8" source="href" converter="Magento_PageBuilder/js/converter/attribute/link-href" persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_8" source="target" converter="Magento_PageBuilder/js/converter/attribute/link-target" persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_8" source="data-link-type" converter="Magento_PageBuilder/js/converter/attribute/link-type" persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_9">
+                        <attribute name="link_url_9" reader="Magento_PageBuilder/js/property/link" persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_9" source="href" converter="Magento_PageBuilder/js/converter/attribute/link-href" persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_9" source="target" converter="Magento_PageBuilder/js/converter/attribute/link-target" persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_9" source="data-link-type" converter="Magento_PageBuilder/js/converter/attribute/link-type" persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="link_10">
+                        <attribute name="link_url_10" reader="Magento_PageBuilder/js/property/link" persistence_mode="read"/>
+                        <attribute name="virtual_link_href" storage_key="link_url_10" source="href" converter="Magento_PageBuilder/js/converter/attribute/link-href" persistence_mode="write"/>
+                        <attribute name="virtual_link_target" storage_key="link_url_10" source="target" converter="Magento_PageBuilder/js/converter/attribute/link-target" persistence_mode="write"/>
+                        <attribute name="virtual_link_type" storage_key="link_url_10" source="data-link-type" converter="Magento_PageBuilder/js/converter/attribute/link-type" persistence_mode="write"/>
+                        <attribute name="title_attribute" source="title"/>
+                    </element>
+                    <element name="banner_image_1">
+                        <attribute name="banner_image_1_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_1_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_2">
+                        <attribute name="banner_image_2_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_2_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_3">
+                        <attribute name="banner_image_3_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_3_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_4">
+                        <attribute name="banner_image_4_src"
+                                   source="src"
+                                   converter="Magento_PageBuilder/js/converter/attribute/src"
+                                   preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_4_alt" source="alt" />
+                    </element>
+                    <element name="banner_image_5">
+                        <attribute name="banner_image_5_src" source="src" converter="Magento_PageBuilder/js/converter/attribute/src" preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_5_alt" source="alt"/>
+                    </element>
+                    <element name="banner_image_6">
+                        <attribute name="banner_image_6_src" source="src" converter="Magento_PageBuilder/js/converter/attribute/src" preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_6_alt" source="alt"/>
+                    </element>
+                    <element name="banner_image_7">
+                        <attribute name="banner_image_7_src" source="src" converter="Magento_PageBuilder/js/converter/attribute/src" preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_7_alt" source="alt"/>
+                    </element>
+                    <element name="banner_image_8">
+                        <attribute name="banner_image_8_src" source="src" converter="Magento_PageBuilder/js/converter/attribute/src" preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_8_alt" source="alt"/>
+                    </element>
+                    <element name="banner_image_9">
+                        <attribute name="banner_image_9_src" source="src" converter="Magento_PageBuilder/js/converter/attribute/src" preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_9_alt" source="alt"/>
+                    </element>
+                    <element name="banner_image_10">
+                        <attribute name="banner_image_10_src" source="src" converter="Magento_PageBuilder/js/converter/attribute/src" preview_converter="Magento_PageBuilder/js/converter/attribute/preview/src"/>
+                        <attribute name="banner_image_10_alt" source="alt"/>
+                    </element>
+                    <element name="block_directive">
+                        <html name="block_directive" converter="Magento_PageBuilder/js/converter/html/tag-escaper"/>
+                    </element>
+                </elements>
+                <converters>
+                    <converter component="Scandiweb_HyvaUi/js/content-type/scandiweb-banner/block-directive" name="block_directive">
+                        <config>
+                            <item name="html_variable" value="block_directive"/>
+                            <item name="block_class" value="Scandiweb\HyvaUi\Block\ScandiwebBanner"/>
+                        </config>
+                    </converter>
+                </converters>
+            </appearance>
+        </appearances>
+    </type>
+</config>

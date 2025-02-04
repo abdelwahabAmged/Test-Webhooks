@@ -1,0 +1,114 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Out Of Stock Notifications Hyva Compatibility
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\App\ActionInterface;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Amasty\OutofstockHyvaCompatibility\ViewModel\Catalog\OutofstockData;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Magento\Catalog\Model\Product;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Template $block */
+
+/** @var OutofstockData $outofstockViewModel */
+$outofstockViewModel = $viewModels->require(OutofstockData::class);
+
+/** @var CurrentProduct $currentProduct */
+/** @var Product $product */
+$product = $block->getProduct();
+if (!$product) {
+    $currentProduct = $viewModels->require(CurrentProduct::class);
+    $product = $currentProduct->get();
+}
+
+$parentId = $block->getData('parent_product_id');
+$productId = (int)$product->getId();
+$type = 'price';
+$productTypeConfigurable = $product->getTypeId() === Configurable::TYPE_CODE;
+$productIsInStock = $product->getIsSalable();
+$isOutofstockConfigurable = $outofstockViewModel->isOutofstockOfOutofstockEnabled() && $productTypeConfigurable;
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<?php if ($outofstockViewModel->isAllowAlertPrice()): ?>
+    <?php if (!$outofstockViewModel->isCustomerLoggedIn()
+        && $outofstockViewModel->isAllowedForCurrentCustomerGroup(OutofstockData::PRICE_ALERT_BLOCK)): ?>
+        <div class="amxnotif-block-wrapper w-full">
+            <div x-data="{
+                ...amNotificationProductViewComponent_<?= $escaper->escapeHtmlAttr($productId) ?>(),
+                ...amXnotifSubscribeComponent_<?= $escaper->escapeHtmlAttr($productId) ?>(),
+                isLoggedIn: <?= /** @noEscape */ $outofstockViewModel->isCustomerLoggedIn() ? 'true' : 'false' ?>
+                }"
+                 x-on:configurable-selection-changed.window="getSimpleProduct($event.detail)">
+                <?= /** @noEscape */
+                $block->fetchView($block->getTemplateFile('Hyva_Theme::ui/loading.phtml')) ?>
+                <div class="amxnotif-block border-t border-gray-300 py-2 mt-2">
+                    <div :id="'form-validate-price' + (!isConfigurable ? productIdentifier : productIndex)"
+                          class="amxnotif-form-price">
+                        <?= $block->getBlockHtml('formkey') ?>
+                        <div class="notification-container flex gap-3"
+                             :id="'notification-container-' + (!isConfigurable ? productIdentifier : productIndex)">
+                            <div class="input-fields fieldset flex-grow">
+                                <input type="email"
+                                       name="guest_email_price"
+                                       :id="'amxnotif-guest-email_price-'
+                                   + (!isConfigurable ? productIdentifier : productIndex)"
+                                       class="out-of-stock-subscribe-email-field form-input input-text amxnotif-guest-email w-full"
+                                       x-ref="emailElement"
+                                       x-model="emailInput"
+                                       placeholder="<?= $escaper->escapeHtml(__($outofstockViewModel->getPlaceholder())); ?>"
+                                />
+                                <input type="hidden" name="product_id"
+                                       :value="(!isConfigurable ? productIdentifier : productIndex)"/>
+                                <?php if ($parentId): ?>
+                                    <input type="hidden" name="parent_id"
+                                           value="<?= $escaper->escapeHtmlAttr($parentId); ?>"/>
+                                <?php endif; ?>
+                                <input type="hidden" name="type" value="email"/>
+                                <input type="hidden"
+                                       name="<?= $escaper->escapeHtml(ActionInterface::PARAM_NAME_URL_ENCODED); ?>"
+                                       value="<?= $escaper->escapeUrl($outofstockViewModel->encodeUrl()); ?>"/>
+                                <?php if ($outofstockViewModel->isGDRPEnabled()): ?>
+                                    <div class="amxnotif-price-gdrp field flex gap-x-2">
+                                        <input type="checkbox"
+                                               class="mt-1"
+                                               name="gdrp"
+                                               :id="'amxnotif-price-gdrp'
+                                           + (!isConfigurable ? productIdentifier : productIndex)"
+                                               title="<?= $escaper->escapeHtml(__('GDRP')); ?>"
+                                               value="1"
+                                               x-model="isGdprChecked"
+                                               x-ref="gdprElement">
+                                        <label class="label" :for="'amxnotif-price-gdrp' + (!isConfigurable ? productIdentifier : productIndex)">
+                                            <?= /** @noEscape */ $outofstockViewModel->getGDRPText(); ?>
+                                        </label>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="actions-toolbar amxnotif_guest_action border-gray-300 flex  mt-4 w-full">
+                                <div class="primary flex-grow">
+                                    <button type="button"
+                                            class="action submit primary subscribe-button active:opacity-70 max-lg:w-full disabled:opacity-50"
+                                            :disabled="buttonDisabled"
+                                            @click.prevent="fetchSubscribe('<?= $escaper->escapeHtml($type); ?>',
+                                            (!isConfigurable ? productIdentifier : productIndex))">
+                                        <span><?= $escaper->escapeHtml(__('Subscribe')); ?></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

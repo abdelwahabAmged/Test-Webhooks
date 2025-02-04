@@ -1,0 +1,63 @@
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<div attr="data.main.attributes"
+     ko-style="data.main.style"
+     class="pagebuilder-content-type sw-slider"
+     css="data.main.css"
+     event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false">
+    <div class="component-heading">
+        <div class="icon-pagebuilder-sw header"></div>
+        SW Slider
+    </div>
+    <div class="SliderBlock">
+        <div class="SliderBlock-FeaturedSlides">
+            <div class="SliderBlock-FeaturedSlidesWrapper">
+                <div class="SliderBlock-FeaturedSlidesColumn">
+                    <div class="SliderBlock-Title-Subtitle">
+                        <span class="SliderBlock-Title"
+                              attr="data.block_title.attributes"
+                              ko-style="data.block_title.style"
+                              css="data.block_title.css"
+                              data-bind="liveEdit: { field: 'block_title', placeholder: $t('Enter Block Title') }">
+                        </span>
+                        <span class="SliderBlock-Subtitle"
+                              attr="data.block_subtitle.attributes"
+                              ko-style="data.block_subtitle.style"
+                              css="data.block_subtitle.css"
+                              data-bind="liveEdit: { field: 'block_subtitle', placeholder: $t('Enter Block Subtitle') }">
+                        </span>
+                    </div>
+                    <if args="data.dynamic_slides_slider.attributes().cards.length > 0 && data.dynamic_slides_slider.attributes().cards !== '[]'">
+                        <div class="SliderBlock-FeaturedSlidesContent">
+                            <div class="SliderBlock-FeaturedSlidesFigure">
+                                <div data-bind="foreach: data.dynamic_slides_slider.attributes().cards"
+                                     class="SliderBlock-FeaturedSlidesImageWrapper">
+                                    <div class="SliderBlock-FeaturedSlidesFigureImgWrapper">
+                                        <if args="slide_img_label">
+                                            <div class="SliderBlock-FeaturedSlidesFigureImgWrapperLabel">
+                                                <span class="SliderBlock-FeaturedSlidesFigureImgWrapperLabelText"
+                                                      data-bind="text: slide_img_label"></span>
+                                            </div>
+                                        </if>
+                                       
+                                        <div class="SliderBlock-FeaturedSlidesFigureText">
+                                            <span data-bind="text: slide_img_title"></span>
+                                            <span data-bind="text: slide_img_subtitle"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </if>
+                </div>
+            </div>
+        </div>
+    </div>
+    <render args="getOptions().template"/>
+</div>

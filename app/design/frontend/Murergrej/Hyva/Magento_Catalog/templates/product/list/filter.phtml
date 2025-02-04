@@ -1,0 +1,210 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Magento_Catalog
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Catalog\Block\Product\ListProduct;
+use Magento\Framework\Escaper;
+
+/** @var ListProduct $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$baseUrl = strtok($_SERVER["REQUEST_URI"], '?');
+$activeFilters = $_GET['filters'] ?? '';
+?>
+<!-- Active Filtering Section -->
+<?php if ($activeFilters): ?>
+    <div class="category-filters bg-white lg:ml-10 lg:w-[316px]">
+        <div x-data="{ open: activeFiltersOpen }">
+            <button
+              @click="open = !open"
+              class="flex justify-between items-center w-full text-left font-extrabold py-5 px-4 uppercase"
+              :class="{'border-b-2 border-secondary-lighter': !open}"
+            >
+                <span><?= $escaper->escapeHtml(__('Active filtering')) ?></span>
+                <span :class="{'transform rotate-180 transition-transform': open}">
+                    <?= $hyvaicons->renderHtml('chevron', '', 16, 16) ?>
+                </span>
+            </button>
+
+            <div
+              x-show="open"
+              x-collapse
+              class="px-4 pb-5 break-words flex flex-col gap-y-4"
+              :class="{'border-b-2 border-secondary-lighter': open}"
+            >
+                <?php
+                $activeFiltersArray = array_filter(explode(',', $activeFilters));
+
+                foreach ($activeFiltersArray as $filter):
+                    $filterParts = explode(':', $filter);
+                    $filterName = $filterParts[0] ?? null;
+                    $filterValue = $filterParts[1] ?? null;
+
+                    // Find the correct title for this filter from available filters
+                    $filterTitle = null;
+                    foreach ($block->getData('filters') as $availableFilter) {
+                        if ($availableFilter['settings']['name'] === $filterName) {
+                            $filterTitle = rtrim($availableFilter['settings']['title'], '$');
+                            break;
+                        }
+                    }
+
+                    if ($filterName && $filterValue && $filterTitle):
+                        // Check if this is the last filter to decide on removing the 'filters' parameter entirely
+                        $remainingFilters = array_filter($activeFiltersArray, fn($f) => $f !== $filter);
+                        $url = $baseUrl . '?' . http_build_query(array_merge($_GET, [
+                                'filters' => implode('$', $remainingFilters)
+                            ]));
+
+                        if (empty($remainingFilters)) {
+                            // Remove 'filters' parameter completely if it's the last one
+                            $currentParams = $_GET;
+                            unset($currentParams['filters']);
+                            $url = $baseUrl . '?' . http_build_query($currentParams);
+                        }
+                        ?>
+                        <!-- Display active filter title and remove button -->
+                        <div class="flex justify-between">
+                            <div class="flex flex-col">
+                                <span><?= $escaper->escapeHtml(str_replace('$', ' ', $filterValue)) ?></span>
+                                <span class="text-sm text-primary-lighter"><?= $escaper->escapeHtml($filterTitle) ?></span>
+                            </div>
+                            <a class="mt-1" href="<?= $escaper->escapeUrl($url) ?>" title="Remove filter">
+                                <?= $heroicons->trashHtml('', 16, 16, ['aria-hidden' => 'true']); ?>
+                            </a>
+                        </div>
+                    <?php endif;
+                endforeach; ?>
+
+                <!-- Clear all link -->
+                <?php
+                // Create Clear All URL by removing only the 'filters' parameter and keeping others
+                $clearAllParams = $_GET;
+                unset($clearAllParams['filters']);
+                $clearAllUrl = $baseUrl . '?' . http_build_query($clearAllParams);
+                ?>
+                <a href="<?= $escaper->escapeUrl($clearAllUrl) ?>" class="text-sm">
+                    <?= $escaper->escapeHtml(__('Clear all')) ?>
+                </a>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+
+<!-- Category Filters -->
+<div class="category-filters bg-white lg:ml-10 lg:w-[316px]">
+    <div>
+        <?php foreach ($block->getData('filters') as $filter): ?>
+            <?php
+            // Sorting logic for filter values
+            usort($filter['values'], function($a, $b) {
+                // Check if titles start with a letter or number
+                $startsWithLetterA = ctype_alpha($a['title'][0]);
+                $startsWithLetterB = ctype_alpha($b['title'][0]);
+
+                // If both start with a letter, sort alphabetically
+                if ($startsWithLetterA && $startsWithLetterB) {
+                    return strcasecmp($a['title'], $b['title']);
+                }
+
+                // If both start with a number, extract the number and sort numerically
+                if (!$startsWithLetterA && !$startsWithLetterB) {
+                    preg_match('/\d+/', $a['title'], $matchesA);
+                    preg_match('/\d+/', $b['title'], $matchesB);
+                    $numberA = $matchesA[0] ?? 0;
+                    $numberB = $matchesB[0] ?? 0;
+                    return $numberA - $numberB;
+                }
+
+                // If one starts with a letter, prioritize letters over numbers
+                return $startsWithLetterA ? -1 : 1;
+            });
+            ?>
+
+            <div x-data="{ open: false }">
+                <button
+                  @click="open = !open"
+                  class="flex justify-between items-center w-full text-left
+                        font-extrabold py-5 px-4 uppercase"
+                  :class="{'border-b-2 border-secondary-lighter': !open}"
+                >
+                    <span><?= $escaper->escapeHtml($filter['settings']['title']) ?></span>
+                    <span :class="{'transform rotate-180 transition-transform': open}">
+                            <?= $hyvaicons->renderHtml('chevron', '', 16, 16) ?>
+                        </span>
+                </button>
+                <?php if (!empty($filter['values'])): ?>
+                    <div
+                      x-show="open"
+                      x-collapse
+                      class="px-4 pb-5 space-y-3 break-words flex flex-col"
+                      :class="{'border-b-2 border-secondary-lighter': open}"
+                    >
+                        <?php foreach ($filter['values'] as $value): ?>
+                            <?php
+                            // Preserve existing query parameters
+                            $currentParams = $_GET;
+
+                            // List of parameters to remove
+                            $paramsToRemove = ['p', 'category_id', 'viewAll', 'start', 'count'];
+
+                            // Remove unwanted parameters
+                            foreach ($paramsToRemove as $param) {
+                                if (isset($currentParams[$param])) {
+                                    unset($currentParams[$param]);
+                                }
+                            }
+
+                            // Check if "filters" already exists in the URL params
+                            if (isset($currentParams['filters'])) {
+                                $existingFilters = explode(',', $currentParams['filters']);
+
+                                // Remove any existing filters for this specific $filter['name'] to avoid duplicates
+                                $existingFilters = array_filter($existingFilters, function ($existingFilter) use ($filter) {
+                                    return strpos($existingFilter, $filter['name'] . ':') !== 0;
+                                });
+
+                                // Add the new filter value
+                                $existingFilters[] = $value['query'];
+                                $currentParams['filters'] = implode(',', $existingFilters);
+                            } else {
+                                // Set the "filters" parameter to the new value if it doesn't exist
+                                $currentParams['filters'] = $value['query'];
+                            }
+
+                            // Generate the URL with the updated "filters" parameter
+                            $url = $baseUrl . '?' . http_build_query($currentParams);
+                            ?>
+                            <a
+                              href="<?= $escaper->escapeUrl($url) ?>"
+                              class="w-full text-left hover:text-primary-darker no-underline text-black font-normal
+                               flex justify-between"
+                            >
+                                <span class="text-inherit">
+                                    <?= $escaper->escapeHtml(str_replace('$', ' ', $value['title'])) ?>
+                                </span>
+                                <span class="text-primary-lighter">(<?= $escaper->escapeHtml($value['count']) ?>)</span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>

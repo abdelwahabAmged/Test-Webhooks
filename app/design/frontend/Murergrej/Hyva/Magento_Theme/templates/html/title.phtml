@@ -1,0 +1,37 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Theme\Block\Html\Title;
+
+/** @var Escaper $escaper */
+/** @var Title $block */
+
+$textSizeCssClass = $block->getCssClass() ? ' ' . $block->getCssClass() : ' text-3xl';
+$titleContainerClasses = $block->getData('maybe_purged_tailwind_section_classes')
+    ?? 'flex flex-col md:flex-row flex-wrap font-bold bg-container-lighter';
+$titleHtml = '';
+if (trim((string)$block->getPageHeading())) {
+    $titleHtml = '<span class="base" data-ui-id="page-title-wrapper" '
+        . $block->getAddBaseAttribute()
+        . '>'
+        . $escaper->escapeHtml($block->getPageHeading())
+        . '</span>';
+}
+?>
+<?php if ($titleHtml): ?>
+    <div class="<?= $escaper->escapeHtmlAttr($titleContainerClasses . $textSizeCssClass) ?> justify-center category-page-title-wrapper pl-4">
+        <h1 class="page-title title-font font-extrabold font-sans text-black text-xl leading-6 mt-4 mb-3 lg:text-[32px] lg:leading-10"
+            <?php if ($block->getId()): ?> id="<?= $escaper->escapeHtmlAttr($block->getId()) ?>" <?php endif; ?>>
+            <?= /* @noEscape */
+            $titleHtml ?>
+        </h1>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <!-- Managing checkout order comment -->
+    <route url="/V1/carts/:cartId/set-order-comment" method="PUT">
+        <service class="Ulmod\OrderComment\Api\OrderCommentManagementInterface"
+                 method="saveOrderComment"/>
+        <resources>
+            <resource ref="Magento_Cart::manage" />
+        </resources>
+    </route>
+</routes>

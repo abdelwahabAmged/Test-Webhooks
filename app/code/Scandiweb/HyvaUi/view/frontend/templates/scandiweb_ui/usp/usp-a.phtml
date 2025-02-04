@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scandiweb\HyvaUi\Helper\Decode as DecodeHelper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/** @var DecodeHelper $decodeHelper */
+$decodeHelper = $this->helper(DecodeHelper::class);
+$cards = $block->getData('cards');
+$usp_sections = $decodeHelper->decodeJSONHTMLEntity($cards);
+$usp_color = $block->getData('usp_color');
+?>
+<div class="p-6 leading-6"
+    style="<?= $escaper->escapeHtmlAttr($usp_color ? 'background-color: ' . $usp_color . ';' : ''); ?>"
+>
+
+    <div class="flex flex-col items-center gap-2">
+        <span class="uppercase text-gray-600 rounded px-2 text-sm leading-7 font-semibold">
+            <?= $escaper->escapeHtml(__($block->getData('usp_subtitle'))) ?>
+        </span>
+        <div class="text-2xl leading-10 font-bold text-gray-800 md:text-3xl">
+            <?= $escaper->escapeHtml(__($block->getData('usp_title'))) ?>
+        </div>
+    </div>
+<?php if ($usp_sections): ?>
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <?php foreach ($usp_sections as $usp_section): ?>
+        <div class="flex gap-4">
+            <div>
+                <div class="w-16 h-16 rounded-full flex justify-center items-center">
+                    <img
+                        src="<?= $escaper->escapeHtmlAttr($usp_section['section_img'][0]['url']) ?>"
+                        class="rounded-full w-12 h-12"
+                        alt=""
+                        width="48"
+                        height="48"
+                        loading="lazy"
+                    />
+                </div>
+            </div>
+            <div>
+                <div class="text-lg text-gray-800 font-medium leading-7 mb-2">
+                    <?= $escaper->escapeHtml(__($usp_section['section_title'])) ?>
+                </div>
+                <div>
+                    <?= $escaper->escapeHtml(__($usp_section['section_description'])) ?>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+</div>

@@ -1,0 +1,53 @@
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<div attr="data.main.attributes"
+     ko-style="data.main.style"
+     class="pagebuilder-content-type sw-slider"
+     css="data.main.css"
+     event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false">
+    <div class="component-heading">
+        <div class="icon-pagebuilder-sw header"></div>
+        SW Banner B (Split 2)
+    </div>
+    <div class="sw-content">
+        <div class="banner-b-wrapper">
+            <img if="data.banner_image_1.attributes().src"
+                 css="data.banner_image_1.css"
+                 ko-style="data.banner_image_1.style"
+                 attr="data.banner_image_1.attributes"
+                 width="1200"
+                 height="800"
+                 loading="lazy"
+            />
+            <img if="data.banner_image_2.attributes().src"
+                 css="data.banner_image_2.css"
+                 ko-style="data.banner_image_2.style"
+                 attr="data.banner_image_2.attributes"
+                 width="600"
+                 height="600"
+                 loading="lazy"
+            />
+            <div class="banner-text-wrapper">
+                <div class="banner-title"
+                     attr="data.banner_title_1.attributes"
+                     ko-style="data.banner_title_1.style"
+                     css="data.banner_title_1.css"
+                     data-bind="liveEdit: { field: 'banner_title_1', placeholder: $t('Enter Banner Title') }">
+                </div>
+                <a class="banner-subtitle"
+                   attr="data.banner_subtitle_1.attributes"
+                   ko-style="data.banner_subtitle_1.style"
+                   css="data.banner_subtitle_1.css"
+                   data-bind="liveEdit: { field: 'banner_subtitle_1', placeholder: $t('Enter Banner Subtitle') }">
+                </a>
+            </div>
+        </div>
+    </div>
+    <render args="getOptions().template"/>
+</div>

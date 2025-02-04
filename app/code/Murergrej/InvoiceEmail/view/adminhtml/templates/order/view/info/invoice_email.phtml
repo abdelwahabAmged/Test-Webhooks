@@ -1,0 +1,35 @@
+<?php
+/**
+ * @var \Magento\Sales\Block\Adminhtml\Order\View\Info $block
+ */
+$order = $block->getOrder();
+
+$invoiceEmail = $order->getData('invoice_email');
+?>
+<tr>
+    <th>
+        <span><?= $block->escapeHtml(__('Invoice Email')) ?></span>
+        <a id="invoice_email_edit">Edit</a>
+    </th>
+    <td>
+        <a id="invoice_email" href="mailto:<?= $block->escapeHtmlAttr($invoiceEmail) ?>"><?= $block->escapeHtml($invoiceEmail) ?></a>
+        <div id="invoice_email_edit_block" style="display: none;">
+            <form id="invoice_email_form" method="post" action="<?= $block->getUrl('invoice_email/edit/save'); ?>">
+                <?= $block->getBlockHtml('formkey') ?>
+                <input type="hidden" name="order_id" value="<?= $block->escapeHtmlAttr($order->getId()) ?>">
+                <input type="text" name="invoice_email" value="">
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </td>
+    <script type="text/javascript">
+        require(['jquery'], function (jQuery) {
+            jQuery('#invoice_email_edit').click(function (event) {
+                event.preventDefault();
+                jQuery('#invoice_email_form input[name="invoice_email"]').val(jQuery('#invoice_email').hide().text());
+                jQuery('#invoice_email_edit').hide();
+                jQuery('#invoice_email_edit_block').show();
+            });
+        });
+    </script>
+</tr>

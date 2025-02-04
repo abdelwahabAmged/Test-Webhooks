@@ -1,0 +1,115 @@
+<?php
+/**
+ * @category Murergrej
+ * @package Murergrej_Category
+ * @author Irmantas Dvareckas info@scandiweb.com
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundThis
+
+use Magento\Catalog\Block\Category\View;
+use Magento\Catalog\Helper\Output;
+
+/** @var $block View */
+?>
+
+<?php
+if ($description = $block->getCurrentCategory()->getData('fqa_category')) :
+    $descriptionHtml = $this->helper(Output::class)->categoryAttribute(
+        $block->getCurrentCategory(),
+        $description,
+        'fqa_category'
+    );
+
+    $dom = new \DOMDocument();
+    @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $descriptionHtml);
+
+    // Replace <ul> and <li> elements with <p>
+    $xpath = new \DOMXPath($dom);
+    $ulNodes = $xpath->query('//ul');
+    $liNodes = $xpath->query('//li');
+
+    // Replace <ul> elements with <p>
+    foreach ($ulNodes as $ulNode) {
+        $pNode = $dom->createElement('p');
+        $pNode->nodeValue = $ulNode->textContent;
+        $ulNode->parentNode->replaceChild($pNode, $ulNode);
+    }
+
+    // Replace <li> elements with <p>
+    foreach ($liNodes as $liNode) {
+        $pNode = $dom->createElement('p');
+        $pNode->nodeValue = $liNode->textContent;
+        $liNode->parentNode->replaceChild($pNode, $liNode);
+    }
+
+    $sections = [];
+    $currentSection = null;
+    $sectionsCount = 0;
+    $body = $dom->getElementsByTagName('body')->item(0);
+
+    foreach ($body->getElementsByTagName('*') as $node) {
+        if (in_array($node->nodeName, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])) {
+            if ($currentSection) {
+                $sections[] = $currentSection;
+            }
+            $currentSection = [
+                'heading' => $dom->saveHTML($node),
+                'content' => '',
+            ];
+        } elseif ($currentSection) {
+            $currentSection['content'] .= $dom->saveHTML($node);
+        }
+    }
+    if ($currentSection) {
+        $sections[] = $currentSection;
+        $sectionsCount = count($sections);
+    }
+    ?>
+    <?php if ($sectionsCount > 0): ?>
+    <div class="faq-content flex flex-col items-start lg:px-10 lg:flex-row w-full pb-14 lg:pb-[72px]">
+        <div class="px-4 lg:pl-0 pt-10 pb-8 lg:py-0 lg:pr-8">
+            <h2 class="text-xl lg:text-[32px] leading-6 lg:leading-[40px] lg:min-w-[316px]"><?= __('Frequently asked questions') ?></h2>
+        </div>
+        <div class="category-description bg-white w-full px-4 lg:px-6"
+             x-data="{ openIndex: <?= $sectionsCount > 0 ? '0' : '-1' ?> }">
+            <?php foreach ($sections as $index => $section): ?>
+                <div>
+                    <div class="bg-white flex justify-between items-start py-5"
+                         :class="{'pb-4': openIndex === <?= $index ?>}"
+                         @click="openIndex === <?= $index ?> ? openIndex = -1 : openIndex = <?= $index ?>"
+                         class="flex items-center cursor-pointer font-bold text-gray-600 hover:text-blue-600">
+
+                        <div class="section-title pr-3"
+                             :class="openIndex === <?= $index ?> ? 'text-color-blue pb-0' : 'section-title-dark'">
+                            <?= $section['heading'] ?>
+                        </div>
+                        <div>
+                    <span x-show="openIndex === <?= $index ?>">
+                        <img src="<?= $block->getViewFileUrl('images/remove.svg'); ?>"
+                             alt="remove"
+                             class="max-w-unset h-full text-lg pt-1 cursor-pointer"/>
+                    </span>
+                            <span x-show="openIndex !== <?= $index ?>">
+                        <img src="<?= $block->getViewFileUrl('images/add.svg'); ?>"
+                             alt="add"
+                             class="max-w-unset h-full text-lg pt-1 cursor-pointer"/>
+                    </span>
+                        </div>
+                    </div>
+                    <div class="section-content bg-white transition-all duration-300 ease-in-out"
+                         x-show="openIndex === <?= $index ?>"
+                         x-transition
+                         class="mt-2 pl-6">
+                        <?= $section['content'] ?>
+                    </div>
+                    <?php if ($sectionsCount > 1): ?>
+                        <hr class="-mx-4 lg:-mx-6 border border-secondary-lighter"/>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>
+<?php endif; ?>

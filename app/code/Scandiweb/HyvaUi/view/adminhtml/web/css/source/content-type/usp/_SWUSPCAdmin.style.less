@@ -1,0 +1,58 @@
+.USPC-Wrapper {
+
+  .USPC-ContentWrapper {
+    display: grid;
+    gap: 1rem;
+
+    .desktop-viewport & {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .USP-TitleWrapper {
+    align-items: start;
+    margin-bottom: 2rem;
+  }
+
+  .USPC-ItemWrapper {
+    display: flex;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    align-items: center;
+    border-radius: 0.75rem;
+
+    .desktop-viewport & {
+      padding-left: 3rem;
+      padding-right: 3rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+
+  .USPC-ImageWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 9999px;
+    width: 7rem;
+    height: 7rem;
+  }
+
+  .USPC-Image {
+    border-radius: 9999px;
+    width: 6rem;
+    height: 6rem;
+  }
+
+  .USPC-TextWrapper {
+    text-align: center;
+  }
+
+  .USPC-SectionTitle {
+    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    color: #1F2937;
+  }
+}

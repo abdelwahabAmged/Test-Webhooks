@@ -1,0 +1,18 @@
+<?php /** @var \Murergrej\PalletShipping\Block\Adminhtml\Order\Shipping\Cost $block */ ?>
+<?php if (!$block->shouldShow()) return; ?>
+<div id="shipping-cost-container" style="display: none">
+    <strong><?= __('Shipping Cost For Methcant') ?></strong>
+    <?= $block->getFormattedShippingCost() ?>
+</div>
+<script type="text/javascript">
+    require(
+        ['jquery'],
+        function ($) {
+            'use strict';
+
+            var element = $('#shipping-cost-container').detach();
+            $('.order-shipping-method').append(element);
+            element.show();
+        }
+    );
+</script>

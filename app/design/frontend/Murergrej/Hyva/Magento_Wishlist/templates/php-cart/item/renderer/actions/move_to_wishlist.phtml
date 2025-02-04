@@ -1,0 +1,45 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Block\Cart\Item\Renderer\Actions\MoveToWishlist;
+
+/** @var MoveToWishlist $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroicons */
+$heroicons = $viewModels->require(HeroiconsSolid::class);
+
+?>
+<?php if ($block->isAllowInCart() && $block->isProductVisibleInSiteVisibility()): ?>
+    <button
+        type="button"
+        x-data
+        @click.prevent='hyva.postForm(<?= /* @noEscape */ $block->getMoveFromCartParams() ?>)'
+        title="<?= $escaper->escapeHtmlAttr(__('Move to Wishlist')) ?>"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Move to Wishlist')) ?>"
+        id="add-to-wishlist"
+    >
+    <?php
+        $titleText = $escaper->escapeHtmlAttr(__('Move to Wishlist'));
+        $svg = $heroicons->heartHtml('w-6 h-6', 24, 24, ['stroke' => '#1D1F22', 'stroke-width' => '2', 'fill' => 'none']);
+
+        // Replace the content of the existing <title> element
+        $svgWithUpdatedTitle = preg_replace(
+            '/<title>.*?<\/title>/',
+            "<title>{$titleText}</title>",
+            $svg
+        );
+        // Output the SVG with the dynamic title
+        echo $svgWithUpdatedTitle;
+    ?>
+    </button>
+<?php endif ?>

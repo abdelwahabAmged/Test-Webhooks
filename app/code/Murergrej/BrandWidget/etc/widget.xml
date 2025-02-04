@@ -1,0 +1,51 @@
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget_file.xsd">
+    <widget id="brand_product_block" class="Murergrej\BrandWidget\Block\BrandProductBlock">
+        <label translate="true">Brand Product Block</label>
+        <description>Widget to display brand product block with images and recommendation key</description>
+        <parameters>
+            <parameter name="desktop_hero_image" xsi:type="block" required="false" visible="true" sort_order="20">
+                <label translate="true">Upload Desktop Hero Image</label>
+                <block class="Murergrej\BrandWidget\Block\Adminhtml\Widget\ImgUploader">
+                    <data>
+                        <item name="button" xsi:type="array">
+                            <item name="open" xsi:type="string">Upload Image</item>
+                        </item>
+                    </data>
+                </block>
+            </parameter>
+            <parameter name="mobile_hero_image" xsi:type="block" required="false" visible="true" sort_order="20">
+                <label translate="true">Upload Mobile Hero Image</label>
+                <block class="Murergrej\BrandWidget\Block\Adminhtml\Widget\ImgUploader">
+                    <data>
+                        <item name="button" xsi:type="array">
+                            <item name="open" xsi:type="string">Upload Image</item>
+                        </item>
+                    </data>
+                </block>
+            </parameter>
+            <parameter name="desktop_brand_image" xsi:type="block" required="false" visible="true" sort_order="30">
+                <label translate="true">Upload Desktop Brand Image</label>
+                <block class="Murergrej\BrandWidget\Block\Adminhtml\Widget\ImgUploader">
+                    <data>
+                        <item name="button" xsi:type="array">
+                            <item name="open" xsi:type="string">Upload Image</item>
+                        </item>
+                    </data>
+                </block>
+            </parameter>
+            <parameter name="mobile_brand_image" xsi:type="block" required="false" visible="true" sort_order="40">
+                <label translate="true">Upload Mobile Brand Image</label>
+                <block class="Murergrej\BrandWidget\Block\Adminhtml\Widget\ImgUploader">
+                    <data>
+                        <item name="button" xsi:type="array">
+                            <item name="open" xsi:type="string">Upload Image</item>
+                        </item>
+                    </data>
+                </block>
+            </parameter>
+            <parameter name="recommendation_key" xsi:type="text" required="true" visible="true" sort_order="50">
+                <label translate="true">Recommendation Key</label>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

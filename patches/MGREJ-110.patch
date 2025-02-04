@@ -1,0 +1,96 @@
+diff --git a/vendor/apsis/module-one/Model/Service/Profile.php b/vendor/apsis/module-one/Model/Service/Profile.php
+--- a/vendor/apsis/module-one/Model/Service/Profile.php
++++ b/vendor/apsis/module-one/Model/Service/Profile.php	(date 1732604454914)
+@@ -19,7 +19,6 @@
+ use Magento\Store\Api\Data\StoreInterface;
+ use Magento\Store\Model\ScopeInterface;
+ use Throwable;
+-use Zend_Date;
+
+ class Profile
+ {
+@@ -142,7 +141,7 @@
+
+                     //Create new cookie value
+                     $keySpacesToMerge[1]['profile_key'] =
+-                        md5($profile->getIntegrationUid() . date(Zend_Date::TIMESTAMP));
++                        md5($profile->getIntegrationUid() . date('U'));
+
+                     //Send second merge request
+                     if ($apiClient->mergeProfile($keySpacesToMerge) === null) {
+diff --git a/vendor/apsis/module-one/Model/Sync/Events.php b/vendor/apsis/module-one/Model/Sync/Events.php
+--- a/vendor/apsis/module-one/Model/Sync/Events.php
++++ b/vendor/apsis/module-one/Model/Sync/Events.php	(date 1732604311820)
+@@ -16,7 +16,6 @@
+ use Magento\Store\Model\ScopeInterface;
+ use stdClass;
+ use Throwable;
+-use Zend_Date;
+
+ class Events implements SyncInterface
+ {
+@@ -363,7 +362,7 @@
+         $eventData = [];
+         $createdAt = (string) $this->apsisDateHelper->formatDateForPlatformCompatibility(
+             $event->getCreatedAt(),
+-            Zend_Date::ISO_8601
++            'c'
+         );
+         $withAddedSecond = '';
+         if ((int) $event->getEventType() === Event::EVENT_TYPE_CUSTOMER_ABANDONED_CART ||
+@@ -390,7 +389,7 @@
+                 }
+                 $eventData[] = [
+                     'event_time' => $withAddedSecond = $this->apsisDateHelper
+-                        ->addSecond($withAddedSecond, Zend_Date::ISO_8601),
++                        ->addSecond($withAddedSecond, 'c'),
+                     'version_id' => $this->eventsVersionMapping[$typeArray['sub']],
+                     'data' => (array) $item,
+                 ];
+diff --git a/vendor/apsis/module-one/Model/Service/Date.php b/vendor/apsis/module-one/Model/Service/Date.php
+--- a/vendor/apsis/module-one/Model/Service/Date.php
++++ b/vendor/apsis/module-one/Model/Service/Date.php	(date 1732604311836)
+@@ -7,7 +7,6 @@
+ use DateInterval;
+ use Exception;
+ use Throwable;
+-use Zend_Date;
+
+ class Date
+ {
+@@ -19,7 +18,7 @@
+      */
+     public function formatDateForPlatformCompatibility(
+         string $date = null,
+-        string $format = Zend_Date::TIMESTAMP
++        string $format = 'U'
+     ): string {
+         if (empty($date)) {
+             $date = 'now';
+@@ -38,7 +37,7 @@
+      *
+      * @return string
+      */
+-    public function addSecond(string $date = null, string $format = Zend_Date::TIMESTAMP): string
++    public function addSecond(string $date = null, string $format = 'U'): string
+     {
+         if (empty($date)) {
+             $date = 'now';
+@@ -101,7 +100,7 @@
+         try {
+             return $this->getDateTimeFromTimeAndTimeZone($inputDateTime)
+                 ->add($this->getDateIntervalFromIntervalSpec(sprintf('P%sD', $day)))
+-                ->format(Zend_Date::ISO_8601);
++                ->format('c');
+         } catch (Throwable $e) {
+             return '';
+         }
+@@ -115,7 +114,7 @@
+     public function isExpired(string $inputDateTime): bool
+     {
+         try {
+-            $nowDateTime = $this->getDateTimeFromTimeAndTimeZone()->format(Zend_Date::ISO_8601);
++            $nowDateTime = $this->getDateTimeFromTimeAndTimeZone()->format('c');
+             return ($nowDateTime > $inputDateTime);
+         } catch (Throwable $e) {
+             return false;

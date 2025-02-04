@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="PWA\Tracking\Api\CustomerTrackingProviderInterface" type="PWA\Tracking\Model\CustomerTrackingProvider" />
+    <preference for="PWA\Tracking\Api\AdminTrackingProviderInterface" type="PWA\Tracking\Model\AdminTrackingProvider" />
+    <preference for="PWA\Tracking\Api\GuestTrackingProviderInterface" type="PWA\Tracking\Model\TrackingProvider" />
+    <preference for="Magento\Shipping\Helper\Data" type="PWA\Tracking\Helper\Data"/>
+</config>

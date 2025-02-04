@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+    @category    Murergrej
+    @package     Murergrej_HelloRetail
+    @developer   Abanoub Youssef <abanoub.youssef@scandiweb.com>
+    @description This layout file adds the Hello Retail SRP content and customer group information block to the body tag.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--  Hello Retail SRP content and customer group information -->
+        <referenceContainer name="after.body.start">
+            <block class="Murergrej\HelloRetail\Block\CustomerGroupInfo" name="hr.search.page" template="Murergrej_HelloRetail::customer_group_info.phtml" before="-"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,114 @@
+<?php
+/**
+ * @category    Scandiweb
+ * @author      Nathan Luvinga <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scandiweb\SWTheme\Block\Widget\ReviewList;
+use Magento\Framework\View\Element\Template;
+
+/** @var ReviewList $block */
+/** @var Escaper $escaper */
+
+$uniqueId = uniqid('_');
+$reviews = $block->getAllReviews();
+?>
+
+<div class="flex flex-col m-auto p-auto mt-6">
+    <h3 class="mb-6">
+        <?= $escaper->escapeHtml(__($block->getData('title'))); ?>
+    </h3>
+    <div class="flex flex-nowrap slide-items overflow-auto bottom-scrollbar"
+        x-data="initReviewWidget_<?= $uniqueId; ?>()" x-init="initReviewCarousel($el)" x-defer="intersect">
+        <div data-role="glider-content">
+            <?php foreach ($reviews as $review): ?>
+                <div class="inline-block slide-item">
+                    <div class="
+                    rounded-lg mobile:max-h-full overflow-hidden transition-shadow
+                    duration-300 ease-in-out w-[288px] lg:w-[658px]
+                ">
+                        <div class="flex lg:flex-row flex-col">
+                            <?php
+                            $product = $review->getProduct();
+                            $fullImageURL = $block->getProductFullImageURL($product);
+                            ?>
+                            <img src="<?= $fullImageURL ?>"
+                                class="w-[288px] h-[288px] lg:min-w-[237px] lg:w-[237px] lg:h-[232px] object-contain"
+                                alt="">
+                            <div class="flex flex-col px-4 mobile:pt-4 mobile:pb-1">
+                                <span class="text-xl font-bold">
+                                    <?= sprintf('“%s”', $escaper->escapeHtml($review->getTitle())); ?>
+                                </span>
+                                <span class="mt-4 mb-1 text-xl/6">
+                                    <?= $escaper->escapeHtml($product->getName()); ?>
+                                </span>
+                                <div class="flex gap-x-1">
+                                    <span class="text-sm text-gray-600">
+                                        <?= $escaper->escapeHtml($review->getNickname()) ?>
+                                    </span>
+                                    <?php if (count($review->getRatingVotes())): ?>
+                                        <div>
+                                            <?php foreach ($review->getRatingVotes() as $vote): ?>
+                                                <?php
+                                                $rating = $vote->getPercent();
+                                                ?>
+                                                <div class="flex items-center gap-x-0.5" x-ignore>
+                                                    <?=
+                                                        $this->getLayout()->createBlock(Template::class)
+                                                            ->setTemplate('Scandiweb_HyvaUi::rating.phtml')
+                                                            ->setData(
+                                                                [
+                                                                    'rating' => $rating,
+                                                                    'product' => $product
+                                                                ]
+                                                            )
+                                                            ->toHtml();
+                                                    ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="text-base mt-2 mb-4">
+                                    <span class="line-clamp-4">
+                                        <?= $escaper->escapeHtml($review->getDetail()) ?>
+                                    </span>
+                                </div>
+
+                                <a href="<?= $product->getProductUrl() ?>" class="relative underline mt-auto" aria-label="">
+                                    <span class="sr-only">
+                                        <?= $escaper->escapeHtml(__('Go to the product page')) ?>
+                                    </span>
+                                    <?= $escaper->escapeHtml(__('Read More')) ?>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<script>
+    function initReviewWidget_<?= $uniqueId; ?>() {
+        return {
+            initReviewCarousel(element) {
+                initCarousel(
+                    element,
+                    {
+                        itemWidth: {
+                            mobile: 288,
+                            desktop: 658
+                        }
+                    }
+                );
+            },
+        };
+    }
+</script>

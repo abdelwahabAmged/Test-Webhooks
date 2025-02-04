@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+?>
+
+<script>
+document.addEventListener('lazybeforeunveil', function(event) {
+    const backgroundImagesClass = event.target.getAttribute('data-background-images-class');
+
+    if (backgroundImagesClass) {
+        event.target.classList.add(backgroundImagesClass);
+    } else {
+        const backgroundImage = event.target.getAttribute('data-background-image');
+
+        event.target.style.backgroundImage = backgroundImage;
+    }
+});
+</script>

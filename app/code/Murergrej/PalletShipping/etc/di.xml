@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Murergrej\PalletShipping\Model\Config\Backend\DSV" type="Murergrej\PalletShipping\Model\Config\Backend\AbstractCarrier">
+        <arguments>
+            <argument name="carrierResource" xsi:type="object">Murergrej\PalletShipping\Model\ResourceModel\Carrier\DSV</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Murergrej\PalletShipping\Model\Config\Backend\HCS" type="Murergrej\PalletShipping\Model\Config\Backend\AbstractCarrier">
+        <arguments>
+            <argument name="carrierResource" xsi:type="object">Murergrej\PalletShipping\Model\ResourceModel\Carrier\HCS</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Quote\Model\Quote\Address\Rate">
+        <plugin name="import-shipping-rate-cost" type="Murergrej\PalletShipping\Plugin\Model\Quote\Address\Rate" sortOrder="10"/>
+    </type>
+    <type name="Magento\Quote\Model\Quote\Address\RateCollectorInterface">
+        <plugin name="pallet-modify-rates" type="Murergrej\PalletShipping\Plugin\Model\Quote\Address\RateCollector"/>
+    </type>
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="pallet_tax" type="Murergrej\PalletShipping\Plugin\OrderRepository"/>
+    </type>
+    <type name="Magento\Quote\Model\Quote\Address\ToOrder">
+        <plugin name="pallet_shipping_quote_to_order" type="Murergrej\PalletShipping\Plugin\QuoteToOrder"/>
+    </type>
+</config>

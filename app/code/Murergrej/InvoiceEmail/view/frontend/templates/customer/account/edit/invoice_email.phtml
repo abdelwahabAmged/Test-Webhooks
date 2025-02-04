@@ -1,0 +1,12 @@
+<?php /** @var \Magento\Customer\Block\Form\Edit $block */ ?>
+<?php $invoiceEmailAttribute = $block->getCustomer()->getCustomAttribute('invoice_email'); ?>
+<div id="invoice-email-customer-fields-container" class="fieldset customer-attributes-container">
+    <fieldset class="fieldset">
+        <div class="field">
+            <label class="label" for="invoice_email"><?= $block->escapeHtml(__('Invoice Email')) ?></label>
+            <div class="control">
+                <input id="invoice_email" class="form-input w-full" type="email" name="invoice_email" value="<?= $invoiceEmailAttribute ? $block->escapeHtmlAttr($invoiceEmailAttribute->getValue()) : '' ?>">
+            </div>
+        </div>
+    </fieldset>
+</div>

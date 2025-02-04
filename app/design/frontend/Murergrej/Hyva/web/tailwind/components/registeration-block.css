@@ -1,0 +1,90 @@
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ *
+ * This CSS file provides styles for the registration block editable section and registration form on the order success page.
+ */
+
+/*breadcrumbs*/
+.checkout-onepage-success {
+    .breadcrumbs {
+        @apply bg-cream;
+
+        ol {
+            @apply !overflow-visible;
+        }
+    }
+}
+/*end breadcrumbs*/
+
+/*start registeration*/
+.registration-wrapper {
+    @apply flex flex-col lg:grid grid-cols-12 lg:mx-10 lg:mt-10 lg:mb-14;
+}
+
+.registration-details {
+    @apply py-8 px-4 lg:col-span-5 ;
+}
+
+#registration-form {
+    @apply mt-4 lg:mb-0 lg:col-span-7 lg:grid lg:grid-cols-12 lg:gap-4;
+}
+
+.first-column {
+    @apply lg:col-span-6 ;
+}
+
+.second-column {
+    @apply lg:col-span-6 lg:col-start-7;
+}
+
+/*Start Editable Block*/
+.registration-header {
+    @apply text-xl leading-6 text-primary font-extrabold md:text-[32px] md:tracking-sm md:leading-10;
+}
+
+.registration-second-header {
+    @apply font-sans text-base font-extrabold mt-4 mb-1 md:text-2xl md:leading-8;
+}
+.registration-description{
+    @apply font-sans text-base font-normal text-primary !my-1 !py-0 !px-0 flex items-center;
+}
+.registration-description::before {
+    content: '';
+    @apply block w-3 h-0 mr-3 mt-[5px] border-2 border-primary-lighter;
+}
+
+/*end editable block*/
+
+/* Start Registration Form */
+.form-field {
+    @apply flex-col justify-start items-start my-4 ;
+}
+
+.form-field-wrapper {
+    @apply self-stretch flex-col justify-start items-start gap-1.5;
+}
+
+.registration-label {
+    @apply text-primary text-sm font-bold font-sans leading-tight mb-1.5;
+}
+
+.registration-input-container {
+    @apply flex justify-start items-center ;
+}
+
+.registration-input {
+    @apply grow shrink basis-0 text-secondary bg-white text-base font-normal;
+    @apply font-sans leading-normal border-2 border-secondary h-14;
+}
+
+.registration-input::placeholder {
+    @apply text-secondary text-base;
+}
+
+input[type="checkbox"]:invalid {
+    @apply !border-primary-lighter !bg-white;
+}
+
+/* End Registration Form */

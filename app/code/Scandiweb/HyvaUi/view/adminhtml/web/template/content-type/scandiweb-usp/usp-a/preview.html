@@ -1,0 +1,64 @@
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Amr Osama <amr.osama@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<div attr="data.main.attributes"
+     ko-style="data.main.style"
+     class="pagebuilder-content-type sw-slider"
+     css="data.main.css"
+     event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false">
+    <div class="component-heading">
+        <div class="icon-pagebuilder-sw header"></div>
+        SW USP A
+    </div>
+    <div class="USP-Wrapper USPA-Wrapper" attr="data.usp_color.attributes" ko-style="data.usp_color.style" css="data.usp_color.css">
+        <div>
+            <div class="USP-TitleWrapper">
+                <p class="USP-SubTitle"
+                   attr="data.usp_subtitle.attributes"
+                   ko-style="data.usp_subtitle.style"
+                   css="data.usp_subtitle.css"
+                   data-bind="liveEdit: { field: 'usp_subtitle', placeholder: $t('Enter USP Subtitle') }">
+                </p>
+
+                <div class="USP-Title"
+                     attr="data.usp_title.attributes"
+                     ko-style="data.usp_title.style"
+                     css="data.usp_title.css"
+                     data-bind="liveEdit: { field: 'usp_title', placeholder: $t('Enter USP Title') }">
+                </div>
+            </div>
+        </div>
+        <if args="data.usp_sections.attributes().cards.length > 0 && data.usp_sections.attributes().cards !== '[]'">
+            <div data-bind="attr: { cards: JSON.stringify(data.usp_sections.attributes().cards) }"
+                 ko-style="data.usp_sections.style"
+                 data-element="usp_sections"
+                 css="data.usp_sections.css"
+            >
+                <div class="USPA-ContentWrapper" >
+                    <!-- ko foreach: data.usp_sections.attributes().cards -->
+                    <div class="USPA-ItemWrapper">
+                        <div>
+                            <div class="USPA-ImageWrapper">
+                                <img data-bind="attr: {src: section_img[0].url}" class="USPA-Image" />
+                            </div>
+                        </div>
+                        <div>
+                            <div data-bind="text: section_title" class="USPA-SectionTitle">
+                            </div>
+                            <div data-bind="text: section_description">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+                </div>
+            </div>
+        </if>
+
+    </div>
+    <render args="getOptions().template"/>
+</div>

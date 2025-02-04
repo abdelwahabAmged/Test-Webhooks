@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+ * @category Murergrej
+ * @package  Murergrej_Category
+ * @author   Ernests Verins <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="configmodal_layout" frontName="configmodallayout">
+            <module name="Murergrej_Category"/>
+        </route>
+    </router>
+</config>

@@ -1,0 +1,82 @@
+<?php
+/**
+ * @category    Scandiweb
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\Model\ViewModelRegistry;
+
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+$sectionsData = $block->getData('section_data');
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+?>
+<div class="flex flex-col gap-4">
+    <h1 class="font-bold text-3xl">
+        Insertable UI Components (Not depends on theme)
+    </h1>
+    <div x-data="initSection()" class="flex flex-col gap-4">
+        <?php foreach ($sectionsData as $key => $section): ?>
+            <section>
+                <div class="w-full bg-gray-100 rounded shadow-sm hover:bg-gray-200 hover:cursor-pointer hover:shadow"
+                     @click="toggleSection('section_<?= $key; ?>')">
+                    <div class="section-title flex relative">
+                        <p class="pl-4 py-2 font-semibold text-xl">
+                            <?= $section['title']; ?>
+                        </p>
+
+                        <div class="absolute right-2 top-3 transition-all duration-300 ease-in-out"
+                             x-bind:class="{'rotate-180': isOpened('section_<?= $key; ?>')}">
+                            <?= $heroicons->renderHtml('chevron-down'); ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 w-full overflow-hidden transition-all max-h-0 duration-700"
+                     x-ref="container_section_<?= $key; ?>"
+                     x-bind:style="isOpened('section_<?= $key; ?>') ? 'max-height: ' + $refs.container_section_<?= $key; ?>.scrollHeight + 'px' : ''">
+                    <div class="flex flex-col gap-4 my-3">
+                        <?php foreach ($section['blocks'] as $blockName => $blockData): ?>
+                            <div>
+                                <h1 class="font-semibold text-xl border-b-[1px] border-gray-300">
+                                    <?= $blockData['title'] ?>
+                                </h1>
+                                <div class="pt-4">
+                                    <?= $block->getLayout()
+                                        ->createBlock(Template::class, $blockName)
+                                        ->setTemplate($blockData['template'])
+                                        ->toHtml(); ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </section>
+        <?php endforeach; ?>
+    </div>
+    <script>
+        function initSection() {
+            return {
+                openedSections: {},
+                toggleSection(sectionKey) {
+                    if (this.openedSections[sectionKey] !== undefined) {
+                        delete this.openedSections[sectionKey];
+
+                        return;
+                    }
+
+                    this.openedSections[sectionKey] = true;
+                },
+                isOpened(sectionKey) {
+                    return this.openedSections[sectionKey] !== undefined;
+                }
+            }
+        }
+    </script>
+</div>

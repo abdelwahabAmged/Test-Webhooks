@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="DV_ProfitMetrics" setup_version="1.1.9">
+        <sequence>
+            <module name="Magento_Checkout"/>
+            <module name="Magento_Multishipping"/>
+        </sequence>
+    </module>
+</config>

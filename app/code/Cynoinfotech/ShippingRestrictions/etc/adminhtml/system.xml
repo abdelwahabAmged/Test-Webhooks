@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author CynoInfotech Team
+ * @package Cynoinfotech_ShippingRestrictions
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+		<tab id="cynoinfotech" translate="label" sortOrder="300">
+            <label>CynoInfotech</label>
+        </tab>
+		<section id="cynoinfotech_shippingrestrictions" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Shipping Restrictions</label>
+            <tab>cynoinfotech</tab>            
+            <resource>Cynoinfotech_ShippingRestrictions::Config_ShippingRestrictions</resource>
+				
+				<group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>General Configuration</label>
+					
+					<field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+						<label>Enable</label>
+						<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					</field>
+					
+					<field id="display_error" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+						<label>Display Error</label>
+						<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					</field>
+					
+					<field id="restrict_for_admin" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+						<label>Restrict Shipping Method For Admin</label>
+						<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					</field>
+					
+					<field id="apply_conditions" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+						<label>Apply Conditions</label>
+						<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					</field>
+					
+					<field id="apply_coupons" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+						<label>Apply Coupons</label>
+						<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					</field>					
+					
+				</group>
+        </section>
+    </system>
+</config>

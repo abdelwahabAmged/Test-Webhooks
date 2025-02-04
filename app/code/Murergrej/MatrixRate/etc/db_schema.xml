@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="webshopapps_matrixrate" comment="WebShopApps MatrixRates" resource="default">
+        <column name="order_total" xsi:type="decimal" nullable="false" scale="4" precision="12" default="0.0000" comment="Minimum Order Total" />
+        <constraint xsi:type="unique" referenceId="UNQ_WA_MATRIXRATE_WI_DCI_DRI_DC_CN_CFV_CTV_SM">
+            <column name="order_total" />
+        </constraint>
+    </table>
+</schema>

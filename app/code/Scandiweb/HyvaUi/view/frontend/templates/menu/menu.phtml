@@ -1,0 +1,72 @@
+<?php
+/**
+ * @category    Scandiweb
+ * @author      Amr osama <amr.osama@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Scandiweb\HyvaUi\Block\Menu;
+
+/** @var Menu $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroIcons */
+
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+
+$menuItems = $block->getMenuItems();
+$columnsMenus = [];
+
+for ($i = 1; $i < 5; $i++) {
+    try {
+        $columnsMenus[$i] = $menuItems[$i - 1];
+    } catch (\Exception $e) {
+        $columnsMenus[$i] = null;
+    }
+}
+?>
+
+<div class="mx-auto divide-gray-200 divide-y space-y-4 leading-6 relative
+            lg:flex lg:divide-none lg:justify-between lg:space-y-0">
+    <?php
+    foreach ($columnsMenus as $column): ?>
+        <?php
+        if (!$column) {
+            continue;
+        } ?>
+        <div x-data="{ open: false, toggle() { this.open = ! this.open }  }" class="pt-4 lg:p-0">
+
+            <div x-on:click="toggle()"
+                class="flex justify-between align-middle cursor-pointer group lg:cursor-default"
+            >
+                <strong class="uppercase font-bold group-hover:underline lg:group-hover:no-underline text-gray-700">
+                    <?= $escaper->escapeHtml($column['menu']['title']) ?>
+                </strong>
+                <span class="transition-transform" :class="{ 'rotate-180': open }">
+                    <?= $heroIcons->chevronDownHtml('text-gray-500 stroke-current lg:hidden') ?>
+                </span>
+            </div>
+            <ul x-fade-transition class="flex-col gap-4 mt-4 mb-6 hidden lg:flex" :class="{ 'flex': open, 'hidden': !open }">
+                <?php
+                foreach ($column['items'] as $item): ?>
+                    <li>
+                        <a
+                            href="<?= $escaper->escapeUrl($item['url']) ?>"
+                            class="hover:underline"
+                        >
+                            <?= $escaper->escapeHtml($item['title']) ?>
+                        </a>
+                    </li>
+                <?php
+                endforeach; ?>
+            </ul>
+        </div>
+    <?php
+    endforeach; ?>
+</div>

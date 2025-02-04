@@ -1,0 +1,52 @@
+@sw-color: #B73B3B;
+@text-slate-600: #475569;
+@gray-800-75: rgba(31, 41, 55, 0.75);
+@sw-magento-color: linear-gradient(66deg, rgba(183,59,59,1) 18%, rgba(244,111,37,1) 100%);
+
+.banner-e-wrapper {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  gap: 16px;
+  display: grid;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  position: relative;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+
+  .banner-card {
+    position: relative;
+    height: 320px;
+
+    img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .banner-text-wrapper {
+      background-image: linear-gradient(to top, @gray-800-75, transparent);
+      padding: 44px 28px 28px;
+      width: 100%;
+      bottom: 0;
+      position: absolute;
+
+      .banner-title {
+        font-weight: 700;
+        color: white;
+        font-size: 18px;
+        margin-bottom: 0.5rem;
+        text-align: center;
+      }
+    }
+  }
+}
+
+.banner-main-title {
+    text-align: center;
+}
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+  .banner-e-wrapper {
+    grid-template-columns: repeat(5,minmax(0,1fr));
+  }
+}

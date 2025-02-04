@@ -1,0 +1,162 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scandiweb\HyvaUi\Helper\Link as LinkHelper;
+use Scandiweb\HyvaUi\Helper\Decode as DecodeHelper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/** @var LinkHelper */
+$linkHelper = $this->helper(LinkHelper::class);
+/** @var DecodeHelper $decodeHelper */
+$decodeHelper = $this->helper(DecodeHelper::class);
+$link_url_1 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_1'));
+$link_url_2 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_2'));
+$link_url_3 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_3'));
+$link_url_4 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_4'));
+$link_url_5 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_5'));
+$link_url_6 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_6'));
+$link_url_7 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_7'));
+$link_url_8 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_8'));
+$link_url_9 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_9'));
+$link_url_10 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_10'));
+
+/**
+ * You can also get an image from `web/images/` in your theme:
+ * $escaper->escapeHtmlAttr($block->getViewFileUrl('images/banner.jpg'))
+ */
+$mainTitle = $block->getData('banner_main_title');
+$banners = [
+    [
+        'image_url' => $block->getData('banner_image_1_src'),
+        'image_alt' => __($block->getData('banner_image_1_alt')),
+        'label' => __($block->getData('banner_title_1')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_1),
+        'link_target' => $linkHelper->getLinkTarget($link_url_1)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_2_src'),
+        'image_alt' => __($block->getData('banner_image_2_alt')),
+        'label' => __($block->getData('banner_title_2')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_2),
+        'link_target' => $linkHelper->getLinkTarget($link_url_2)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_3_src'),
+        'image_alt' => __($block->getData('banner_image_3_alt')),
+        'label' => __($block->getData('banner_title_3')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_3),
+        'link_target' => $linkHelper->getLinkTarget($link_url_3)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_4_src'),
+        'image_alt' => __($block->getData('banner_image_4_alt')),
+        'label' => __($block->getData('banner_title_4')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_4),
+        'link_target' => $linkHelper->getLinkTarget($link_url_4)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_5_src'),
+        'image_alt' => __($block->getData('banner_image_5_alt')),
+        'label' => __($block->getData('banner_title_5')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_5),
+        'link_target' => $linkHelper->getLinkTarget($link_url_5)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_6_src'),
+        'image_alt' => __($block->getData('banner_image_6_alt')),
+        'label' => __($block->getData('banner_title_6')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_6),
+        'link_target' => $linkHelper->getLinkTarget($link_url_6)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_7_src'),
+        'image_alt' => __($block->getData('banner_image_7_alt')),
+        'label' => __($block->getData('banner_title_7')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_7),
+        'link_target' => $linkHelper->getLinkTarget($link_url_7)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_8_src'),
+        'image_alt' => __($block->getData('banner_image_8_alt')),
+        'label' => __($block->getData('banner_title_8')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_8),
+        'link_target' => $linkHelper->getLinkTarget($link_url_8)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_9_src'),
+        'image_alt' => __($block->getData('banner_image_9_alt')),
+        'label' => __($block->getData('banner_title_9')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_9),
+        'link_target' => $linkHelper->getLinkTarget($link_url_9)
+    ],
+    [
+        'image_url' => $block->getData('banner_image_10_src'),
+        'image_alt' => __($block->getData('banner_image_10_alt')),
+        'label' => __($block->getData('banner_title_10')),
+        'url' => $linkHelper->getLinkHref($block, $link_url_10),
+        'link_target' => $linkHelper->getLinkTarget($link_url_10)
+    ]
+];
+?>
+<div x-data="{ showAll: false }">
+    <?php if ($mainTitle): ?>
+        <h3 class="text-center text-xl leading-6 lg:text-[32px] lg:leading-10 font-extrabold pb-8 pt-14 lg:pt-[72px] bg-white"><?= $escaper->escapeHtml($mainTitle) ?></h3>
+    <?php endif; ?>
+    <div class="grid grid-cols-2 md:grid-cols-5 justify-around gap-3 lg:gap-8 bg-white pb-0 md:pb-14 lg:pb-[72px] mx-0 px-0">
+        <?php foreach ($banners as $index => $item): ?>
+            <div class="flex justify-center items-center" x-show="showAll || <?= $index < 6 ? 'true' : 'false' ?> || window.innerWidth >= 768">
+                <div class="relative h-32 w-[138px] ss:h-[159px] ss:w-[168px] md:h-36 md:w-[196px] lg:h-[180px] lg:w-[246px] object-cover">
+                    <a
+                        <?php if ($item['url']): ?>
+                            href="<?= $escaper->escapeUrl($item['url']) ?>"
+                            target="<?= $escaper->escapeHtmlAttr($item['link_target']); ?>"
+                        <?php endif; ?>
+                        class="cursor-pointer"
+                    >
+                    <img class="absolute w-full h-full object-cover border-x-2 border-t-1 border-cream"
+                         alt="<?= $escaper->escapeHtml($item['image_alt']) ?>"
+                         src="<?= $escaper->escapeHtmlAttr($item['image_url']) ?>"
+                         loading="lazy"
+                    />
+                    </a>
+                    <div class="absolute -bottom-1.5 ss:-bottom-1 lg:bottom-0 w-full p-4">
+                        <a
+                            <?php if ($item['url']): ?>
+                                href="<?= $escaper->escapeUrl($item['url']) ?>"
+                                target="<?= $escaper->escapeHtmlAttr($item['link_target']); ?>"
+                            <?php endif; ?>
+                            class="block cursor-pointer whitespace-nowrap text-primary no-underline text-[11px] md:text-xs lg:text-base leading-[18px] lg:leading-5 font-extrabold text-center">
+                            <?= $escaper->escapeHtml($item['label']) ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <div class="text-center pt-3 md:hidden flex justify-center pb-14">
+        <button x-show="!showAll" x-on:click="showAll = true" class="items-center flex pt-3">
+            <span class="pr-2 text-primary-darker font-extrabold text-base leading-5 py-0.5 underline">SHOW MORE</span>
+            <img src="<?= $block->getViewFileUrl('images/arrow-down.svg'); ?>" alt="show"/>
+        </button>
+        <button x-show="showAll" x-on:click="showAll = false" class="items-center flex pt-3">
+            <span class="pr-2 text-primary-darker font-extrabold text-base leading-5 py-0.5 underline">SHOW LESS</span>
+            <img src="<?= $block->getViewFileUrl('images/arrow-down.svg'); ?>" class="rotate-180" alt="show"/>
+        </button>
+    </div>
+</div>

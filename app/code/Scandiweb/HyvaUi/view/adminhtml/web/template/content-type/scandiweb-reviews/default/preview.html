@@ -1,0 +1,38 @@
+<!--
+/**
+ * Scandiweb_HyvaUi
+ *
+ * @category Scandiweb
+ * @package  Scandiweb_HyvaUi
+ * @author   Amr Osama <amr.osama@scandiweb.com>
+ */
+-->
+
+<div
+    attr="data.main.attributes"
+    ko-style="data.main.style"
+    class="pagebuilder-content-type"
+    css="data.main.css"
+    event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false"
+>
+    <div>
+        <span
+            attr="data.items_limit.attributes"
+            html="data.items_limit.html"
+            hidden
+        >
+        </span>
+    </div>
+    <div class="component-heading">
+        <div class="icon-pagebuilder-sw header"></div>
+        SW Reviews
+    </div>
+    <div class="scandiweb-reviews-container">
+        <h3
+            attr="data.title.attributes"
+            data-bind="liveEdit: { field: 'title', placeholder: $t('What our fam says') }"
+        ></h3>
+        <div class="scandiweb-reviews-placeholder"></div>
+    </div>
+    <render args="getOptions().template" />
+</div>

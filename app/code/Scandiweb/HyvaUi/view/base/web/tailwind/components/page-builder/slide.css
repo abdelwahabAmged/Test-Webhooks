@@ -1,0 +1,5 @@
+[data-content-type='slide'] {
+    .pagebuilder-slide-button {
+        @apply w-max;
+    }
+}

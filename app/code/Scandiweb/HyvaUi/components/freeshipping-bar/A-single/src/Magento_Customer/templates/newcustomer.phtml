@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @category  Scandiweb
+ * @author    Ziad Alnagar <ziad.alnagar@scandiweb.com | info@scandiweb.com>
+ * @copyright Copyright (c) 2023 Scandiweb, Inc (https://scandiweb.com)
+ * @license   http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Customer\Block\Form\Login\Info;
+use Magento\Cms\Block\BlockByIdentifier as CmsBlock;
+
+/** @var Info $block */
+/** @var Escaper $escaper */
+?>
+<?php if ($block->getRegistration()->isAllowed()) : ?>
+    <div class="block-new-customer bg-container-light md:bg-transparent md:shadow-none card w-full md:w-1/2">
+        <div class="md:max-w-sm mx-auto md:my-28">
+            <?= $this->getLayout()
+                ->createBlock(CmsBlock::class)
+                ->setData('identifier', 'login-registration-content')
+                ->toHtml(); ?>
+            <a href="<?= $escaper->escapeUrl($block->getCreateAccountUrl()) ?>" class="auth-btn-secondary md:w-max mt-8 mb-4 md:mb">
+                <?= $escaper->escapeHtml(__('Create an Account')) ?>
+            </a>
+        </div>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Murergrej
+ * @package     Murergrej_HelloRetail
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="addwish_configuration" translate="label" type="text" sortOrder="20" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <field id="website_uuid" translate="label" sortOrder="30"
+                       type="text" showInDefault="1">
+                    <label>Website Uuid</label>
+                    <tooltip>Website UUid needed for product view tracking</tooltip>
+                </field>
+            </group>
+            <group id="product_page" translate="label" type="text" sortOrder="10" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Product Page</label>
+                <field id="related_products_recommendations_key" translate="label" sortOrder="20"
+                       type="text" showInDefault="1">
+                    <label>Related Products Recommendations Key</label>
+                    <tooltip>Recommendations key needed for related product slider in PDP</tooltip>
+                </field>
+                <field id="alternative_products_recommendations_key" translate="label" sortOrder="20"
+                       type="text" showInDefault="1">
+                    <label>Alternative Products Recommendations Key</label>
+                    <tooltip>Recommendations key needed for alternative product slider in PDP</tooltip>
+                </field>
+                <field id="recently_viewed_products_recommendations_key" translate="label" sortOrder="20"
+                       type="text" showInDefault="1">
+                    <label>Recently Viewed Products Recommendations Key</label>
+                    <tooltip>Recommendations key needed for recently viewed product slider</tooltip>
+                </field>
+            </group>
+            <group id="cart_page" translate="label" type="text" sortOrder="20" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Cart Page</label>
+                <field id="ymal_products_recommendations_key" translate="label" sortOrder="20"
+                       type="text" showInDefault="1">
+                    <label>'You may also like' Products Recommendations Key</label>
+                    <tooltip>Recommendations key needed for the product slider in the cart page</tooltip>
+                </field>
+            </group>
+            <group id="success_page" translate="label" type="text" sortOrder="20" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Success Page</label>
+                <field id="success_ymal_products_recommendations_key" translate="label" sortOrder="20"
+                       type="text" showInDefault="1">
+                    <label>'You may also like' Products Recommendations Key</label>
+                    <tooltip>Recommendations key needed for the product slider in the order success page</tooltip>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

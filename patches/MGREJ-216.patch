@@ -1,0 +1,24 @@
+diff --git a/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Model/Config/Backend/TableRate.php b/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Model/Config/Backend/TableRate.php
+--- a/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Model/Config/Backend/TableRate.php
++++ b/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Model/Config/Backend/TableRate.php	(date 1735843248253)
+@@ -35,7 +35,7 @@
+         ScopeConfigInterface $config,
+         TypeListInterface $cacheTypeList,
+         ImportCsv $importCsv,
+-        ?string $pickupCarrier = null,
++        ?string $pickupCarrier = 'postnord',
+         AbstractResource $resource = null,
+         AbstractDb $resourceCollection = null,
+         array $data = []
+diff --git a/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Block/Adminhtml/ExportTableRates.php b/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Block/Adminhtml/ExportTableRates.php
+--- a/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Block/Adminhtml/ExportTableRates.php	
++++ b/vendor/vconnect/module-pickup-locator-shipping-methods-framework/Block/Adminhtml/ExportTableRates.php	(date 1728642024000)
+@@ -28,7 +28,7 @@
+         CollectionFactory $factoryCollection,
+         Escaper $escaper,
+         UrlInterface $backendUrl,
+-        ?string $pickupCarrier = null,
++        ?string $pickupCarrier = 'postnord',
+         array $data = []
+     ) {
+         parent::__construct($factoryElement, $factoryCollection, $escaper, $data);

@@ -1,0 +1,39 @@
+<?php
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+
+use Magento\Framework\View\Element\Template;
+
+/** @var $block Template */
+?>
+
+<?php
+/** @var \DV\ProfitMetrics\Model\ProfitHelper $profitMetricsConfigHelper */
+$profitMetricsConfigHelper = $this->helper(\DV\ProfitMetrics\Model\ProfitHelper::class);
+?>
+
+<?php if ($storePublicId = $profitMetricsConfigHelper->getStorePublicId()): ?>
+    <script type="text/javascript">
+        var includeJsFile = function (url) {
+            var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+            g.type = 'text/javascript';
+            g.async = true;
+            g.defer = true;
+            g.src = url;
+            s.parentNode.insertBefore(g, s);
+        };
+
+        includeJsFile('<?= $block->getViewFileUrl('DV_ProfitMetrics::js/profitmetrics/pmTPTrack.js?v=1') ?>');
+        window._pm_TPTrackEndpoint = "<?= $block->getUrl('profitmetrics/tracking') ?>";
+    </script>
+    <?php if (!$profitMetricsConfigHelper->isOnOrderConfirmationPage()): ?>
+        <script type="text/javascript">
+            <?php echo $profitMetricsConfigHelper->getAllPagesJavascript(); ?>
+        </script>
+    <?php endif; ?>
+<?php endif; ?>

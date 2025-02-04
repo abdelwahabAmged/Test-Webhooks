@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+/** @var \Magento\Framework\View\Element\Template $block */
+$actionName = $block->getRequest()->getFullActionName();
+
+?>
+
+<script>
+    function modalHandler() {
+        return {
+            showModal: false,
+
+            init() {
+                let vatValue = sessionStorage.getItem('vatToggle');
+                if (!vatValue) {
+                    const referrer = document.referrer;
+                    const isPdp = '<?= $actionName ?>' === 'catalog_product_view';
+                    const isFromGoogle = referrer.includes('https://www.google.com');
+                    if (!(isFromGoogle && isPdp)) {
+                        this.showModal = true;
+                    }
+                }
+            },
+            closeModal() {
+                this.showModal = false;
+                sessionStorage.setItem('vatToggle', 'incl');
+                window.location.reload();
+            },
+
+            acceptPrivat() {
+                sessionStorage.setItem('vatToggle', 'incl');
+                this.showModal = false;
+                window.location.reload();
+            },
+
+            acceptBusiness() {
+                sessionStorage.setItem('vatToggle', 'ex');
+                this.showModal = false;
+                window.location.reload();
+            },
+        };
+    }
+</script>
+<div x-data="modalHandler()" x-cloak x-show="showModal"
+     class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-[1000]">
+    <div class="bg-white pt-10 pb-12 px-4 md:px-10 md:w-[728px] w-full h-auto relative">
+        <button @click="closeModal" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        <div class="flex justify-center mb-4">
+            <img src="<?= $block->getViewFileUrl('images/logo.svg'); ?>" alt="add" class="max-w-unset w-[215px] h-[47px] md:h-[64px] md:w-[265px]"/>
+        </div>
+        <h4 class="text-center text-base pb-8 font-extrabold md:text-2xl md:pb-10"><?= __('Choose your browsing profile') ?></h4>
+        <div class="flex justify-between gap-x-4 md:gap-x-10 pb-8 md:pb-10">
+            <div class="flex-1 text-center">
+                <img src="<?= $block->getViewFileUrl('images/person.svg'); ?>" alt="add" class="mx-auto max-w-unset h-[96px] w-[96px] pb-8"/>
+                <button @click="acceptPrivat" class="btn btn-primary text-white w-full text-base leading-5 py-4">PRIVAT</button>
+                <p class="text-sm font-normal fon mt-4"><?= __('Prices including VAT') ?></p>
+            </div>
+            <div class="flex-1 text-center">
+                <img src="<?= $block->getViewFileUrl('images/company.svg'); ?>" alt="add" class="mx-auto max-w-unset h-[96px] w-[96px] pb-8"/>
+                <button @click="acceptBusiness" class="btn btn-primary text-white w-full text-base leading-5">ERHVERV</button>
+                <p class="text-sm font-normal fon mt-4"><?= __('Prices without VAT') ?></p>
+            </div>
+        </div>
+        <p class="flex justify-center w-full sm:w-[491px] sm:mx-auto">
+            <span class="pr-0.5 pt-1.5 pb-2"><img src="<?= $block->getViewFileUrl('images/info.svg'); ?>" alt="info" class="max-w-unset h-[22px] w-5"/></span>
+            <span class="text-base font-normal py-1.5"><?= __('You will be able to update your preference at any point in time.') ?></span>
+        </p>
+    </div>
+</div>

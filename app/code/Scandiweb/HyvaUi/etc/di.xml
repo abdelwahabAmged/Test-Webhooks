@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Scandiweb
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Widget\Model\Widget\Instance">
+        <plugin name="plugin_after_get_widget_parameters"
+                type="Scandiweb\HyvaUi\Plugin\AfterGetWidgetParameters" sortOrder="10"/>
+    </type>
+    <type name="Magento\Widget\Model\Widget">
+        <plugin name="plugin_after_get_widget_declaration"
+                type="Scandiweb\HyvaUi\Plugin\BeforeGetWidgetDeclaration" sortOrder="10"/>
+    </type>
+    <type name="Magento\PageBuilder\Model\Stage\RendererPool">
+        <arguments>
+            <argument name="renderers" xsi:type="array">
+				<item name="scandiweb_menu" xsi:type="object">Scandiweb\HyvaUi\Model\Stage\Renderer\MenuRenderer</item>
+				<item name="scandiweb_product_slider" xsi:type="object">Scandiweb\HyvaUi\Model\Stage\Renderer\ProductSliderRenderer</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="Magento\Widget\Model\Widget" type="Scandiweb\HyvaUi\Model\Widget"/>
+    <preference for="Magento\PageBuilder\Model\Filter\Template" type="Scandiweb\HyvaUi\Model\Filter\Template"/>
+    <type name="Magento\Cms\Model\Wysiwyg\Images\Storage">
+		<arguments>
+			<argument name="extensions" xsi:type="array">
+				<item name="allowed" xsi:type="array">
+					<item name="svg" xsi:type="string">
+						image/svg+xml
+					</item>
+				</item>
+				<item name="image_allowed" xsi:type="array">
+					<item name="svg" xsi:type="string">
+						image/svg+xml
+					</item>
+				</item>
+				<item name="media_allowed" xsi:type="array">
+					<item name="svg" xsi:type="string">
+						image/svg+xml
+					</item>
+				</item>
+			</argument>
+		</arguments>
+		<plugin name="Scandiweb\HyvaUi\Plugin\Model\Wysiwyg\Images\Storage" type="Scandiweb\HyvaUi\Plugin\Model\Wysiwyg\Images\Storage" sortOrder="1" />
+	</type>
+	<type name="Magento\Framework\File\Uploader">
+		<plugin name="Scandiweb\HyvaUi\Plugin\File\Uploader" type="Scandiweb\HyvaUi\Plugin\File\Uploader" sortOrder="1" />
+	</type>
+	<virtualType name="Scandiweb\HyvaUi\Plugin\SaveImageInformation" type="Magento\MediaGalleryIntegration\Plugin\SaveImageInformation">
+		<arguments>
+			<argument name="imageExtensions" xsi:type="array">
+				<item name="svg" xsi:type="string">
+					svg
+				</item>
+			</argument>
+		</arguments>
+	</virtualType>
+	<type name="Scandiweb\HyvaUi\ViewModel\Icon">
+        <arguments>
+            <argument name="iconPathPrefix" xsi:type="string">Scandiweb_HyvaUi::svg</argument>
+        </arguments>
+    </type>
+
+	<preference for="Magento\Review\Model\Review" type="Scandiweb\HyvaUi\Model\Review" />
+	<preference for="Magento\MediaGallerySynchronization\Model\CreateAssetFromFile" type="Scandiweb\HyvaUi\Model\CreateAssetFromFile" />
+	<preference for="Magento\MediaGalleryIntegration\Plugin\SaveImageInformation" type="Scandiweb\HyvaUi\Plugin\SaveImageInformation" />
+</config>

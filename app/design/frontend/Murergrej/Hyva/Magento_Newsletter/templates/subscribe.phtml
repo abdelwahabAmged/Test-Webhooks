@@ -1,0 +1,209 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\ReCaptcha;
+use Magento\Framework\Escaper;
+use Magento\Newsletter\Block\Subscribe;
+
+/** @var Subscribe $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var ReCaptcha $recaptcha */
+/** @var HeroiconsOutline $heroicons */
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$newsletterImageUrl = $block->getViewFileUrl('images/newsletter.png');
+
+// Do not replace this with $viewModels->require(ReCaptcha::class); that might break the dependency
+// on the Magento_ReCaptchaNewsletter module
+$recaptcha = $block->getData('viewModelRecaptcha');
+$urlNewsletter = $block->getUrl('newsletter/subscriber/new', ['_secure' => true]);
+?> 
+<div style="background: url('<?= $block->getViewFileUrl('images/newsletter.png') ?>'); background-blend-mode: multiply; background-color:var(--primary-gray-darker)">
+<div class="relative md:p-0 p-4 pt-8 pb-8"> 
+
+    <form class="form subscribe grid grid-cols-1 md:grid-cols-12 md:gap-8 md:px-[50px] xl:px-[108px] md:max-h-64"
+        action="<?= $escaper->escapeUrl($urlNewsletter) ?>"
+        method="post"
+        x-data="initNewsletterForm()"
+        @submit.prevent="submitForm()"
+        id="newsletter-validate-detail"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Subscribe to Newsletter')) ?>">
+
+        <!-- Text Block Taking 5 Columns -->
+        <div class="col-span-1 md:col-span-5 pl-0 xl:w-[524px] font-extrabold text-white space-y-1  max-md:mb-11 xl:py-[72px] md:pt-[25px]">
+            <h3 class="text-xl xl:text-[32px] text-white md:leading-10 leading-6">
+                <strong class="">
+                    <?= $escaper->escapeHtml(__('Receive the latest news, offers, product news, advice and guides!')) ?><br>
+                </strong>
+            </h3>
+            <p class="text-sm font-normal text-white pt-2 whitespace-nowrap">
+                <?= $escaper->escapeHtml(__('* We send maximum 3-4 emails per month')) ?><br>
+            </p>
+        </div>
+    
+        <!-- Spacer (2 columns) for alignment on desktop, hidden on mobile -->
+        <div class="hidden md:block md:col-span-2"></div>
+
+            <!-- Input and Button Block Taking Last 5 Columns -->
+            <div class="col-span-1 md:col-span-5  xl:pt-[88px] xl:pb-[116px] md:pl-2.5 md:pt-[30px] ">
+                <div class="grid grid-cols-1 xl:flex max-md:gap-3 max-xl:gap-2 ">
+                    <!-- Email Input Field (60% of the width on desktop) -->
+                    <label class="col-span-1 xl:flex xl:w-[336px] xl:mr-3 m-0 h-14 xl:mb-2">
+                        <span class="sr-only"><?= $escaper->escapeHtml(__('Email Address')) ?></span>
+                        <input        
+                            id="newsletter-subscribe"
+                            name="email"
+                            class="form-input w-full h-14 py-4 newsletter-email" 
+                            required
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Enter your email')) ?>"
+                            placeholder="<?= $escaper->escapeHtmlAttr(__('Email address')) ?>">
+                        <?= $block->getBlockHtml('formkey') ?>
+                        <?= $recaptcha ? $recaptcha->getInputHtml(ReCaptcha::RECAPTCHA_FORM_ID_NEWSLETTER) : '' ?>
+                    </label>
+
+                    <!-- Subscribe Button (40% of the width on desktop) -->
+                    <button class="col-span-1 md:flex font-extrabold h-14 whitespace-nowrap justify-center border-2
+                     xl:w-[136px]  py-4 px-6 text-base shadow-none hover:shadow-lg active:shadow transition bg-primary
+                      text-white border border-transparent hover:bg-blue-700 focus:ring-blue-200 active:bg-blue-700
+                       disabled:bg-blue-200 disabled:text-blue-50">
+                        <?= $escaper->escapeHtml(__('SIGN UP')) ?>
+                    </button>
+                </div>
+                <p class="text-xs text-white max-xl:pt-3">
+                    <?= $escaper->escapeHtml(__('You can read our personal data policy regarding newsletters')) ?> 
+                    <a
+                      class="text-white font-normal no-underline"
+                      href="/privatlivs-cookiepolitik"
+                    >
+                        <?= $escaper->escapeHtml(__('here')) ?>
+                    </a>
+                </p>
+            </div>
+
+        <!-- Error Message Block -->
+        <template x-if="displayErrorMessage">
+            <p class="flex items-center text-red mt-2 col-span-1 md:col-span-12">
+                <?= $heroicons->exclamationCircleHtml('inline-block mr-3'); ?>
+                <template x-for="errorMessage in errorMessages">
+                    <span x-html="errorMessage"></span>
+                </template>
+            </p>
+        </template>
+    </form>
+
+    <!-- Recaptcha Legal Notice -->
+    <div class="w-full">
+        <?= $recaptcha ? $recaptcha->getLegalNoticeHtml(ReCaptcha::RECAPTCHA_FORM_ID_NEWSLETTER) : '' ?>
+    </div>
+    <script>
+function validateEmail(email) {
+    // Check for empty email
+    if (!email) {
+        return 'Invalid email: cannot be empty';
+    }
+
+    // Check for dot at the start of the mailbox name
+    if (/^\./.test(email)) {
+        return 'Invalid email: dot at start of mailbox name';
+    }
+
+    // Check for dot before '@' symbol
+    if (/\.@/.test(email)) {
+        return 'Invalid email: dot before @ symbol';
+    }
+
+    // Check for consecutive dots in the mailbox name
+    if (/\.\./.test(email.split('@')[0])) {
+        return 'Invalid email: consecutive dots in the mailbox name';
+    }
+
+    // Validate email structure (basic format)
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+$/.test(email)) {
+        return 'Invalid email: missing or invalid structure';
+    }
+
+    // Check if the domain starts with a hyphen
+    if (/^[a-zA-Z0-9._%+-]+@[-]/.test(email)) {
+        return 'Invalid email: domain cannot start with a hyphen';
+    }
+
+    // Ensure there is at least one dot in the domain part
+    const domainPart = email.split('@')[1];
+    if (domainPart && !/\./.test(domainPart)) {
+        return 'Invalid email: domain must contain at least one dot';
+    }
+
+    // Check for a valid TLD structure (at least two letters in TLD)
+    if (domainPart && !/[a-zA-Z]{2,}\.[a-zA-Z]{2,}/.test(domainPart)) {
+        return 'Invalid email: invalid top-level domain structure';
+    }
+
+    // Check for common invalid TLD patterns (e.g., .web)
+    if (domainPart && /^[a-zA-Z0-9.-]+\.web$/.test(domainPart)) {
+        return 'Invalid email: invalid top-level domain (.web is not allowed)';
+    }
+    // If all validations pass, return an empty string indicating success
+    return '';
+}
+function initNewsletterForm() {
+    return {
+        errors: 0,
+        hasCaptchaToken: 0,
+        displayErrorMessage: false,
+        errorMessages: [],
+        setErrorMessages(messages) {
+            this.errorMessages = [messages];
+            this.displayErrorMessage = this.errorMessages.length;
+        },
+        submitForm() {
+            const $form = document.querySelector('#newsletter-validate-detail');
+            const email = document.querySelector('#newsletter-subscribe').value;
+
+            // Run the combined email validation
+            const validationError = validateEmail(email);
+
+            if (validationError) {
+                dispatchMessages([
+                    {
+                        type: "error",
+                        text: 'E-mailen er ikke gyldig'
+                    }
+                ], 5000);
+                
+                return;
+            }
+
+            <?= $recaptcha ? $recaptcha->getValidationJsHtml(ReCaptcha::RECAPTCHA_FORM_ID_NEWSLETTER) : '' ?>
+
+            if (this.errors === 0) {
+                $form.submit();
+                dispatchMessages([
+                    {
+                        type: "success",
+                        text: 'Tilmelding gennemført'
+                    }
+                ], 5000);
+            }
+            else{
+                dispatchMessages([
+                    {
+                        type: "error",
+                        text: validationError // Corrected text
+                    }
+                ], 5000);
+            }
+        }
+    }
+}
+    </script>
+</div>
+</div>

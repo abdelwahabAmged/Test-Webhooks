@@ -1,0 +1,32 @@
+.block-homepage-links {
+    @apply px-4 lg:px-24;
+
+    [data-content-type="heading"] {
+        @apply text-2xl leading-8;
+    }
+
+    [data-element="link_text"] {
+        @apply block;
+    }
+
+    .pagebuilder-column-group {
+        @apply px-0 pt-3 pb-11 lg:pb-[72px] mb-0;
+
+        .pagebuilder-column {
+            @apply lg:!flex-row;
+
+            .pagebuilder-button-secondary,
+            .pagebuilder-button-primary {
+                @apply whitespace-nowrap py-4 px-6 w-full;
+
+                span {
+                    @apply m-0 p-0 leading-5;
+                }
+            }
+
+            [data-content-type="button-item"] {
+                @apply m-0 pb-3 lg:pb-0 lg:pr-3 w-full;
+            }
+        }
+    }
+}

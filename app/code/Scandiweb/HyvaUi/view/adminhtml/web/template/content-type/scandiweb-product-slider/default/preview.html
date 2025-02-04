@@ -1,0 +1,95 @@
+<!--
+/**
+ * @category Scandiweb
+ * @package  Scandiweb_HyvaUi
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+-->
+<div
+    attr="data.main.attributes"
+    ko-style="data.main.style"
+    class="pagebuilder-content-type sw-slider"
+    css="data.main.css"
+    event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false"
+>
+    <div class="component-heading">
+        <div class="icon-pagebuilder-sw header"></div>
+        SW Product Slider
+    </div>
+    <div class="ProductSlider">
+        <span
+            attr="data.categories.attributes"
+            ko-style="data.categories.style"
+            css="data.categories.css"
+            hidden
+        >
+        </span>
+        <span
+            attr="data.products_limit.attributes"
+            ko-style="data.products_limit.style"
+            css="data.products_limit.css"
+            hidden
+        >
+        </span>
+        <span
+            attr="data.show_category_count.attributes"
+            ko-style="data.show_category_count.style"
+            css="data.show_category_count.css"
+            hidden
+        >
+        </span>
+        <div class="ProductSlider-Wrapper">
+            <h3
+                attr="data.title.attributes"
+                class="ProductSlider-Title"
+                ko-style="data.title.style"
+                css="data.title.css"
+                data-bind="liveEdit: { field: 'title', placeholder: $t('Enter Block Title') }"
+            ></h3>
+            <div class="ProductSlider-Category-ViewAll">
+                <div class="ProductSlider-Categories-Container">
+                    <div data-bind="foreach: data.selectedCategories">
+                        <div class="ProductSlider-Category">
+                            <span
+                                class="ProductSlider-CategoryText"
+                                data-bind="text: name + ($data.products_count ? ' ('+$data.products_count+')' : '' )"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="ProductSlider-Categories-Actions">
+                    <if args="data.selectedCategories().length">
+                        <button class="ProductSlider-ReadAll action-secondary">
+                            <span
+                                attr="data.view_all_button_text.attributes"
+                                ko-style="data.view_all_button_text.style"
+                                css="data.view_all_button_text.css"
+                                data-bind="liveEdit: { field: 'view_all_button_text', placeholder: $t('Enter view all button text') }">
+                            </span>
+                            <svg
+                                class="arrow-right"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M13 7L18 12M18 12L13 17M18 12L6 12"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="square"
+                                />
+                            </svg>
+                        </button>
+                    </if>
+                </div>
+            </div>
+
+            <if args="data.selectedCategories().length">
+                <div class="ProductSlider-Placeholder"></div>
+            </if>
+        </div>
+    </div>
+    <render args="getOptions().template" />
+</div>

@@ -1,0 +1,91 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ *
+ * This template displays the order details on the order success page.
+ */
+declare(strict_types=1);
+use Murergrej\Checkout\Block\Onepage\OrderDetails;
+/** @var OrderDetails $block */
+$order = $block->getOrder();
+?>
+<div class="order-details">
+    <div class="order-details-heading"><?= __('Your order details') ?></div>
+    <div class="order-details-heading-row">
+        <div class="col-span-6 text-start leading-5"><?= __('Product') ?></div>
+        <div class="col-span-3 text-center leading-5 lg:ml-7 3xl:ml-12"><?= __('Quantity') ?></div>
+        <div class="col-span-3 text-end leading-5"><?= __('Price') ?></div>
+    </div>
+    <ul class="order-product-list">
+        <?php foreach ($order->getAllVisibleItems() as $item): ?>
+            <?php
+            // Retrieve product and prices
+            $product = $item->getProduct();
+            $imageUrl = $block->getProductImageUrl($product);
+            $originalPrice = (float)$item->getOriginalPrice();
+            $specialPrice = (float)$item->getPrice();
+            $quantity = (float)$item->getQtyOrdered();
+            // Calculate prices with and without tax
+            $priceExclTax = $block->catalogHelper->getTaxPrice($product, $specialPrice, false);
+            $priceInclTax = $block->catalogHelper->getTaxPrice($product, $specialPrice, true);
+
+            // Format prices
+            $formattedOriginalPrice = number_format($originalPrice * $quantity, 2, '.', '');
+            $formattedSpecialPrice = number_format($specialPrice * $quantity, 2, '.', '');
+            $formattedPriceExclTax = number_format($priceExclTax * $quantity, 2, '.', '');
+            $formattedPriceInclTax = number_format($priceInclTax * $quantity, 2, '.', '');
+            ?>
+            <li class="order-product-item"
+                x-data="{ vatMode: sessionStorage.getItem('vatToggle') === 'incl' ? 'including' : 'excluding',
+                            hasDiscount: <?= $specialPrice < $originalPrice ? 'true' : 'false' ?>}">
+                <!-- Product Image -->
+                <div class="order-product-image">
+                    <img class="product-image-img" src="<?= $imageUrl ?>" alt="<?= $item->getName() ?>"/>
+                </div>
+                <!-- Product Details -->
+                <div class="product-details">
+                    <!-- Product Name -->
+                    <div class="product-name">
+                        <?= $item->getName() ?>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="product-quantity-row">
+                        <div class="product-quantity lg:hidden"><?= __('Quantity: ') ?></div>
+                        <div class="product-quantity-value"><?= $quantity ?></div>
+                    </div>
+
+                    <!-- Price Section -->
+                    <div class="price-section">
+                        <div class="price-row">
+                            <?php if ($originalPrice > $specialPrice && $specialPrice > 0): ?>
+                                <div class="original-price"
+                                     x-html="hyva.formatPrice(<?= $formattedOriginalPrice ?>)"></div>
+                                <div class="special-price"
+                                     :class="{'highlighted-price switched-price':vatMode === 'excluding'}"
+                                     x-html="hyva.formatPrice(<?= $formattedSpecialPrice ?>)"></div>
+                            <?php else: ?>
+                                <div class="original-price w-14 pr-11"></div>
+                                <div class="regular-price"
+                                     :class="{'switched-price':vatMode === 'excluding'}"
+                                     x-html="hyva.formatPrice(<?= $formattedPriceExclTax ?>)"></div>
+                            <?php endif; ?>
+                            <div class="price-label"><?= __('Excl. Tax') ?></div>
+                        </div>
+                        <div class="price-row">
+                            <div class="incl-tax-price"
+                                 :class="{
+                                        'highlighted-price': vatMode === 'including' && hasDiscount,
+                                        'switched-price': vatMode === 'including'
+                                        }" x-html="hyva.formatPrice(<?= $formattedPriceInclTax ?>)">
+                            </div>
+                            <div class="price-label"><?= __('Incl. Tax') ?></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>

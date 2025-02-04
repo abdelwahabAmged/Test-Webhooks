@@ -1,0 +1,53 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scandiweb\HyvaUi\Helper\Link as LinkHelper;
+use Scandiweb\HyvaUi\Helper\Decode as DecodeHelper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/** @var DecodeHelper $decodeHelper */
+$decodeHelper = $this->helper(DecodeHelper::class);
+$link_url_1 = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url_1'));
+/** @var LinkHelper */
+$linkHelper = $this->helper(LinkHelper::class);
+$linkHref1 = $linkHelper->getLinkHref($block, $link_url_1);
+?>
+<div class="relative my-2 h-[600px] sm:h-[500px] md:h-[400px]">
+    <img class="absolute w-full h-full object-cover"
+         alt="<?= $escaper->escapeHtml(__($block->getData('banner_image_1_alt'))); ?>"
+         src="<?= $escaper->escapeHtmlAttr($block->getData('banner_image_1_src')); ?>"
+         width="1200"
+         height="800"
+         loading="lazy"
+    />
+    <div class="absolute bottom-0 w-full p-6 pt-28 bg-gradient-to-t to-transparent from-gray-800/75">
+        <div class="mb-2 text-white text-6xl leading-none font-bold">
+            <?= $escaper->escapeHtml(__($block->getData('banner_title_1'))) ?>
+        </div>
+        <a
+        <?php if ($linkHref1): ?>
+            href="<?= $escaper->escapeUrl($linkHref1); ?>"
+            target="<?= $escaper->escapeHtmlAttr($linkHelper->getLinkTarget($link_url_1)); ?>"
+        <?php endif; ?>
+            class="block text-white text-2xl leading-8 font-semibold"
+        >
+            <?= $escaper->escapeHtml(__($block->getData('banner_subtitle_1'))) ?>
+        </a>
+    </div>
+</div>

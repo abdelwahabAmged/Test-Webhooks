@@ -1,0 +1,8 @@
+<?php /** @var \Murergrej\Gtm\Block\Checkout\Onepage\Success $block */ ?>
+<?php if (!$block->isGtmTransactionEnabled()) return; ?>
+<!-- Start Google Tag Manager Transaction -->
+<script>
+    var dataLayer  = window.dataLayer || [];
+    dataLayer.push(<?= $block->getTransactionEventJson() ?>);
+</script>
+<!-- End Google Tag Manager Transaction -->

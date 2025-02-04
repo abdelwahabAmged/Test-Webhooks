@@ -1,0 +1,44 @@
+<?php
+/**
+ * @category    Scandiweb
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+use Bss\FreeShippingBar\Block\FreeShippingBar;
+use Hyva\Theme\ViewModel\Cart\Items;
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var FreeShippingBar $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroicons */
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/**
+ * @var $cartItems Items
+ */
+$cartItems = $viewModels->require(Items::class);
+$freeShippingBarHelper = $block->getFreeShippingBarHelper();
+$message = $block->getLiveMessage();
+$customerGroup = $block->getCustomerGroup();
+$threshold = $block->getThreshold()[$customerGroup]['threshold'];
+$cartSubtotal = $cartItems->getCartItems()[0]->getQuote()->getSubtotal();
+$leftValue = $threshold - $cartSubtotal;
+$leftValueFormatted = $leftValue;
+?>
+<?php if ($block->addMessage()): ?>
+    <div class="free-shipping-bar <?php echo $message ? 'free-shipping-message-rendered' : '' ?>">
+        <div id="free-shipping-progressbar-message" class="free-shipping-progressbar-message">
+            <div><?= __($message, $leftValueFormatted) ?: '' ?></div>
+        </div>
+        <meter min="0"
+               max="<?= $threshold ?>"
+               value="<?= $cartSubtotal ?>">
+        </meter>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="pwa" translate="label" sortOrder="999999">
+            <label>PWA</label>
+        </tab>
+        <section id="pwa_web">
+            <group id="frontend_redirect" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Frontend Redirect</label>
+                <field id="enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="url" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Redirect URL</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Baseurl</backend_model>
+                    <comment>E.g. http://127.0.0.1:3000/</comment>
+                </field>
+                <field id="disable_param" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable/Disable Redirect Parameter Value</label>
+                    <comment>E.g. https://magento.com?disable_frontend_redirect=&amp;lt;your parameter value&amp;gt; or enable_frontend_redirect.</comment>
+                </field>
+                <field id="ignore_paths" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ignored paths</label>
+                    <comment>E.g. /bambora</comment>
+                </field>
+                <field id="custom_redirects" translate="label" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom redirects</label>
+                    <comment>E.g. /contact|/contact</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

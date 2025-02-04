@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Murergrej
+ * @package     Murergrej_CookieBanner
+ * @author      Abanoub Youssef <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="Murergrej_CookieBanner::js/hello_retail_optout_head.js"/>
+    </head>
+    <body>
+        <referenceContainer name="footer">
+            <container name="cookie.footer.top.right.container" htmlTag="div" after="emarket.footer.top.right.container"
+                       htmlClass="mobile-icon">
+                <!-- Cookie- icon -->
+                <block class="Magento\Framework\View\Element\Template" name="cookie-mobile-widget"
+                       template="Murergrej_CookieBanner::cookie-mobile-widget.phtml"/>
+            </container>
+        </referenceContainer>
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template" name="hello_retail_optout_body"
+                   template="Murergrej_CookieBanner::hello_retail_optout_body.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

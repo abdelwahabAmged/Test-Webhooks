@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="DV_ProfitMetrics::config" title="ProfitMetrics settings" sortOrder="50" />
+                        </resource>
+                    </resource>
+                </resource>
+                <resource id="Magento_Backend::content">
+                    <resource id="Magento_Backend::content_elements">
+                        <resource id="DV_ProfitMetrics::actions" title="ProfitMetrics Actions" translate="title" sortOrder="10">
+                            <resource id="DV_ProfitMetrics::generate" title="Generate Feed" translate="title" sortOrder="10" />
+                            <resource id="DV_ProfitMetrics::random_code" title="Generate Random Code" translate="title" sortOrder="10" />
+                            <resource id="DV_ProfitMetrics::orders_send" title="Send Orders To Profitmetrics API" translate="title" sortOrder="10" />
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

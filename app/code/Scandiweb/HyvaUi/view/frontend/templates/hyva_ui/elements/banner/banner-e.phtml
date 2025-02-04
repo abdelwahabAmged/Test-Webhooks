@@ -1,0 +1,203 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$imageUrl1 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/flisevaerktoj.svg'));
+// Or, get an image from `web/images/` in your theme:
+// $imageUrl1 = $escaper->escapeHtmlAttr($block->getViewFileUrl('images/banner.jpg'));
+
+$imageUrl2 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/murervaerktoj.svg'));
+$imageUrl3 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/decovaerktoj.svg'));
+$imageUrl4 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/materialer.svg'));
+$imageUrl5 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/arbejdsmiljo.svg'));
+$imageUrl6 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/gor-det-selv-diy.svg'));
+$imageUrl7 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/gaveartikler.svg'));
+$imageUrl8 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/maerker.svg'));
+$imageUrl9 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/fugerraeserskiver.svg'));
+$imageUrl10 = $escaper->escapeHtmlAttr($block->getViewFileUrl('web/images/category/mortelfugepistol.svg'));
+?>
+<div class="grid grid-cols-2 md:grid-cols-4 my-2 gap-4 bg-white">
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="Tennis balls on a court"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl1) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Tennis
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="Sport shoes"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl2) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Only at Hyvä
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="Basketball hoop"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl3) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Basketball
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl4) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl5) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl6) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl7) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl8) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl9) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+    <div class="relative h-80">
+        <img class="absolute"
+             alt="A person changing weights on a barbell set"
+             src="<?= $escaper->escapeHtmlAttr($imageUrl10) ?>"
+             width="246"
+             height="180"
+             loading="lazy"
+        />
+        <div class="absolute bottom-0 w-full p-7 pt-11">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+                class="block text-white text-lg leading-7 font-bold text-center"
+            >
+                Gym
+            </a>
+        </div>
+    </div>
+</div>

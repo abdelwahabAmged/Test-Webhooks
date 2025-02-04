@@ -1,0 +1,98 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ *
+ * This template displays the order success page, including order details, registration prompt, and additional information.
+ *
+ * @var Success $block
+ * @var Escaper $escaper
+ * @var SvgIcons $hyvaicons
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Checkout\Block\Onepage\Success;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\Slider;
+use Hyva\Theme\Model\ViewModelRegistry;
+
+/** @var ViewModelRegistry $viewModels */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+// Retrieve the Registration block instance
+$orderEmail = $block->getData('order_email');
+
+/** @var Slider $sliderViewModel */
+$sliderViewModel = $viewModels->require(Slider::class);
+
+$topProducts = $block->getRecommendedProducts();
+$topProductsCollection = $topProducts[0]['collection'] ?? [];
+$productTrackingCodes = $topProducts[0]['products'] ?? [];
+$topProductsSliderHtml = '';
+
+$containerTemplate = 'Murergrej_HelloRetail::product/slider/hello_retail_products_slider.phtml';
+
+if ($topProductsCollection && $topProductsCollection->getSize() > 0) {
+    $topProductsSliderHtml = $sliderViewModel->getSliderForItems(
+        'Magento_Catalog::product/list/item.phtml',
+        $topProductsCollection,
+        $containerTemplate
+    )
+        ->setData('hide_details', false)
+        ->setData('hide_rating_summary', false)
+        ->setData('title', __('You may also like'))
+        ->setData('item_relation_type', 'generic')
+        ->setData('heading_tag', 'h3')
+        ->setData('product_tracking_codes', $productTrackingCodes)
+        ->setData('slide_count_desktop', 3.25)
+        ->setData('slide_count_large_desktop', 5)
+        ->setData('display_arrows', true)
+        ->setData('slides_gap', 16)
+        ->toHtml();
+}
+?>
+<div class="checkout-success bg-white">
+    <div class="bg-cream m-0 h-32 md:h-24">
+        <div class="ml-[18px] lg:ml-10">
+            <?php if ($block->getOrderId()): ?>
+                <?php if ($block->getCanViewOrder()): ?>
+                    <p class="text-base font-normal">
+                        <?= __('Your order number is:') ?>
+                        <a href="<?= $escaper->escapeUrl($block->getViewOrderUrl()) ?>"
+                           class="order-number no-underline">
+                        <span
+                                class="text-blue font-extrabold text-base "><?= $escaper->escapeHtml($block->getOrderId()) ?></span>
+                            <span><?= $hyvaicons->renderHtml('copy', ' inline-block', 24, 24) ?></span>
+                        </a>
+                    </p>
+                <?php else: ?>
+                    <p class="text-base font-normal">
+                        <?= $escaper->escapeHtml(__('Your order number is: <span class="text-blue font-extrabold text-base "">%1</span>'
+                            , $block->getOrderId()), ['span']) ?>
+                        <span><?= $hyvaicons->renderHtml('copy', ' inline-block', 24, 24) ?></span>
+                    </p>
+                <?php endif; ?>
+                <p class="text-base font-normal mt-3">
+                    <?= $escaper->escapeHtml(
+                        __('An order confirmation email will be shortly sent to:')
+                    ) ?>
+                    <span class="font-extrabold text-base font-sans"><?= $escaper->escapeHtml($orderEmail) ?></span>
+                </p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <!-- render registration form and editable block   -->
+    <?= $block->getRegistrationHtml() ?>
+    <div class="order-additional">
+        <?= $block->getAdditionalInfoHtml() ?>
+    </div>
+    <?php if ($topProductsSliderHtml): ?>
+        <div class="bg-secondary-lighter md:pt-[72px] pt-14 pb-[52px]">
+            <?= /* @noEscape */ $topProductsSliderHtml ?>
+        </div>
+    <?php endif; ?>
+</div>

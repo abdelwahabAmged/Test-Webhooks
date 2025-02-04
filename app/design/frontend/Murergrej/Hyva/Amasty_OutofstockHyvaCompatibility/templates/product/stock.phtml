@@ -1,0 +1,89 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Out Of Stock Notifications Hyva Compatibility
+ */
+
+/** This template is overriden from
+ *  vendor/hyva-themes/magento2-default-theme/Magento_ProductAlert/templates/product/stock.phtml
+ *  to insert amNotificationProductViewComponent for a configurable product on PDP
+ *
+ *  .amxnotif-block-wrapper selector is added as a wrapper for DOM elements
+ *
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\ProductAlert;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Amasty\OutofstockHyvaCompatibility\ViewModel\Catalog\OutofstockData;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var ProductAlert $productAlertViewModel */
+$productAlertViewModel = $viewModels->require(ProductAlert::class);
+/** @var CurrentProduct $currentProduct */
+$currentProduct = $viewModels->require(CurrentProduct::class);
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+/** @var Product $product */
+$product = $currentProduct->get();
+/** @var OutofstockData $outofstockViewModel */
+$outofstockViewModel = $viewModels->require(OutofstockData::class);
+$isAlertBlockHidden = $product->getData('amxnotif_hide_alert');
+
+if (!$product->getId()) {
+    return;
+}
+
+$productIsInStock = $product->getIsSalable();
+$productTypeConfigurable = $product->getTypeId() === Configurable::TYPE_CODE;
+$signupLabel = __("Notify me when this product is in stock");
+$type = 'stock';
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<?php if ($outofstockViewModel->isAllowAlertStock() && !$productTypeConfigurable): ?>
+    <?php if ($outofstockViewModel->isCustomerLoggedIn()
+        && !$isAlertBlockHidden
+        && $outofstockViewModel->isAllowedForCurrentCustomerGroup(OutofstockData::STOCK_ALERT_BLOCK)
+        && !$productIsInStock
+    ): ?>
+        <div class="amxnotif-block-wrapper w-full">
+            <div x-data="{
+                ...amNotificationProductViewComponent_<?= $escaper->escapeHtmlAttr($product->getId()) ?>(),
+                ...amXnotifSubscribeComponent_<?= $escaper->escapeHtmlAttr($product->getId()) ?>(),
+                isLoggedIn: <?= /** @noEscape */ $outofstockViewModel->isCustomerLoggedIn() ? 'true' : 'false' ?>
+                }"
+                <!-- overriden part starts here -->
+                <div <?php if ($productTypeConfigurable): ?>
+                    x-on:configurable-selection-changed.window="getSimpleProduct($event.detail)"
+                    x-show="!isAvailable"
+                <?php endif; ?>
+                        class="product alert stock amxnotif-form-stock">
+                    <?= /** @noEscape */
+                    $block->fetchView($block->getTemplateFile('Hyva_Theme::ui/loading.phtml')) ?>
+                    <div class="amxnotif_guest_action">
+                        <button type="button"
+                                @click.prevent="fetchSubscribe('<?= $escaper->escapeHtml($type); ?>', productIndex)"
+                                title="<?= $escaper->escapeHtml($signupLabel) ?>"
+                                class="action alert subscribe-button active:opacity-70 disabled:opacity-50"
+                                :disabled="buttonDisabled">
+                            <span class="text-orange-400"><?= $heroicons->bellHtml('w-6 h-6 inline') ?></span>
+                            <span class="text-sm font-bold underline"><?= $escaper->escapeHtml($signupLabel) ?></span>
+                        </button>
+                    </div>
+                </div>
+                <!-- overriden part ends here -->
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!-- 
+ * @category Murergrej
+ * @package  Murergrej_Category
+ * @author   Ahmed Elbltagy <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+-->
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget_definition.xsd">
+    <widget class="Murergrej\Category\Block\Widget\CategoryWidget" id="murergrej_Category_category_widget">
+        <label>Category_images</label>
+        <description>Displays a custom category block with a title.</description>
+        <parameters>
+            <parameter name="widget_title" sort_order="10" visible="true" xsi:type="text">
+                <label>Widget Title</label>
+                <description>Enter the title for the widget.</description>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

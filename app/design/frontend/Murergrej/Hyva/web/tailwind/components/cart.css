@@ -1,0 +1,146 @@
+.cart {
+    .action {
+        &.action-edit {
+            @apply hidden;
+        }
+    }
+
+    .item {
+        .product-image-photo {
+            @apply max-h-[88px] sm:max-h-[160px] w-auto;
+        }
+    }
+
+    .cataloglabel {
+        @apply hidden;
+    }
+}
+
+.checkout-cart-index {
+    .cart-item-price {
+        .price {
+            @apply text-sm;
+        }
+    }
+
+    .cart-item-price.exclude-tax-price {
+        .price {
+            @apply text-base;
+        }
+    }
+
+    .included-tax-price {
+        .price {
+            @apply text-base;
+        }
+    }
+
+    .included-tax-price.text-red-discount {
+        .price {
+            @apply text-red;
+        }
+    }
+
+    .exclude-tax-price {
+        .price {
+            @apply text-base;
+        }
+    }
+
+    .exclude-tax-price.text-red-discount {
+        .price {
+            @apply text-red;
+        }
+    }
+
+    .cart-item-price-regular {
+        .price {
+            @apply text-sm line-through text-secondary;
+        }
+    }
+
+    .cart-item-price-special {
+        .exclude-tax-price.cart-item-price {
+            .price {
+                @apply text-red text-base;
+            }
+        }
+
+        .included-tax-price.cart-item-price {
+            .price {
+                @apply text-red text-base;
+            }
+        }
+
+        .old-price {
+            .price {
+                @apply text-secondary;
+            }
+        }
+    }
+}
+
+#cart-drawer {
+    .included-tax-price {
+        .minicart-price {
+            .price {
+                @apply text-base font-extrabold;
+            }
+        }
+    }
+
+    .price-including-tax {
+        .price {
+            @apply text-base font-extrabold;
+        }
+    }
+
+    .minicart-item-container::-webkit-scrollbar-track {
+        @apply my-4 mr-2;
+    }
+
+    .minicart-coupon-form {
+        @apply border-y-8 border-secondary-lighter;
+
+        .coupon-form {
+            @apply bg-white;
+        }
+    }
+}
+
+.cart-summary {
+    .fieldset.coupon {
+        @apply bg-secondary-lighter;
+    }
+}
+
+.cart-discount {
+    @apply w-full;
+
+    .fieldset.coupon {
+        @apply bg-secondary-lighter;
+    }
+}
+
+.with-before-visible::before {
+    @apply [content:''] absolute w-full h-full bg-black opacity-40 bottom-0;
+}
+
+.product-cart-quantity {
+    > div {
+        @apply border-primary;
+        grid-template-columns: 1fr 24px;
+
+        input:focus {
+            @apply outline-none shadow-none border-transparent;
+        }
+
+        button {
+            @apply m-0.5 w-fit hover:bg-primary-lighter;
+        }
+    }
+}
+
+.towishlist svg {
+    @apply fill-primary;
+}

@@ -1,0 +1,80 @@
+<?php
+/**
+ * @category    Scandiweb
+ * @author      Amr osama <amr.osama@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+use Scandiweb\MenuOrganizer\ViewModel\FooterMenuManager;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroIcons */
+
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var FooterMenuManager $footerMenuManager */
+$footerMenuManager = $viewModels->require(FooterMenuManager::class);
+$menuItems = $footerMenuManager->getMenu();
+$columnsMenus = [];
+for ($i = 1; $i < 5; $i++) {
+    try {
+        $columnsMenus[$i] = $menuItems[$i - 1];
+    } catch (\Exception $e) {
+        $columnsMenus[$i] = null;
+    }
+}
+?>
+<div class="text-gray-600 text-base leading-6 bg-gray-50 relative">
+    <div class="bg-gray-100 py-8 border-b border-gray-300">
+        <div class="container mx-auto px-7 divide-gray-200 divide-y space-y-4
+                    lg:flex lg:divide-none lg:justify-between lg:space-y-0">
+
+            <?php
+            foreach ($columnsMenus as $column): ?>
+                <?php
+                if (!$column) {
+                    continue;
+                } ?>
+                <div x-data="{ open: false }" class="pt-4 lg:p-0">
+
+                    <a @click="open = ! open"
+                       class="flex justify-between align-middle cursor-pointer group lg:cursor-default"
+                    >
+                        <h4 class="uppercase font-bold text-gray-700 group-hover:underline lg:group-hover:no-underline">
+                            <?= $escaper->escapeHtml($column['menu']['title']) ?>
+                        </h4>
+                        <span class="transition-transform" :class="{ 'rotate-180': open }">
+                            <?= $heroIcons->chevronDownHtml('text-gray-500 stroke-current lg:hidden') ?>
+                        </span>
+                    </a>
+                    <ul class="flex-col gap-4 mt-4 mb-6 lg:flex" :class="{ 'flex': open, 'hidden': ! open }">
+                        <?php
+                        foreach ($column['items'] as $item): ?>
+                            <li>
+                                <a
+                                        href="<?= $escaper->escapeUrl($item['url']) ?>"
+                                        class="hover:underline"
+                                >
+                                    <?= $escaper->escapeHtml($item['title']) ?>
+                                </a>
+                            </li>
+                        <?php
+                        endforeach; ?>
+                    </ul>
+                </div>
+            <?php
+            endforeach; ?>
+
+        </div>
+    </div>
+
+</div>

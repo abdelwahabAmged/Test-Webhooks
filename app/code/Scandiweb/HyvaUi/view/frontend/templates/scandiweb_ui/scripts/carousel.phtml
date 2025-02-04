@@ -1,0 +1,333 @@
+<?php
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$gliderUrl = $block->getViewFileUrl('Magento_PageBuilder::js/glider.min.js');
+?>
+<script>
+    'use strict';
+
+    const gliderAutoplay = (glider, milliseconds, loop) => {
+        const pagesCount = glider.track.childElementCount;
+        let slideTimeout = null;
+        let nextIndex = glider.opt.slidesToScroll;
+        let paused = false;
+
+        const slide = () => {
+            slideTimeout = setTimeout(
+                () => {
+                    if (loop && nextIndex >= pagesCount) {
+                        nextIndex = 0;
+                    }
+                    glider.scrollItem(nextIndex);
+                },
+                parseInt(milliseconds)
+            );
+        };
+
+        glider.ele.addEventListener('glider-animated', () => {
+            nextIndex = glider.slide + glider.opt.slidesToScroll;
+            window.clearInterval(slideTimeout);
+            if (!paused && (loop || nextIndex < pagesCount)) {
+                slide();
+            }
+        });
+
+        const pause = () => {
+            if (!paused) {
+                clearInterval(slideTimeout);
+                paused = true;
+            }
+        };
+
+        const unpause = () => {
+            if (paused) {
+                slide();
+                paused = false;
+            }
+        };
+
+        glider.ele.parentElement.addEventListener('mouseover', pause, { passive: true });
+        glider.ele.parentElement.addEventListener('touchstart', pause, { passive: true });
+        glider.ele.parentElement.addEventListener('mouseout', unpause, { passive: true });
+        glider.ele.parentElement.addEventListener('touchend', unpause, { passive: true });
+
+        slide();
+    };
+
+    function addGliderJSScript(onLoadFunction) {
+        const scriptSrc = '<?= $escaper->escapeJs($escaper->escapeUrl($gliderUrl)) ?>';
+        const currentScript = document.querySelector(`script[src="${scriptSrc}"]`);
+        let script = null;
+
+        if (currentScript) {
+            script = currentScript;
+        } else {
+            script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = scriptSrc;
+            script.defer = true;
+        }
+
+        script.addEventListener('load', onLoadFunction);
+
+        if (!currentScript) {
+            document.head.appendChild(script);
+        }
+    }
+
+    function initCarousel(carousel, options = {}) {
+        if (!carousel) {
+            return;
+        }
+
+        if (!window.Glider) {
+            function handleScriptLoad() {
+                initCarousel.call(this, carousel, options)
+            }
+
+            addGliderJSScript(handleScriptLoad);
+
+            return;
+        }
+
+        const {
+            itemWidth: itemWidthOption,
+            inlineSpace: inlineSpaceOption = {},
+            ...otherOptions
+        } = options;
+
+        const existingGliderContent = carousel.querySelector('[data-role="glider-content"]');
+
+        if (!existingGliderContent) {
+            carousel.innerHTML = `<div data-role="glider-content">${carousel.innerHTML}</div>`;
+        }
+
+        carousel.classList.add('glider-contain', 'isCarousel');
+
+        const gliderElement = existingGliderContent || carousel.querySelector('[data-role="glider-content"]');
+
+        if (!gliderElement) {
+            return;
+        }
+
+        const inlineSpace = {
+            mobile: 16,
+            desktop: 20,
+            ...inlineSpaceOption
+        };
+
+        const inlineSpaceMobile = getDataByDevice(inlineSpace, 'mobile');
+        const inlineSpaceDesktop = getDataByDevice(inlineSpace, 'desktop');
+
+        let itemWidthMobile = 288 + inlineSpaceMobile;
+        let itemWidthDesktop = 319 + inlineSpaceDesktop;;
+
+        if (itemWidthOption) {
+            itemWidthMobile = getDataByDevice(itemWidthOption, 'mobile') + inlineSpaceMobile;
+            itemWidthDesktop = getDataByDevice(itemWidthOption, 'desktop') + inlineSpaceDesktop;
+        }
+
+        const gliderDots = carousel.querySelector('.glider-dots');
+        const gliderPrev = carousel.querySelector('.glider-prev');
+        const gliderNext = carousel.querySelector('.glider-next');
+
+        const glider = new Glider(gliderElement, {
+            slidesToShow: 'auto',
+            slidesToScroll: 'auto',
+            draggable: true,
+            dragVelocity: 2.5,
+            exactWidth: true,
+            itemWidth: itemWidthMobile,
+            responsive: [
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        itemWidth: itemWidthDesktop
+                    }
+                },
+                ...(options.responsive ? options.responsive : [{}])
+            ],
+            ...(gliderDots ? { dots: gliderDots } : {}),
+            arrows: {
+                ...(gliderPrev ? { prev: gliderPrev } : {}),
+                ...(gliderNext ? { next: gliderNext } : {}),
+            },
+            ...otherOptions
+        });
+
+        carousel.classList.remove('overflow-auto', 'overflow-x-scroll', 'bottom-scrollbar');
+
+        if (carousel.dataset.autoplay && carousel.dataset.autoplay !== 'false') {
+            gliderAutoplay(
+                glider,
+                carousel.dataset.autoplaySpeed,
+                carousel.dataset.infiniteLoop
+            );
+        }
+
+        return glider;
+    };
+
+    const initProductCarousel = (carousel, options = {}) => {
+        if (!carousel) {
+            return;
+        }
+
+        const glider = initCarousel(carousel, options);
+
+        window.addEventListener('page-builder-tab-activate', event => {
+            const tab = event.detail.tab;
+            if (tab && tab.contains(gliderElement)) {
+                event.detail.nextTick.then(() => {
+                    requestAnimationFrame(() => glider.refresh(true))
+                });
+            }
+        });
+
+        return glider;
+    };
+
+    const initSlider = (slider, options = {}) => {
+        if (!slider) {
+            return;
+        }
+
+        if (!window.Glider) {
+            function handleScriptLoad() {
+                initSlider.call(this, slider, options);
+            }
+
+            addGliderJSScript(handleScriptLoad);
+
+            return;
+        }
+
+        const {
+            sliderNavHTML = '<?= $escaper->escapeJs($block->getBlockHtml('pagebuilder.carousel.nav')) ?>'
+        } = options;
+        const existingGliderContent = slider.querySelector('[data-role="glider-content"]');
+
+        if (!existingGliderContent) {
+            slider.innerHTML = `<div data-role="glider-content">${slider.innerHTML}</div>`;
+            slider.classList.add('glider-contain');
+        }
+
+        slider.insertAdjacentHTML(
+            'beforeend',
+            sliderNavHTML
+        );
+
+        const gliderElement = existingGliderContent || slider.querySelector('[data-role="glider-content"]');
+        const gliderDots = slider.querySelector('.glider-dots');
+        const gliderPrev = slider.querySelector('.glider-prev');
+        const gliderNext = slider.querySelector('.glider-next');
+
+        const glider = new Glider(gliderElement, {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            scrollLock: true,
+            scrollLockDelay: 250,
+            draggable: true,
+            dragVelocity: 2.5,
+            dots: gliderDots,
+            arrows: {
+                prev: gliderPrev,
+                next: gliderNext,
+            }
+        });
+
+        slider.classList.add('glider-initialized');
+
+        if (slider.dataset.showArrows === 'true') {
+            gliderPrev.classList.remove('hidden');
+            gliderNext.classList.remove('hidden');
+        }
+
+        if (slider.dataset.autoplay && slider.dataset.autoplay !== 'false') {
+            gliderAutoplay(
+                glider,
+                slider.dataset.autoplaySpeed,
+                slider.dataset.infiniteLoop
+            );
+        }
+        document.querySelectorAll('[data-content-type="slide"]').forEach(element => {
+            applyShowOnHover(element);
+        });
+    };
+
+    const applyShowOnHover = (element) => {
+        const showOverlayOnHover = (element) => {
+            const overlay = element.querySelector('.pagebuilder-overlay');
+            const color = overlay.dataset.overlayColor;
+
+            element.addEventListener("mouseover", () => {
+                overlay.style.backgroundColor = color;
+            });
+            element.addEventListener('mouseout', () => {
+                overlay.style.backgroundColor = 'transparent';
+            });
+        };
+
+        const showButtonOnHover = (element) => {
+            const button = element.querySelector('.pagebuilder-banner-button');
+
+            element.addEventListener('mouseover', () => {
+                button.style.opacity = '1';
+                button.style.visibility = 'visible';
+            });
+            element.addEventListener('mouseout', () => {
+                button.style.opacity = '0';
+                button.style.visibility = 'hidden';
+            });
+        };
+
+        if (element.dataset.showOverlay === 'hover') {
+            showOverlayOnHover(element);
+        }
+        if (element.dataset.showButton === 'hover') {
+            showButtonOnHover(element);
+        }
+    };
+
+
+    // Temporarily disabled to avoid infinite loading:
+    // (() => {
+    //     const initCarousels = (elements) => {
+    //         if (!Glider) {
+    //             return;
+    //         }
+
+    //         elements.forEach(element => {
+    //             if (element.dataset.contentType === 'products') {
+    //                 initProductCarousel(element, {arrows: null, dots:null});
+    //             }
+    //         });
+    //     };
+
+    //     window.addEventListener('DOMContentLoaded', () => {
+    //         const carouselElements = document.querySelectorAll(
+    //             `[data-content-type="products"][data-appearance="carousel"]`
+    //         );
+
+    //         if (carouselElements.length > 0) {
+    //             function handleScriptLoad() {
+    //                 initCarousels(carouselElements);
+    //             }
+
+    //             addGliderJSScript(handleScriptLoad);
+    //         }
+    //     });
+    // })();
+</script>

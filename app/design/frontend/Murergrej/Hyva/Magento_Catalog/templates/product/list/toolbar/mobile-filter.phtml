@@ -1,0 +1,17 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Magento_Catalog
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+declare(strict_types=1);
+
+use Magento\Catalog\Block\Product\ProductList\Toolbar;
+
+/** @var Toolbar $block */
+
+?>
+<div x-data="{ activeFiltersOpen: true }">
+    <?= $block->getLayout()->getBlock('category.filters')->toHtml(); ?>
+</div>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route method="POST" url="/V1/murergrej-checkoutrest">
+        <service class="Murergrej\CheckoutRest\Api\CheckoutManagementInterface" method="getCheckoutData"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route method="POST" url="/V1/murergrej-guestidrest">
+        <service class="Murergrej\CheckoutRest\Api\GuestIdManagementInterface" method="getGuestId"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+</routes>

@@ -1,0 +1,21 @@
+<?php
+ /**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+?>
+<template x-if="segment.code === 'subtotal'">
+    <div
+      class="subtotal bg-cream flex bg-cream pt-3 px-4 pb-1 text-sm border-container
+      lg:pt-4 lg:px-6 lg:grid lg:grid-cols-2 lg:w-full"
+    >
+        <div class="w-7/12 text-left lg:w-auto"
+             x-html="segment.title"
+        ></div>
+        <div class="w-5/12 text-right font-extrabold lg:w-auto"
+             x-text="hyva.formatPrice(segment.value)"
+        ></div>
+    </div>
+</template>

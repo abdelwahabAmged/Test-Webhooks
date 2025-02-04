@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @package     Scandiweb_HyvaUi
+ * @author      Aleksejs Prjahins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2023 Scandiweb, Inc (http://scandiweb.com)
+ * @license     http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="AppearanceSourceSW" type="Magento\PageBuilder\Model\Source\VisualSelect">
+        <arguments>
+            <argument name="optionsSize" xsi:type="string">large</argument>
+            <argument name="optionsData" xsi:type="array">
+                <item name="0" xsi:type="array">
+                    <item name="value" xsi:type="string">default</item>
+                    <item name="title" xsi:type="string" translate="true">Default</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AppearanceSourceSWBanner" type="Magento\PageBuilder\Model\Source\VisualSelect">
+        <arguments>
+            <argument name="optionsSize" xsi:type="string">large</argument>
+            <argument name="optionsData" xsi:type="array">
+                <item name="0" xsi:type="array">
+                    <item name="value" xsi:type="string">banner_a</item>
+                    <item name="title" xsi:type="string" translate="true">Banner A</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/banner/appearance/A-single.jpg</item>
+                </item>
+                <item name="1" xsi:type="array">
+                    <item name="value" xsi:type="string">banner_b</item>
+                    <item name="title" xsi:type="string" translate="true">Banner B</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/banner/appearance/B-split.jpg</item>
+                </item>
+                <item name="2" xsi:type="array">
+                    <item name="value" xsi:type="string">banner_c</item>
+                    <item name="title" xsi:type="string" translate="true">Banner C</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/banner/appearance/C-grid-2.jpg</item>
+                </item>
+                <item name="3" xsi:type="array">
+                    <item name="value" xsi:type="string">banner_d</item>
+                    <item name="title" xsi:type="string" translate="true">Banner D</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/banner/appearance/D-grid-4-desktop.jpg</item>
+                </item>
+                <item name="4" xsi:type="array">
+                    <item name="value" xsi:type="string">banner_e</item>
+                    <item name="title" xsi:type="string" translate="true">Banner E</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/banner/appearance/E-grid-10-desktop.jpg</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AppearanceSourceSWUsp" type="Magento\PageBuilder\Model\Source\VisualSelect">
+        <arguments>
+            <argument name="optionsSize" xsi:type="string">large</argument>
+            <argument name="optionsData" xsi:type="array">
+                <item name="0" xsi:type="array">
+                    <item name="value" xsi:type="string">usp_a</item>
+                    <item name="title" xsi:type="string" translate="true">Usp A</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/scandiweb-usp/appearance/A.png</item>
+                </item>
+                <item name="1" xsi:type="array">
+                    <item name="value" xsi:type="string">usp_b</item>
+                    <item name="title" xsi:type="string" translate="true">Usp B</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/scandiweb-usp/appearance/B.png</item>
+                </item>
+                <item name="2" xsi:type="array">
+                    <item name="value" xsi:type="string">usp_c</item>
+                    <item name="title" xsi:type="string" translate="true">Usp C</item>
+                    <item name="icon" xsi:type="string">Scandiweb_HyvaUi::css/images/content-type/scandiweb-usp/appearance/C.png</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+     <virtualType name="AppearanceSourceSWPromoBanner" type="Magento\PageBuilder\Model\Source\VisualSelect">
+        <arguments>
+            <argument name="optionsSize" xsi:type="string">large</argument>
+            <argument name="optionsData" xsi:type="array">
+                <item name="0" xsi:type="array">
+                    <item name="value" xsi:type="string">poster_left</item>
+                    <item name="title" xsi:type="string" translate="true">Poster Left</item>
+                    <item name="icon" xsi:type="string">Magento_PageBuilder::css/images/content-type/banner/appearance/collage-left.svg</item>
+                </item>
+                <item name="1" xsi:type="array">
+                    <item name="value" xsi:type="string">poster_center</item>
+                    <item name="title" xsi:type="string" translate="true">Poster Center</item>
+                    <item name="icon" xsi:type="string">Magento_PageBuilder::css/images/content-type/banner/appearance/collage-center.svg</item>
+                </item>
+                <item name="2" xsi:type="array">
+                    <item name="value" xsi:type="string">poster_right</item>
+                    <item name="title" xsi:type="string" translate="true">Poster Right</item>
+                    <item name="icon" xsi:type="string">Magento_PageBuilder::css/images/content-type/banner/appearance/collage-right.svg</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!--
+        At pasting time, current project hyva-themes/magento2-theme-module version: ">=1.3.2".
+        Pasted from "vendor/hyva-themes/magento2-theme-module/src/etc/frontend/di.xml" file.
+        Pasted to use the code on adminhtml area
+        to solve "TypeError: Cannot access offset of type string on string" message about website_id issue
+        on "vendor/magento/module-eav/Model/Entity/Collection/AbstractCollection.php" file on line 373 with below code:
+
+        ```
+                $sqlArr[] = $this->_getAttributeConditionSql($condition['attribute'], $condition, $joinType);
+        ```
+
+        and with below condition:
+
+        - $condition: "website_id"
+
+        after executing code on "vendor/magento/framework/Api/SearchCriteria/CollectionProcessor/FilterProcessor.php" file.
+        Thus, can render product list widget on page builder.
+    -->
+    <type name="Hyva\Theme\ViewModel\ProductList">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">Magento\Catalog\Model\Api\SearchCriteria\ProductCollectionProcessor</argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="murergej-import-restore-orders" xsi:type="object">Murergrej\Import\Console\Command\RestoreOrdersCommand</item>
+                <item name="murergrej-import-fix-customer-addresses" xsi:type="object">Murergrej\Import\Console\Command\FixCustomerAddressesCommand</item>
+                <item name="murergrej-import-fix-product-image-duplicates" xsi:type="object">Murergrej\Import\Console\Command\FixProductImageDuplicatesCommand</item>
+                <item name="murergrej-import-catalog-product-images" xsi:type="object">Murergrej\Import\Console\Command\UpdateProductImagesCommand</item>
+                <item name="murergrej-import-catalog-product-generate-image-redirects" xsi:type="object">Murergrej\Import\Console\Command\GenerateImageRedirectsConfigCommand</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

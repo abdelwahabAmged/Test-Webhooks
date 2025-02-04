@@ -1,0 +1,61 @@
+.account-nav ul li a, .account-nav ul li strong {
+    @apply flex justify-between text-secondary py-1
+}
+
+.account-nav ul li a:hover {
+    @apply text-black
+}
+
+.account-nav ul li strong {
+    @apply underline text-black font-normal
+}
+
+.actions-toolbar {
+    @apply mt-6 border-t border-container-darker pt-4 flex justify-between flex-row-reverse items-center
+}
+
+@layer components {
+    .actions-toolbar .primary button {
+        @apply btn btn-primary;
+    }
+}
+
+.actions-toolbar a.back {
+    @apply text-secondary-darker underline
+}
+
+.auth-btn {
+    @apply w-full flex justify-center items-center px-8 text-base leading-4;
+}
+
+.auth-btn-primary {
+    @apply btn btn-primary auth-btn py-5 mb-3;
+}
+
+.auth-btn-secondary {
+    @apply btn btn-secondary auth-btn py-4.5;
+}
+
+.login-container, .registration-container {
+    .actions-toolbar {
+        @apply flex-col items-end border-none mt-4 pt-0;
+    }
+
+    .field {
+        @apply w-full mt-4;
+    }
+
+    .form-input {
+        @apply w-full p-4;
+    }
+
+    .checkbox {
+        @apply w-6 h-6 rounded
+    }
+}
+
+.registration-container {
+    .redirect-login {
+        @apply p-0 md:px-8 md:py-4.5 text-base leading-4;
+    }
+}

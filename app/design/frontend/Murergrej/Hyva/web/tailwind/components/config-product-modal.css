@@ -1,0 +1,66 @@
+.config-product-modal {
+    &-background {
+        background-color: rgba(29, 31, 34, 0.4) !important;  /* #1D1F22 Opacity 40% */
+    }
+
+    .including-tax {
+        .price {
+            @apply text-xl;
+        }
+
+        .old-price {
+            .price {
+                @apply text-base;
+            }
+        }
+    }
+
+    .old-price-excl-tax {
+        .excluding-tax {
+            .price {
+                @apply text-base;
+            }
+        }
+
+        .regular-price {
+            .price {
+                @apply text-xs;
+            }
+        }
+    }
+
+    .final-price-excl-tax {
+        .price {
+            @apply text-xl;
+        }
+
+        .regular-price {
+            .price {
+                @apply text-base;
+            }
+        }
+    }
+
+    .regular-price {
+        .price {
+            @apply text-base;
+        }
+
+        .old-price {
+            .price {
+                @apply text-xs;
+            }
+        }
+
+    }
+
+    .product-qty-buttons {
+        .up {
+            @apply pt-0 pb-0.5;
+        }
+
+        .down {
+            @apply pt-0.5 pb-0;
+        }
+    }
+}

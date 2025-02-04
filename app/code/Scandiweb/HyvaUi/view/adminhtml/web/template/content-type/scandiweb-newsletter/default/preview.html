@@ -1,0 +1,36 @@
+<div attr="data.main.attributes"
+     css="data.main.css"
+     ko-style="data.main.style"
+     event="{ mouseover: onMouseOver, mouseout: onMouseOut }, mouseoverBubble: false">
+    <div class="scandiweb-newsletter-container">
+        <h2 class="scandiweb-newsletter-title" 
+            attr="data.title.attributes"
+            css="data.title.css"
+            data-bind="text: data.title.html"
+            ko-style="data.title.style">
+        </h2>
+        <p  class="scandiweb-newsletter-subtitle"
+            attr="data.subtitle.attributes"
+            css="data.subtitle.css"
+            data-bind="text: data.subtitle.html"
+            ko-style="data.subtitle.style">
+        </p>
+        <div class="scandiweb-newsletter-content-container">
+            <input
+                name="email"
+                type="email"
+                required
+                class="scandiweb-newsletter-input"
+                placeholder="Enter your email address" />
+
+            <button class="btn btn-primary w-2/5"
+                    attr="data.button.attributes"
+                    css="data.button.css"
+                    data-bind="text: data.button.html"
+                    ko-style="data.button.style">
+            </button>
+        </div>
+    </div>
+
+    <render args="getOptions().template"/>
+</div>

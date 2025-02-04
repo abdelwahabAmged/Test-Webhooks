@@ -1,0 +1,100 @@
+ <?php
+ /**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+ use Hyva\Theme\Model\ViewModelRegistry;
+ use Hyva\Theme\ViewModel\SvgIcons;
+
+ /** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+?>
+<template x-if="segment.code === 'grand_total'">
+    <div
+      id="expandable_order_total"
+      class="flex bg-cream max-lg:border-t max-lg:border-primary py-3 lg:px-6 px-4 lg:mt-0.5 mx-auto text-2xl
+       lg:grid lg:grid-cols-2 lg:w-full"
+    >
+        <p class="w-7/12 text-base font-normal text-left lg:w-auto"><?= /* @noEscape */  __('Order total') ?></p>
+        <div class="w-5/12 text-base pr-1 font-extrabold text-right lg:w-auto lg:pr-0"
+             x-text="hyva.formatPrice(segment.value)">
+        </div>
+        <button
+          id="toggleButton_cart1"
+          class="block pl-2 lg:pl-0 lg:hidden border-s-2 ml-1"
+          @click="toggleSubtotal(1)"
+        >
+            <?= $hyvaicons->renderHtml('arrow_expand', 'rotate-180', 24, height: 24) ?>
+        </button>
+    </div>
+</template>
+<script>
+// Function to toggle the visibility of all subtotal elements
+function toggleSubtotal(buttonId) {
+    const title_order_cartElements = document.querySelectorAll('.title_order_summary');
+    const expandableOrderTotal = document.getElementById('expandable_order_total');
+    const elementsToToggle = [
+        ...document.querySelectorAll('.cart-totals .subtotal'),
+        ...document.querySelectorAll('.tax_cart'),
+        ...document.querySelectorAll('.title_order_summary'),
+        ...document.querySelectorAll('.cart-totals .pallets')
+    ];
+
+    elementsToToggle.forEach(element => {
+        const currentVisibility = window.getComputedStyle(element).visibility;
+
+        element.style.visibility = currentVisibility === 'hidden' ? 'visible' : 'hidden';
+        element.style.height = currentVisibility === 'hidden' ? 'auto' : '0';
+    });
+
+    // Hide the clicked button and show the other button
+    const button1 = document.getElementById('toggleButton_cart1');
+    const button2 = document.getElementById('toggleButton_cart2');
+    const div = document.getElementById('targetDiv');
+
+    if (buttonId === 1) {
+        button1.style.display = 'none';
+        button2.style.display = 'block';
+        div.classList.add('with-before-visible');
+        title_order_cartElements[0].style.borderTop = '1px solid #E3E3E3';
+        expandableOrderTotal.style.borderTop = 'none';
+    } else {
+        button1.style.display = 'block';
+        button2.style.display = 'none';
+        div.classList.remove('with-before-visible');
+        title_order_cartElements[0].style.borderTop = 'none';
+        expandableOrderTotal.style.borderTop = '1px solid #E3E3E3';
+    }
+}
+// Attach the function to the button click event
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.innerWidth <= 1096) {
+        // Get the elements to hide initially for mobile devices
+        const subtotalElements = document.querySelectorAll('.cart-totals .subtotal');
+        const tax_cartElements = document.querySelectorAll('.tax_cart');
+        const title_order_cartElements = document.querySelectorAll('.title_order_summary');
+        const palletsElement = document.querySelectorAll('.cart-totals .pallets');
+        // Combine all elements
+        const allElements = [...subtotalElements, ...tax_cartElements, ...title_order_cartElements, ...palletsElement];
+        // Initially hide all the elements only on mobile
+        allElements.forEach(element => {
+            element.style.visibility = 'hidden';
+            element.style.height = '0';
+        });
+    }
+
+    const toggleButton = document.getElementById('toggleButton');
+
+    if (toggleButton) {
+        // First, remove the event listener if it's already there
+        toggleButton.removeEventListener('click', toggleSubtotal);
+        // Then, attach it again
+        toggleButton.addEventListener('click', toggleSubtotal);
+    }
+});
+</script>

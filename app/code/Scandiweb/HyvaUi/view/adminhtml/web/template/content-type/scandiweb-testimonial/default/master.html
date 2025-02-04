@@ -1,0 +1,57 @@
+<!--
+/**
+ * Scandiweb_HyvaUi
+ *
+ * @category Scandiweb
+ * @package  Scandiweb_HyvaUi
+ * @author   Amr Osama <amr.osama@scandiweb.com>
+ */
+-->
+
+<div attr="data.main.attributes" ko-style="data.main.style" css="data.main.css">
+    <div data-is-page-builder-ignored-element="true">
+        <h3
+            if="data.title.html()"
+            attr="data.title.attributes"
+            html="data.title.html"
+            hidden
+        ></h3>
+        <img
+            ko-style="data.author_image.style"
+            css="data.author_image.css"
+            attr="data.author_image.attributes"
+            hidden
+        />
+        <div
+            attr="data.author_content.attributes"
+            ko-style="data.author_content.style"
+            css="data.author_content.css"
+            data-bind="text: data.author_content.html"
+            hidden
+        ></div>
+        <div
+            ko-style="data.testimonial_content_background_color.style"
+            attr="data.testimonial_content_background_color.attributes"
+            hidden
+        >
+            <div
+                attr="data.author.attributes"
+                ko-style="data.author.style"
+                css="data.author.css"
+                data-bind="text: data.author.html"
+                hidden
+            ></div>
+            <div
+                attr="data.company.attributes"
+                ko-style="data.company.style"
+                css="data.company.css"
+                data-bind="text: data.company.html"
+                hidden
+            ></div>
+        </div>
+    </div>
+    <div
+        attr="data.block_directive.attributes"
+        html="data.block_directive.html"
+    ></div>
+</div>

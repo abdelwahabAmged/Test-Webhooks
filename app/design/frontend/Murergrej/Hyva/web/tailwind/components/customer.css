@@ -1,0 +1,239 @@
+.customer-account-login {
+    #maincontent {
+        @apply px-0;
+
+        div:has(h1) {
+            @apply ml-0;
+        }
+
+        h1 {
+            @apply text-2xl text-left font-extrabold mx-4;
+        }
+
+        #customer-login-container {
+            @apply bg-white p-4 grid gap-4 grid-cols-1;
+
+            li {
+                &::before {
+                    @apply content-['-'] mr-2;
+                }
+            }
+        }
+    }
+}
+
+.customer-account-create {
+    #maincontent {
+        @apply px-0;
+
+        div:has(h1) {
+            @apply ml-0;
+        }
+
+        h1 {
+            @apply text-2xl text-left font-extrabold mx-4;
+        }
+
+        .registration-container {
+            @apply mx-0 bg-white max-w-none;
+
+            .form-create-account {
+                @apply p-4;
+
+                .form-input {
+                    @apply w-full;
+                }
+
+                .field-reserved {
+                    @apply mb-0;
+                }
+
+                ul.messages {
+                    @apply !mb-0 !pb-0;
+                }
+            }
+        }
+    }
+}
+
+@screen md {
+    .customer-account-login {
+        #maincontent {
+            @apply px-10;
+
+            h1 {
+                @apply text-[32px] leading-10 mx-0;
+            }
+
+            #customer-login-container {
+                @apply px-10 py-6 grid-cols-2 gap-x-6;
+            }
+        }
+    }
+
+    .customer-account-create {
+        #maincontent {
+            @apply px-10;
+
+            h1 {
+                @apply text-[32px] leading-10 mx-0;
+            }
+
+            .registration-container {
+               .form-create-account {
+                    @apply px-10 py-6;
+               }
+            }
+        }
+    }
+}
+
+.account {
+    #maincontent {
+        @apply mx-4;
+
+        div:has(h1) {
+            @apply ml-0;
+        }
+
+        h1 {
+            @apply text-left;
+        }
+
+        .toolbar {
+            .control {
+                @apply w-24;
+            }
+        }
+
+        .columns {
+            .sidebar-main {
+               @apply !order-1;
+            }
+
+            .column {
+                @apply mb-5;
+            }
+        }
+
+        .product-item {
+            .product-item-name {
+                @apply h-24;
+            }
+            
+            .product-item-info {
+                @apply py-4;
+
+                &:has(.product-item-photo) {
+                    @apply px-0;
+                }
+                
+                > *:not(.product-item-photo) {
+                        @apply px-4;
+                }
+            }
+            
+            .product-image-photo {
+                @apply object-contain;
+            }
+
+            .product-item-inner {
+                @apply flex flex-col grow;
+
+                .product-item-actions {
+                    @apply flex grow items-end;
+                }
+            }
+            
+            .cataloglabel,
+            .cataloglabel-bottom-placeholder {
+                @apply !w-full;
+            }
+            
+            .product-item-name {
+                @apply text-left;
+            }
+        }
+
+        .account-nav {
+            li {
+                &.current {
+                    strong {
+                        @apply text-blue font-bold;
+                    }
+                }
+
+                a {
+                    @apply text-primary font-normal no-underline;
+
+                    &:hover {
+                        @apply text-blue underline font-bold;
+                    }
+                }
+            }
+        }
+
+        .actions-toolbar {
+            @apply !border-0;
+        }
+
+        .form-input {
+            @apply w-full;
+        }
+
+        .field-reserved {
+            @apply !mb-0;
+        }
+
+        .form-wishlist-items {
+            .actions-toolbar {
+                @apply !grid grid-cols-1 items-stretch;
+                
+                > :only-child {
+                    @apply w-fit;
+                }
+                
+                > :not(:only-child) {
+                    @apply w-full;
+                }
+            }
+        }
+    }
+}
+
+@screen md {
+    .form-wishlist-items {
+            .actions-toolbar {
+                @apply !grid-cols-2;
+            }
+        }
+}
+
+@screen lg {
+    .account {
+        #maincontent {
+            @apply mx-10;
+        }
+
+        .my-subscriptions-table {
+            th,
+            td {
+                display: initial !important;
+            }
+        }
+    }
+}
+
+.customer-account-forgotpassword {
+    #maincontent {
+        @apply px-0 md:px-10;
+     }
+
+     h1 {
+        @apply text-2xl text-left font-extrabold mx-4 md:text-[32px] md:leading-10 md:mx-0;
+     }
+
+      #user_forgotpassword {
+            @apply bg-white p-4 grid gap-y-4 md:px-10 md:py-6 md:gap-x-6;
+      }
+}

@@ -1,0 +1,47 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\ProductPage;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+/** @var Template $block */
+/** @var Escaper $escaper */
+//This is the implementation of trust pilot product review widget Part 1
+///** @var ViewModelRegistry $viewModels */
+///** @var ProductPage $productViewModel */
+//$productViewModel = $viewModels->require(ProductPage::class);
+//$product = $productViewModel->getProduct();
+//$sku = $product->getSku();
+//$name = $product->getName();
+//$id = $product->getId();
+//$key = "TRUSTPILOT_SKU_VALUE_";
+//$trustSku = $key . $id;
+?>
+<!--This is the implementation of trust pilot product review widget Part 2 -->
+<!--<div class="trust_pilot_PDP flex flex-col items-center justify-center">-->
+<!--    <p class="text-center text-24 md:text-[32px] font-extrabold mb-8">-->
+<!--        --><?php //= __('Recent Reviews of') ?><!-- <span>--><?php //= $escaper->escapeHtml($name) ?><!--</span>-->
+<!--    </p>-->
+<!--    TrustBox widget - Product Reviews Carousel-->
+<!--    <div id="trust" class="flex trustpilot-widget md:w-full md:px-0 px-4 h-64"-->
+<!--         data-locale="en-GB" data-template-id="60f537b5b0f1639de1fe048c" data-businessunit-id="5701692e0000ff00058b00e1"-->
+<!--         data-style-width="100%" data-schema-type="Product"-->
+<!--         data-sku="--><?php //= $trustSku ?><!--" data-no-reviews="show" data-third-party-reviews="true">-->
+<!--        <a href="https://www.trustpilot.com/review/murergrej.dk" target="_blank" rel="noopener">Trustpilot</a>-->
+<!--    </div>-->
+<!--    End TrustBox widget-->
+<!--</div>-->
+<div class="flex flex-col items-center bg-white">
+    <div class="trustpilot-widget w-full" data-locale="da-DK" data-template-id="54ad5defc6454f065c28af8b" data-businessunit-id="5701692e0000ff00058b00e1" data-style-height="240px" data-style-width="100%" data-theme="light" data-stars="1,2,3,4,5" data-review-languages="da">
+        <a href="https://dk.trustpilot.com/review/murergrej.dk" target="_blank" rel="noopener">Trustpilot</a>
+    </div>
+    <button class=" mt-5 btn btn-secondary" onclick="window.open('https://dk.trustpilot.com/review/murergrej.dk', '_blank')">
+        <?= __('View all reviews') ?></button>
+</div>

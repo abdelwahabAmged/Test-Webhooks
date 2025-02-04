@@ -1,0 +1,19 @@
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="ci_shippingrestrictions">
+        <column xsi:type="int" name="sr_id" padding="10" unsigned="true" nullable="false"  identity="true" comment="Shipping Restrictions Primary Id"/>
+        <column xsi:type="varchar" name="name"  nullable="false" comment="Name"/>
+        <column xsi:type="varchar" name="carriers"  nullable="false" comment="Shipping Restrictions Carriers"/>
+        <column xsi:type="int" name="status" nullable="false" default="0" comment="Status"/>
+		<column xsi:type="longtext" name="conditions_serialized" nullable="false" comment="Conditions Serialized"/>
+		<column xsi:type="varchar" name="couponcode" nullable="false" comment="Coupon Code"/>
+		<column xsi:type="varchar" name="error_msg"  nullable="false" comment="Error Message"/>
+		<column xsi:type="int" name="sort_order" nullable="false" comment="Sort Order"/>
+		<column xsi:type="varchar" name="customer_group" nullable="false" comment="Customer Groups"/>
+		<column xsi:type="varchar" name="stores" nullable="false" comment="Store Id"/>
+		<column xsi:type="varchar" name="days" nullable="false" comment="Days"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="sr_id"/>
+        </constraint>
+   </table>
+</schema>

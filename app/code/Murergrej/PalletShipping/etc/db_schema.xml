@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="palletshipping_dsv" resource="default" engine="innodb" comment="DSV Shipping">
+        <column xsi:type="int" name="pk" padding="11" unsigned="true" nullable="false" identity="true"
+                comment="Primary key"/>
+        <column xsi:type="smallint" name="website_id" padding="5" unsigned="true" nullable="false" identity="false"
+                comment="Website ID"/>
+        <column xsi:type="varchar" name="dest_country_id" nullable="false" length="4" default="0" comment="Destination coutry ISO/2 or ISO/3 code"/>
+        <column xsi:type="int" name="dest_region_id" nullable="false" default="0" comment="Destination Region Id"/>
+        <column xsi:type="varchar" name="dest_city" nullable="false" length="30" default="" comment="Destination City"/>
+        <column xsi:type="varchar" name="dest_zip" nullable="false" length="10" default="*" comment="Destination Post Code (Zip)"/>
+        <column xsi:type="varchar" name="dest_zip_to" nullable="false" length="10" default="*" comment="Destination Post Code To (Zip)"/>
+        <column xsi:type="decimal" name="pallet_qty_from" nullable="false" default="0.00" scale="2" precision="8" comment="Pallet Qty From"/>
+        <column xsi:type="decimal" name="pallet_qty_to" nullable="false" default="0.00" scale="2" precision="8" comment="Pallet Qty To"/>
+        <column xsi:type="decimal" name="weight_from" nullable="false" default="0.0000" scale="4" precision="12" comment="Weight From"/>
+        <column xsi:type="decimal" name="weight_to" nullable="false" default="0.0000" scale="4" precision="12" comment="Weight To"/>
+        <column xsi:type="decimal" name="price" nullable="false" default="0.0000" scale="4" precision="12" comment="Price"/>
+        <column xsi:type="decimal" name="cost" nullable="false" default="0.0000" scale="4" precision="12" comment="Cost"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="pk"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="PALLETSHIPPING_DSV_PK_STORE_WEBSITE_WEBSITE_ID" table="palletshipping_dsv"
+                    column="website_id" referenceTable="store_website" referenceColumn="website_id" onDelete="CASCADE"/>
+    </table>
+    <table name="palletshipping_hcs" resource="default" engine="innodb" comment="HCS Shipping">
+        <column xsi:type="int" name="pk" padding="11" unsigned="true" nullable="false" identity="true"
+                comment="Primary key"/>
+        <column xsi:type="smallint" name="website_id" padding="5" unsigned="true" nullable="false" identity="false"
+                comment="Website ID"/>
+        <column xsi:type="varchar" name="dest_country_id" nullable="false" length="4" default="0" comment="Destination coutry ISO/2 or ISO/3 code"/>
+        <column xsi:type="int" name="dest_region_id" nullable="false" default="0" comment="Destination Region Id"/>
+        <column xsi:type="varchar" name="dest_city" nullable="false" length="30" default="" comment="Destination City"/>
+        <column xsi:type="varchar" name="dest_zip" nullable="false" length="10" default="*" comment="Destination Post Code (Zip)"/>
+        <column xsi:type="varchar" name="dest_zip_to" nullable="false" length="10" default="*" comment="Destination Post Code To (Zip)"/>
+        <column xsi:type="decimal" name="pallet_qty_from" nullable="false" default="0.00" scale="2" precision="8" comment="Pallet Qty From"/>
+        <column xsi:type="decimal" name="pallet_qty_to" nullable="false" default="0.00" scale="2" precision="8" comment="Pallet Qty To"/>
+        <column xsi:type="decimal" name="weight_from" nullable="false" default="0.0000" scale="4" precision="12" comment="Weight From"/>
+        <column xsi:type="decimal" name="weight_to" nullable="false" default="0.0000" scale="4" precision="12" comment="Weight To"/>
+        <column xsi:type="decimal" name="price" nullable="false" default="0.0000" scale="4" precision="12" comment="Price"/>
+        <column xsi:type="decimal" name="cost" nullable="false" default="0.0000" scale="4" precision="12" comment="Cost"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="pk"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="PALLETSHIPPING_HCS_PK_STORE_WEBSITE_WEBSITE_ID" table="palletshipping_hcs"
+                    column="website_id" referenceTable="store_website" referenceColumn="website_id" onDelete="CASCADE"/>
+    </table>
+    <table name="quote_shipping_rate">
+        <column xsi:type="decimal" name="cost" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Cost"/>
+    </table>
+    <table name="quote_address">
+        <column xsi:type="decimal" name="shipping_cost" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Shipping Cost"/>
+        <column xsi:type="decimal" name="pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax"/>
+        <column xsi:type="decimal" name="pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax Incl Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax Incl Tax"/>
+    </table>
+    <table name="sales_order">
+        <column xsi:type="decimal" name="shipping_cost" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Shipping Cost"/>
+        <column xsi:type="decimal" name="pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax"/>
+        <column xsi:type="decimal" name="pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax Incl Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax Incl Tax"/>
+    </table>
+    <table name="sales_invoice">
+        <column xsi:type="decimal" name="pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax"/>
+        <column xsi:type="decimal" name="pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax Incl Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax Incl Tax"/>
+    </table>
+    <table name="sales_creditmemo">
+        <column xsi:type="decimal" name="pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax"/>
+        <column xsi:type="decimal" name="pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Pallet Tax Incl Tax"/>
+        <column xsi:type="decimal" name="base_pallet_tax_incl_tax" scale="4" precision="20" unsigned="false" nullable="false" default="0" comment="Base Pallet Tax Incl Tax"/>
+    </table>
+</schema>

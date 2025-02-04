@@ -1,0 +1,120 @@
+<?php
+
+/**
+ * @category Murergrej
+ * @package Murergrej_Catalog
+ * @author Jorgena Shinjatari <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\Store;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var SvgIcons $hyvaicons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var Store $viewModelStore */
+$viewModelStore = $viewModels->require(Store::class);
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$galleryItemBlock = $block->getLayout()->getBlock('product.info.gallery');
+
+$uniqueId = $block->getData('unique_id');
+$productName = $block->getData('product_name');
+$imgWidth = $block->getData('width');
+$imgHeight = $block->getData('height');
+$showArrows = $block->getData('show_arrows');
+$thumbsSlides = $block->getData('thumbs_slides');
+$slideClass = $block->getData('class');
+
+$sliderIndex = 1;
+$swiperUrl = $block->getViewFileUrl('js/swiper.min.js');
+$swiperCssUrl = $block->getViewFileUrl('css/swiper.min.css');
+?>
+
+<div
+    class="gallerySliders flex flex-col mb-4 <?php echo htmlspecialchars($slideClass); ?>"
+    x-id="['slider-nav', 'slider-desc', 'slider-id']"
+    role="group"
+    aria-roledescription="<?= $escaper->escapeHtmlAttr(__('Carousel')) ?>"
+    :aria-describedby="$id('slider-desc')"
+>
+    <template x-if="images">
+        <div class="relative">
+            <div class="flex items-center justify-between">
+                <!-- Flex container for buttons and slider -->
+                <!-- Previous Button with 40px padding to the left -->
+                <?php if($showArrows):?>
+                    <div class="flex-shrink-0 hidden md:block" >
+                        <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Previous slide')) ?>"
+                                class="swiper-prev_<?= $uniqueId ?> border-2 p-3.5 bg-white flex items-center justify-center">
+                            <?= $hyvaIcons->renderHtml('arrow-left', '', 24, 24) ?>
+                        </button>
+                    </div>
+                <?php endif; ?>
+                <div <?= $thumbsSlides ? 'thumbSlider=""' : '' ?> class="swiper swiper_<?= $uniqueId ?> overflow-hidden flex-grow">
+                    <div class="swiper-wrapper flex !h-auto">
+                        <template x-for="(image, index) in images" :key="index">
+                            <?php
+                                // Generate a unique ID for each slide
+                                $slideUniqueId = $uniqueId . '-' . uniqid();
+                            ?>
+                            <div class="relative swiper-slide"
+                                id="slide-<?= $slideUniqueId; ?>"
+                                role="group"
+                                aria-label="<?= $escaper->escapeHtmlAttr(__('Item %1', $sliderIndex++)) ?>"
+                                :aria-describedby="'slide-desc-' + index + '-' + $id('slider-id')"
+                                @click="<?= $thumbsSlides ? 'handleSlideChange(index)' : 'openFullscreen()' ?>"
+                                :class="{'border-2 border-primary-lighter': <?= $thumbsSlides ? 'true' : 'false' ?> && active === index}"
+                                :style="{opacity: <?= $thumbsSlides ? 'true' : 'false' ?>  && active !== index ? '0.32' : '1'}"
+                            >
+                                <?=
+                                    $this->getLayout()->createBlock(\Magento\Framework\View\Element\Template::class)
+                                        ->setTemplate('Magento_Catalog::product/single-gallery-image.phtml')
+                                        ->setData('product_name', $productName)
+                                        ->setData('width', $imgWidth)
+                                        ->setData('height', $imgHeight)
+                                        ->setData('thumbs_slides', $thumbsSlides)
+                                        ->toHtml();
+                                ?>
+
+                                <span
+                                    class="absolute inset-0 grid place-items-center"
+                                    x-show="image.type === 'video'"
+                                >
+                                    <?= $heroicons->videoCameraHtml('stroke-white/75 fill-black/20', 44, 44, ['aria-hidden' => 'true']); ?>
+                                </span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Next Button with 40px padding to the right -->
+                <?php if($showArrows):?>
+                    <div class="flex-shrink-0 hidden md:block">
+                        <button type="button" aria-label="<?= $escaper->escapeHtmlAttr(__('Next slide')) ?>"
+                                class="swiper-next_<?= $uniqueId ?> border-2 p-3.5 bg-white flex items-center justify-center">
+                            <?= $hyvaIcons->renderHtml('arrow-right', '', 24, 24) ?>
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </template>
+</div>

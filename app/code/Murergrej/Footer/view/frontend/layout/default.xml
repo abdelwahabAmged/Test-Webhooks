@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Layout configuration for the Murergrej_Footer module.
+ *
+ * This file defines the layout updates for the frontend of the Murergrej_Footer module.
+ *
+ * @category    Murergrej
+ * @package     Murergrej_Footer
+ * @developer   Abanoub Youssef <info@scandiweb.com>
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!-- Override the footer-content block -->
+        <referenceBlock name="footer-content">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Murergrej_Footer::html/footer.phtml</argument>
+            </action>
+            <!-- Add Subscribe Form as a Child -->
+            <block class="Magento\Framework\View\Element\Template" name="subscribe.form" template="Magento_Newsletter::subscribe.phtml"/>
+            <!-- Add secure_payment_footer -->
+            <block class="Magento\Cms\Block\Block" name="footer.secure.payment" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">secure_payment_footer</argument>
+                </arguments>
+            </block>
+            <!-- Add Trustpilot Mobile -->
+            <block class="Magento\Framework\View\Element\Text" name="trustpilot.mobile.widget">
+                <arguments>
+                    <argument name="text" xsi:type="string">
+                        <![CDATA[
+                                    <!-- TrustBox widget - Mini -->
+                                    <div class="trustpilot-widget" data-locale="da-DK" data-template-id="53aa8807dec7e10d38f59f32" data-businessunit-id="5701692e0000ff00058b00e1" data-style-height="120px" data-style-width="100%" data-theme="light">
+                                        <a href="https://dk.trustpilot.com/review/murergrej.dk" target="_blank" rel="noopener">Trustpilot</a>
+                                    </div>
+                                    <!-- End TrustBox widget -->
+                                    <!-- TrustBox script -->
+                                    <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+                                    <!-- End TrustBox script -->
+                                    ]]>
+                    </argument>
+                </arguments>
+            </block>
+            <!-- Payment Methods and Faktura -->
+            <block class="Magento\Cms\Block\Block" name="payment.methods" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">payment_methods_footer</argument>
+                </arguments>
+            </block>
+            <block class="Magento\Cms\Block\Block" name="faktura" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">Payment-Plan</argument>
+                </arguments>
+            </block>
+            <!-- Copyright -->
+            <block class="Magento\Cms\Block\Block" name="copyright" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">Copyright</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <!-- Override the footer-static links block -->
+        <referenceBlock name="footer-static-links">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Murergrej_Footer::html/footer/links.phtml</argument>
+            </action>
+            <!-- Add Get in Touch as a Child -->
+            <block class="Magento\Cms\Block\Block" name="get.in.touch" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">get_in_touch_footer</argument>
+                </arguments>
+            </block>
+            <!-- Add About Us -->
+            <block class="Magento\Cms\Block\Block" name="about.us" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">about_us_footer</argument>
+                </arguments>
+            </block>
+            <!--Add customer services-->
+            <block class="Magento\Cms\Block\Block" name="customer.services" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">customer_services_footer</argument>
+                </arguments>
+            </block>
+            <!-- Add Ordering -->
+            <block class="Magento\Cms\Block\Block" name="ordering" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">ordering_footer</argument>
+                </arguments>
+            </block>
+            <!-- Add follow us  -->
+            <block class="Magento\Cms\Block\Block" name="follow.us" template="Magento_Cms::block.phtml">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">follow_us_footer</argument>
+                </arguments>
+            </block>
+            <!-- Add Trustpilot Desktop -->
+            <block class="Magento\Framework\View\Element\Text" name="trustpilot.widget">
+                <arguments>
+                    <argument name="text" xsi:type="string">
+                        <![CDATA[
+                                        <!-- TrustBox widget - Mini -->
+                                        <div class="trustpilot-widget" data-locale="da-DK" data-template-id="53aa8807dec7e10d38f59f32" data-businessunit-id="5701692e0000ff00058b00e1" data-style-height="120px" data-style-width="100%" data-theme="light">
+                                            <a href="https://dk.trustpilot.com/review/murergrej.dk" target="_blank" rel="noopener">Trustpilot</a>
+                                        </div>
+                                        <!-- End TrustBox widget -->
+                                        <!-- TrustBox script -->
+                                        <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+                                        <!-- End TrustBox script -->
+                                        ]]>
+                    </argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

@@ -5,12 +5,27 @@ body {
     background-color: #f4f4f4;
 }
 
+.page-main {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 header {
     background: #333;
     color: #fff;
     padding: 10px 0;
     text-align: center;
 }
+
+hr {
+    height: 0;
+    /* 1 */
+    color: inherit;
+    /* 2 */
+    border-top-width: 1px;
+    /* 3 */
+  }
+  
 
 @media print {
     .page-main {
@@ -22,12 +37,16 @@ header {
         display: grid !important;
     }
 
-    .order-items .hidden.lg\:grid > div {
-        border-bottom: 1px solid rgb(231, 231, 231);
+    .order-items div.flex.lg\:block {
+        display: block !important;
     }
 
-    .order-items .lg\:grid-cols-5 {
-        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    .order-items div.text-right.lg\:text-left {
+        text-align: left !important;
+    }
+
+    .actions-toolbar {
+        display: none !important;
     }
 
     .order-details-items .grid-cols-1 {

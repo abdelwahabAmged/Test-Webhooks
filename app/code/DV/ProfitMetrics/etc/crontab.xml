@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module DV_ProfitMetrics
+ *
+ * @category   DV
+ * @package    DV_ProfitMetrics
+ * @copyright  Copyright (c) 2020 DV
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="profit_metrics" instance="DV\ProfitMetrics\Cron\ExportProductData" method="execute">
+            <config_path>crontab/default/jobs/profit_metrics/schedule/cron_expr</config_path>
+        </job>
+        <job name="profit_metrics_orders_send" instance="DV\ProfitMetrics\Cron\SendOrderData" method="execute">
+            <config_path>crontab/default/jobs/profit_metrics/orders_send_schedule/cron_expr</config_path>
+        </job>
+        <job name="profit_metrics_clear_old_records" instance="DV\ProfitMetrics\Cron\ClearOutdatedVisitorRecords" method="execute">
+            <schedule>0 0 * * *</schedule>
+        </job>
+    </group>
+</config>

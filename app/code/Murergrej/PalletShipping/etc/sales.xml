@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Sales:etc/sales.xsd">
+    <section name="quote">
+        <group name="totals">
+            <item name="cost" instance="Murergrej\PalletShipping\Model\Total\Quote\Cost" sort_order="400"/>
+            <item name="pallet_tax" instance="Murergrej\PalletShipping\Model\Total\Quote\PalletTax" sort_order="410"/>
+            <item name="pallet_tax_tax" instance="Murergrej\PalletShipping\Model\Total\Quote\PalletTaxTax" sort_order="520"/>
+            <item name="pallet_cost" instance="Murergrej\PalletShipping\Model\Total\Quote\PalletCost" sort_order="430"/>
+        </group>
+    </section>
+    <section name="order_invoice">
+        <group name="totals">
+            <item name="pallet_tax" instance="Murergrej\PalletShipping\Model\Total\Invoice\PalletTax" sort_order="340"/>
+            <item name="pallet_tax_tax" instance="Murergrej\PalletShipping\Model\Total\Invoice\PalletTaxTax" sort_order="341"/>
+        </group>
+    </section>
+    <section name="order_creditmemo">
+        <group name="totals">
+            <item name="pallet_tax" instance="Murergrej\PalletShipping\Model\Total\Creditmemo\PalletTax" sort_order="390"/>
+            <item name="pallet_tax_tax" instance="Murergrej\PalletShipping\Model\Total\Creditmemo\PalletTaxTax" sort_order="391"/>
+        </group>
+    </section>
+</config>

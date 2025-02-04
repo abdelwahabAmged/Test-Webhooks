@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <columns name="sales_order_columns">
+        <column name="billing_vat_id">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">VAT ID</label>
+                <visible>true</visible>
+            </settings>
+        </column>
+        <column name="billing_company">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Company</label>
+                <visible>true</visible>
+            </settings>
+        </column>
+        <column name="billing_telephone">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Telephone</label>
+                <visible>true</visible>
+            </settings>
+        </column>
+        <column name="po_number">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Purchase Order Number</label>
+                <visible>true</visible>
+            </settings>
+        </column>
+        <column name="item_skus">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Item Skus</label>
+                <visible>false</visible>
+            </settings>
+        </column>
+        <column name="item_names">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Item Names</label>
+                <visible>false</visible>
+            </settings>
+        </column>
+    </columns>
+</listing>

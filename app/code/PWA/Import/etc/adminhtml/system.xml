@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="pwa" translate="label" sortOrder="999999">
+            <label>PWA</label>
+        </tab>
+        <section id="pwa_import" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <tab>pwa</tab>
+            <label>PWA Import</label>
+            <resource>PWA_Import::config</resource>
+            <group id="general" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+<!--                <field id="categories_update_url" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">-->
+<!--                    <label>Categories Update Url</label>-->
+<!--                </field>-->
+<!--                <field id="products_update_url" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">-->
+<!--                    <label>Products Update Url</label>-->
+<!--                </field>-->
+                <field id="import_base_endpoint" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Import Base Endpoint</label>
+                    <comment>E.g. https://murergrej.dk/api/ext/import</comment>
+                </field>
+                <field id="key" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Secret key</label>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

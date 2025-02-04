@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Magento 2 Event Declaration
+ * This XML file is used to declare the events for the Murergrej_Catalog module.
+ * @category   Custom Module
+ * @package    Murergrej_Catalog
+ * @author     Abanoub Youssef <Abanoub.youssef@scandiweb.com>
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="catalog_product_save_after">
+        <!-- handle Saving the EAN from AdminPanel-->
+        <observer name="save_ean_to_tier_price" instance="Murergrej\Catalog\Observer\SaveEanToTierPrice" />
+        <!-- handle PUT Request /product{sku}  -->
+        <observer name="product_save_before" instance="Murergrej\Catalog\Observer\ProductSaveBefore"/>
+    </event>
+</config>

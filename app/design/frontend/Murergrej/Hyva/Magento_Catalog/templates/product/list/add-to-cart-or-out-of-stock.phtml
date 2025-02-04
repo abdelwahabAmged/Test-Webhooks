@@ -1,0 +1,146 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Hyva
+ * @author      Jorgena Shinjatari info@scandiweb.com
+ * @copyright   Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+*/
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\ViewModel\ProductListItem;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var ProductListItem $productListItemViewModel */
+$productListItemViewModel = $viewModels->require(ProductListItem::class);
+
+/** @var CurrentProduct $currentProduct */
+$currentProduct = $viewModels->require(CurrentProduct::class);
+
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var Product $product */
+$product = $block->hasData('product')
+    ? $block->getData('product')
+    : $currentProduct->get();
+
+if (!$product || !$product->getId()) {
+    return;
+}
+
+$productId = $product->getId();
+$productName = $block->getData('productName');
+$viewIsGrid = $block->getData('viewIsGrid');
+$isConfigurable = $block->getData('isConfigurable');
+$isProductGroupedOrBundle = $block->getData('isProductGroupedOrBundle');
+
+$outOfStock = $block->checkStockStatus($product);
+?>
+<script>
+    function screenSizeHandler() {
+        return {
+            isLargeScreen: window.innerWidth >= 1024,
+            updateScreenSize() {
+                this.isLargeScreen = window.innerWidth >= 1024;
+            }
+        };
+    }
+</script>
+<?php if ($outOfStock['permanently_out_of_stock']): ?>
+    <div class="w-auto justify-center flex items-center <?= $viewIsGrid ? 'mr-auto' : 'mr-auto md:mr-0' ?>">
+        <div class="out-of-stock bg-white flex gap-x-1">
+            <?= $hyvaIcons->renderHtml('exclamation-red', '', 20, 20); ?>
+            <p class="text-sm text-red font-bold">
+                <?= $escaper->escapeHtml(__('We are sorry, but the product is permanently out of stock!')) ?>
+            </p>
+        </div>
+    </div>
+<?php elseif ($outOfStock['temporary_out_of_stock']): ?>
+    <div class="w-auto justify-center flex items-center <?= $viewIsGrid ? 'mr-auto' : 'mr-auto md:mr-0' ?>">
+        <div class="out-of-stock bg-white flex flex-col gap-y-1">
+            <div class="flex gap-x-1">
+                <?= $hyvaIcons->renderHtml('exclamation-red', '', 20, 20); ?>
+                <p class="text-sm text-red font-bold">
+                    <?= $escaper->escapeHtml(__('Product is currently out of stock!')) ?>
+                </p>
+            </div>
+            <p class="text-xs">
+                <?= $escaper->escapeHtml(
+                  __('Subscribe to the back in stock notification and get notified when the item is back!')
+                ) ?>
+            </p>
+        </div>
+    </div>
+<?php else: ?>
+    <?php if ($isProductGroupedOrBundle): ?>
+        <a
+            href="<?= $escaper->escapeUrl($product->getProductUrl()) ?>"
+            class="w-full btn btn-primary justify-center text-sm <?= $viewIsGrid ? 'mr-auto' : 'mr-auto md:mr-0' ?>"
+            title="<?= $escaper->escapeHtmlAttr(__('Configure %1 on the product page')) ?>"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Configure %1 on the product page', $productName)) ?>"
+        >
+            <?= $heroicons->pencilAltHtml('', 24, 24, ['aria-hidden' => 'true']) ?>
+            <span class="ml-2 inline <?= $viewIsGrid ? 'md:ml-0 md:hidden lg:ml-2 lg:inline' : '' ?>">
+                <?= $escaper->escapeHtml(__('Configure')) ?>
+            </span>
+        </a>
+    <?php else: ?>
+        <div class="w-full">
+            <div
+                class="pt-1 hidden <?= $viewIsGrid ? '' : 'self-end col-start-3 row-start-4 mr-auto md:mr-0 md:block' ?>"
+                x-data="initPriceBox()"
+                x-defer="intersect"
+                @update-prices-<?= (int)$productId ?>.window="updatePrice($event.detail);"
+            >
+                <?= /* @noEscape */
+                $productListItemViewModel->getProductPriceHtml($product) ?>
+            </div>
+            <?php if ($isConfigurable): ?>
+                <div x-data="screenSizeHandler()" @resize.window="updateScreenSize">
+                    <button
+                      :onclick="isLargeScreen ? `openConfigModal(event, <?= $productId ?>)` : null"
+                      :data-addto="isLargeScreen ? null : 'cart'"
+                      class="w-full btn btn-secondary justify-center text-base
+                            <?= $viewIsGrid ? 'mr-auto max-h-[60px]' : 'mr-auto md:mr-0 md:mt-2.5' ?>"
+                      title="<?= $escaper->escapeHtmlAttr(__('Select Variant') . ' ' . $productName) ?>"
+                      aria-label="<?= $escaper->escapeHtmlAttr(__('Select Variant') . ' ' . $productName) ?>"
+                    >
+                        <span class="ml-2 inline <?= $viewIsGrid ? 'md:ml-0 lg:ml-2 lg:inline' : '' ?>">
+                            <?= $escaper->escapeHtml(__('Select Variant')) ?>
+                        </span>
+                    </button>
+                </div>
+            <?php else: ?>
+                <button
+                  class="w-full btn btn-secondary justify-center text-base
+                        <?= $viewIsGrid ? 'mr-auto max-h-[60px]' : 'mr-auto md:mr-0 md:mt-2.5' ?>"
+                  title="<?= $escaper->escapeHtmlAttr(
+                    ($isConfigurable ? __('Select Variant') : __('Add to Cart')) . ' ' . $productName
+                  ) ?>"
+                  aria-label="<?= $escaper->escapeHtmlAttr(
+                    ($isConfigurable ? __('Select Variant') : __('Add to Cart')) . ' ' . $productName
+                  ) ?>"
+                  data-addto="cart"
+                >
+                    <span class="ml-2 inline <?= $viewIsGrid ? 'md:ml-0 lg:ml-2 lg:inline' : '' ?>">
+                        <?= $escaper->escapeHtml($isConfigurable ? __('Select Variant') : __('Add to Cart')) ?>
+                    </span>
+                </button>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

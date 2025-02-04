@@ -1,0 +1,56 @@
+/**
+ * Scandiweb_HyvaUi
+ *
+ * @category Scandiweb
+ * @package  Scandiweb_HyvaUi
+ * @author   Amr Osama <amr.osama@scandiweb.com>
+ */
+@font-face {
+    font-family: 'RobotoCondensed';
+    font-weight: bold;
+    font-display: fallback;
+    src: local("RobotoCondensed Bold"), local("RobotoCondensed-Bold"), url('@{baseDir}fonts/RobotoCondensed-Bold.woff2') format("woff2");
+}
+
+a {
+    &:active, &:focus, &:visited {
+        color: inherit;
+    }
+}
+
+.Testimonial {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+
+    span {
+        font-family: RobotoCondensed, sans-serif;
+    }
+
+    &-AuthorImage {
+      
+        img {
+            width: 210px;
+            height: 210px; 
+            border-radius: 50%;
+            margin-right: 30px;
+            border: 1px solid #888;
+            object-fit: cover;
+            object-position: center center;
+        }
+    }
+
+    &-Content{
+        flex: 1;
+
+        &-Author{
+            color: #3068ea;
+            margin-top: 20px;
+        }
+
+        &-Company{
+            color: #888;
+            display: block;
+        }
+    }
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+<!--    <type name="Magento\Quote\Api\ShippingMethodManagementInterface">-->
+<!--        <plugin name="pallet-tax" type="Murergrej\PalletShipping\Plugin\Model\ShippingMethodManagement\PalletTaxPlugin"/>-->
+<!--    </type>-->
+<!--    <type name="Magento\Quote\Model\ShippingMethodManagement">-->
+<!--        <plugin name="pallet-tax" type="Murergrej\PalletShipping\Plugin\Model\ShipmentEstimation\PalletTaxPlugin"/>-->
+<!--    </type>-->
+<!--    <type name="Magento\Quote\Model\Cart\ShippingMethodConverter">-->
+<!--        <plugin name="pallet-tax" type="Murergrej\PalletShipping\Plugin\Model\Cart\ShippingMethodConverter\PalletTaxPlugin"/>-->
+<!--    </type>-->
+    <type name="Magento\Quote\Model\Cart\CartTotalRepository">
+        <arguments>
+            <argument name="dataObjectHelper" xsi:type="object">Murergrej\PalletShipping\Model\Cart\CartTotalRepository\DataObjectHelper</argument>
+        </arguments>
+    </type>
+<!--    <type name="Magento\Quote\Model\Cart\TotalsConverter">-->
+<!--        <plugin name="pallet-tax" type="Murergrej\PalletShipping\Plugin\Model\Cart\TotalsConverter\PalletTaxPlugin"/>-->
+<!--    </type>-->
+</config>

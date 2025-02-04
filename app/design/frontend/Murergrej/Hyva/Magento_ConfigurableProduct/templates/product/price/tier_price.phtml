@@ -1,0 +1,436 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CurrentProduct;
+use Hyva\Theme\ViewModel\ProductPage;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Magento\Catalog\Block\Product\View;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\SvgIcons;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Catalog\Pricing\Price\RegularPrice;
+use Magento\Catalog\Pricing\Render\PriceBox;
+
+/** @var PriceBox $block */
+$tierPriceModel = $block->getPrice();
+$tierPrices = $tierPriceModel->getTierPriceList();
+
+/** @var View $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+/** @var SvgIcons $hyvaIcons */
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+
+/** @var ProductPrice $productPriceViewModel */
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+
+/** @var ViewModelRegistry $viewModels */
+$currentProduct = $viewModels->require(CurrentProduct::class);
+
+/** @var Product $product */
+$product = $currentProduct->get();
+
+if (!$product) {
+    return '';
+}
+
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+
+$regularPrice = $productPriceViewModel->getPriceValue(RegularPrice::PRICE_CODE, $product);
+$regularPriceExclTax = $productPriceViewModel->displayPriceInclAndExclTax()
+    ? $productPriceViewModel->getPriceValueExclTax(RegularPrice::PRICE_CODE, $product)
+    : $regularPrice;
+
+$variants = $product->getTypeInstance()->getUsedProducts($product);
+$lowestBasePriceVariant = null;
+$tierPriceData = [];
+
+// Loop through variants to find the one with the lowest base price
+foreach ($variants as $variant) {
+    $variantTierPrices = $variant->getTierPrice();
+
+    if (!empty($variantTierPrices)) {
+        $basePrice = $variant->getPrice();
+
+        if (is_null($lowestBasePriceVariant) || $basePrice < $lowestBasePriceVariant->getPrice()) {
+            $lowestBasePriceVariant = $variant;
+        }
+    }
+}
+
+if ($lowestBasePriceVariant !== null) {
+    $tierPriceData = array_map(function($tierPrice) use ($regularPriceExclTax) {
+        $discount = 0;
+
+        if ($tierPrice['percentage_value']) {
+            // If percentage is defined, use it
+            $discount = (float)$tierPrice['percentage_value'];
+        } else {
+            // If percentage is not defined, calculate the discount from the fixed price
+            $discount = (1 - (float)$tierPrice['price'] / $regularPriceExclTax) * 100;
+        }
+
+        return [
+            'qty' => (int)$tierPrice['price_qty'],
+            'basePrice' => (float)$tierPrice['price'],
+            'percentage' => round($discount)
+        ];
+    }, $lowestBasePriceVariant->getTierPrice());
+}
+
+$filteredTierPriceData = [];
+foreach ($tierPriceData as $tierPrice) {
+    $key = $tierPrice['percentage'];
+    // Only add the tier price if it's not already present with the same percentage
+    if (!isset($filteredTierPriceData[$key]) || $tierPrice['qty'] < $filteredTierPriceData[$key]['qty']) {
+        $filteredTierPriceData[$key] = $tierPrice;
+    }
+}
+
+$tierPriceData = array_values($filteredTierPriceData);
+?>
+<script>
+    const initialTierPriceData = <?= json_encode($tierPriceData) ?>;
+    const lowestBasePriceVariantPrice = <?= $lowestBasePriceVariant->getPrice() ?>;
+
+    function initTierPrices<?= (int) $product->getId() ?>() {
+        return {
+            activeProductsPriceData: false,
+            open: true,
+            tierPriceData: initialTierPriceData,
+            variantTierPriceData: initialTierPriceData,
+            variantBasePrice: lowestBasePriceVariantPrice || 0,
+            productWeight: 0,
+
+            updateGrandTotal() {
+                let grandTotal = 0;
+                let totalSaved = 0;
+                let discountPercentage = 0;
+                let totalBags = 0;
+                let totalWeight = 0;
+                const finalPrice = this.variantBasePrice;
+
+                // Calculate total selected bags
+                this.tierPriceData.forEach((tierData, index) => {
+                    const bagCount = tierData.qty;
+                    const qty = parseInt(document.getElementById('qty_' + index).value) || 0;
+
+                    totalBags += qty * bagCount;
+                    totalWeight += this.productWeight * (qty * bagCount);
+                });
+
+                // Find the best discount based on the total bags
+                let bestDiscount = 0;
+                this.tierPriceData.forEach((tierData) => {
+                    if (totalBags >= tierData.qty) {
+                        let discount = 0;
+
+                        discount = 1 - (tierData.basePrice / finalPrice);
+                        bestDiscount = Math.max(bestDiscount, discount);
+                    }
+                });
+
+                // Apply the best discount across all rows and update grand total
+                this.tierPriceData.forEach((tierData, index) => {
+                    const bagCount = tierData.qty;
+                    let pricePerItem, discount;
+
+                    discount = Math.max(bestDiscount, 1 - (tierData.basePrice / finalPrice));
+                    pricePerItem = finalPrice * (1 - discount);
+
+                    const qty = parseInt(document.getElementById('qty_' + index).value) || 0;
+                    const rowTotal = qty > 0 ? qty * bagCount * pricePerItem : bagCount * pricePerItem;
+
+                    // Update Price/Item and Total for each row
+                    document.getElementById('price_' + index).innerText = hyva.formatPrice(pricePerItem);
+                    document.getElementById('total_' + index).innerText = hyva.formatPrice(rowTotal);
+
+                    // Only add to grand total if the row has a non-zero quantity
+                    if (qty > 0) {
+                        grandTotal += rowTotal;
+                        const fullPriceTotal = finalPrice * qty * bagCount;
+
+                        totalSaved += fullPriceTotal - rowTotal;
+                        discountPercentage = Math.max(discountPercentage, discount * 100);
+                    }
+
+                    const roundedDiscount = (discount * 100).toFixed(0);
+
+                    document.getElementById('discount_' + index).innerText = ' -' + roundedDiscount + '%';
+                });
+
+                const mainProductQty = document.getElementById("qty[<?= $product->getId() ?>]");
+
+                if (mainProductQty) {
+                    mainProductQty.value = totalBags || 1;
+                }
+
+                const grandTotalElement = document.getElementById('grandTotal');
+                const percentageElement = document.getElementById('percentageData');
+
+                if (!totalBags) {
+                    grandTotalElement.innerText = '-';
+                    percentageElement.style.display = 'none';
+                } else {
+                    grandTotalElement.innerText = hyva.formatPrice(grandTotal);
+                    percentageElement.style.display = 'block';
+                }
+
+                document.getElementById('totalSaved').innerText = hyva.formatPrice(totalSaved);
+                document.getElementById('discountPercentage').innerText = discountPercentage.toFixed(0);
+
+                const totalPalletCount = totalWeight >= 65 ? Math.ceil(totalWeight / 1210) : 0;
+
+                const palletCountTotalWrapper = document.getElementById('palletCountTotalWrapper');
+                const totalPalletCountElement = document.getElementById('totalPalletCount');
+
+                if (totalPalletCount > 0) {
+                    totalPalletCountElement.innerText = totalPalletCount;
+                    palletCountTotalWrapper.style.display = 'block';
+                } else {
+                    palletCountTotalWrapper.style.display = 'none';
+                }
+            },
+
+            updateTotal(index, pricePerItem, bagCount) {
+                const qtyField = document.getElementById('qty_' + index);
+                const qty = !!qtyField ? parseInt(qtyField.value) : 0;
+                const total = qty > 0 ? qty * bagCount * pricePerItem : bagCount * pricePerItem;
+
+                document.getElementById('total_' + index).innerText = hyva.formatPrice(total);
+                this.updateGrandTotal();
+            },
+
+            stepUpQty(index, pricePerItem, bagCount) {
+                const input = document.getElementById('qty_' + index);
+
+                input.stepUp();
+                this.updateTotal(index, pricePerItem, bagCount);
+            },
+
+            stepDownQty(index, pricePerItem, bagCount) {
+                const input = document.getElementById('qty_' + index);
+
+                input.stepDown();
+                this.updateTotal(index, pricePerItem, bagCount);
+            },
+
+            disableMainProductQty() {
+                const mainProductQty = document.getElementById("qty[<?= $product->getId() ?>]");
+                const qtyButtons = mainProductQty.closest('.product-qty-wrapper')?.querySelector('.product-qty-buttons');
+                const productTotalPriceWrapper = document.getElementById('productTotalPriceWrapper');
+                const palletCountTotalWrapper = document.getElementById('palletCountTotalWrapper');
+                const totalPalletCountElement = document.getElementById('totalPalletCount');
+
+                if (mainProductQty && !!this.variantTierPriceData.length) {
+                    mainProductQty.style.pointerEvents = 'none';
+                    mainProductQty.style.cursor = 'not-allowed';
+
+                    if (qtyButtons) {
+                        qtyButtons.style.display = 'none';
+                    }
+
+                    if (productTotalPriceWrapper) {
+                        productTotalPriceWrapper.style.display = 'block';
+                    }
+
+                    if (
+                      palletCountTotalWrapper &&
+                      totalPalletCountElement &&
+                      totalPalletCountElement.innerText !== '0'
+                    ) {
+                        palletCountTotalWrapper.style.display = 'block';
+                    }
+                } else if (mainProductQty) {
+                    mainProductQty.style.pointerEvents = 'auto';
+                    mainProductQty.style.cursor = 'text';
+
+                    if (qtyButtons) {
+                        qtyButtons.style.removeProperty('display');
+                    }
+
+                    if (productTotalPriceWrapper) {
+                        productTotalPriceWrapper.style.display = 'none';
+                    }
+
+                    if (palletCountTotalWrapper) {
+                        palletCountTotalWrapper.style.display = 'none';
+                    }
+                }
+            },
+
+            updateTierPriceTable() {
+                const tierPrices = this.tierPriceData;
+                const tableBody = document.querySelector('#tierPriceTable tbody');
+                tableBody.innerHTML = '';
+
+                if (tierPrices?.length > 0) {
+                    tierPrices.forEach((tierPrice, index) => {
+                        const pricePerItem = tierPrice.basePrice;
+                        const total = tierPrice.qty * pricePerItem;
+
+                        const row = document.createElement('tr');
+                        row.className = 'relative border-t border-primary';
+                        row.innerHTML = `
+                            <td class="py-2 pb-8 sm:pb-2">
+                                <div class="product-cart-quantity flex flex-col sm:flex-row">
+                                    <div class="product-qty-wrapper grid items-center w-[80px] h-[52px] bg-white border-2">
+                                        <label for="qty_${index}" class="sr-only"><?= $escaper->escapeHtml(__('Quantity')) ?></label>
+                                        <input
+                                            name="qty"
+                                            id="qty_${index}"
+                                            type="number"
+                                            value="0"
+                                            min="0"
+                                            class="form-input pl-4 py-[10px] pr-2 text-center w-full font-semibold border-0"
+                                            @change="updateTotal(${index}, ${pricePerItem}, ${tierPrice.qty})"
+                                        >
+                                        <div class="product-qty-buttons flex flex-col justify-between">
+                                            <button
+                                                type="button"
+                                                class="up hover:bg-sky-blue"
+                                                @click="stepUpQty(${index}, ${pricePerItem}, ${tierPrice.qty})"
+                                            >
+                                                <?= $hyvaIcons->renderHtml('up', '', 12, 12) ?>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="down hover:bg-sky-blue"
+                                                @click="stepDownQty(${index}, ${pricePerItem}, ${tierPrice.qty})"
+                                            >
+                                                <?= $hyvaIcons->renderHtml('down', '', 12, 12) ?>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row items-center mt-1 sm:flex-col absolute top-[53px] sm:relative sm:top-0 sm:items-start sm:mt-0 sm:ml-3">
+                                        <span class="block mt-2 text-sm">${tierPrice.qty} pose(r)</span>
+                                        <span id="palletCount_${index}" class="block ml-1 mt-2 text-xs text-primary-lighter sm:ml-0 sm:mt-0">
+                                            ${(this.productWeight * tierPrice.qty) >= 65 ?
+                                              Math.ceil((this.productWeight * tierPrice.qty) / 1210) + ' <?= $escaper->escapeJs(__('pallet(s)')) ?>'
+                                              : ''}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-2">
+                                <div class="flex flex-col pb-7 sm:pb-0">
+                                    <span class="text-sm font-extrabold price-item" id="price_${index}">
+                                        ${hyva.formatPrice(pricePerItem)}
+                                    </span>
+                                    <span class="text-green text-xs discount-item">
+                                        <?= $escaper->escapeHtml(__('save')) ?>
+                                        <span class="text-green" id="discount_${index}">
+                                            -${tierPrice.percentage}%
+                                        </span>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="py-2 text-sm text-right font-extrabold align-top">
+                                <span class="block mt-2" id="total_${index}">
+                                    ${hyva.formatPrice(total.toFixed(2))}
+                                </span>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+
+                this.disableMainProductQty();
+            },
+
+            init() {
+                this.updateTierPriceTable();
+
+                const currentContainerDetails = document.getElementById("currentContainerDetails");
+
+                if (currentContainerDetails) {
+                    currentContainerDetails.style.display = 'block';
+                }
+            },
+
+            eventListeners: {
+                ['@update-prices-<?= (int) $product->getId() ?>.window'](event) {
+                    this.variantBasePrice = event.detail.basePrice.amount;
+                    this.productWeight = event.detail.optionWeight;
+                    this.activeProductsPriceData = event.detail;
+                    this.variantTierPriceData = event.detail.tierPrices || [];
+                    this.tierPriceData = event.detail.tierPrices || initialTierPriceData;
+
+                    // Reset total price and pallet count display
+                    const grandTotalElement = document.getElementById('grandTotal');
+                    const totalSavedElement = document.getElementById('totalSaved');
+                    const percentageElement = document.getElementById('percentageData');
+                    const palletCountTotalWrapper = document.getElementById('palletCountTotalWrapper');
+                    const totalPalletCountElement = document.getElementById('totalPalletCount');
+
+                    if (this.variantTierPriceData.length) {
+                        grandTotalElement.innerText = '-';
+                        totalSavedElement.innerText = hyva.formatPrice(0);
+                        percentageElement.style.display = 'none';
+                        palletCountTotalWrapper.style.display = 'none';
+                        totalPalletCountElement.innerText = '0';
+
+                        document.getElementById('priceHeader').innerText =
+                          '<?= $escaper->escapeHtml(__('Price/Item')) ?>';
+                    } else {
+                        document.getElementById('priceHeader').innerText =
+                          '<?= $escaper->escapeHtml(__('Price from/Item')) ?>';
+                    }
+
+                    this.updateTierPriceTable();
+                }
+            },
+        }
+    }
+</script>
+
+<div
+  x-data="initTierPrices<?= (int)$product->getId() ?>()"
+  x-bind="eventListeners"
+  x-show="tierPriceData.length > 0"
+  x-cloak
+>
+    <div class="py-4 md:py-5 bg-secondary-lighter">
+        <div class="cursor-pointer flex justify-between items-center" @click="open = !open">
+            <div class="flex items-baseline flex-col sm:flex-row">
+                <span class="font-extrabold text-base"><?= $escaper->escapeHtml(__('Buy more, save more')) ?></span>
+                <span class="ml-1 text-sm text-primary-lighter"><?= $escaper->escapeHtml(__('(select quantity)')) ?></span>
+            </div>
+            <span class="self-start mt-1" x-show="!open">
+                <?= $heroicons->plusHtml('', 16, 16, ["aria-hidden" => "true"]) ?>
+            </span>
+            <span class="self-start mt-1" x-cloak x-show="open">
+                <?= $heroicons->minusHtml('', 16, 16, ["aria-hidden" => "true"]) ?>
+            </span>
+        </div>
+        <div x-show="open" class="pt-3">
+            <table id="tierPriceTable" class="w-full text-left">
+                <thead>
+                <tr>
+                    <th class="font-normal text-xs pb-2"><?= $escaper->escapeHtml(__('Quantity')) ?></th>
+                    <th class="font-normal text-xs pb-2" id="priceHeader">
+                        <?= $escaper->escapeHtml(__('Price from/Item')) ?>
+                    </th>
+                    <th class="font-normal text-xs pb-2 text-right"><?= $escaper->escapeHtml(__('Total')) ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

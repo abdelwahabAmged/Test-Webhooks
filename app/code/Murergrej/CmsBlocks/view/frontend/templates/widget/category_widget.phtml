@@ -1,0 +1,117 @@
+<?php
+$categories = $block->getChildCategories();
+if (!empty($categories)):
+    $uniqueId = uniqid('__');
+    $title = $block->getData('widget_title') ?: 'Brand Images';
+    $swiperUrl = $block->getViewFileUrl('Murergrej_CmsBlocks::js/swiper.min.js');
+    $swiperCssUrl = $block->getViewFileUrl('Murergrej_CmsBlocks::css/swiper.min.css');
+?>
+<section
+    class="flex flex-col"
+    x-data="initSliderComponent_1('<?= $uniqueId; ?>', '<?= $swiperUrl; ?>', '<?= $swiperCssUrl; ?>')"
+    x-init="init();"
+    x-id="['slider-nav', 'slider-desc', 'slider-id']"
+    role="group"
+    aria-roledescription="<?= $escaper->escapeHtmlAttr(__('Carousel')) ?>"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Carousel %1', $title)) ?>"
+    :aria-describedby="$id('slider-desc')"
+>
+    <div class="relative xl:ml-0 bg-white md:pb-[60px] pb-14">
+        <?php if ($title): ?>
+            <div class="flex justify-center mb-6 lg:mb-8">
+                <h3 class="text-2xl lg:text-3xl font-extrabold md:pt-[72px] pt-14 md:text-[32px] text-xl text-eerie-black text-center">
+                    <?= $escaper->escapeHtml($title); ?>
+                </h3>
+            </div>
+        <?php endif; ?>
+
+        <div class="flex items-center justify-between">  <!-- Flex container for buttons and slider -->
+            <div class="swiper swiper_<?= $uniqueId ?> overflow-hidden !px-4 flex-grow bg-white md:px-0">
+                <div class="-mx-4 md:mx-0 swiper-wrapper flex !h-auto">
+                    <?php foreach ($categories as $category):
+                        // Generate a unique ID for each slide
+                        $slideUniqueId = $uniqueId . '-' . uniqid();
+                    ?>
+                        <?php if ($category['brand_image']): ?>
+                            <div class="swiper-slide flex !pl-8 !mr-0 !flex justify-center " id="slide-<?= $slideUniqueId; ?>">
+                                <a class="flex justify-center items-center max-w-[200px]" href="<?= $category['url']; ?>">
+                                    <img class="md:max-h-[112px] max-h-[64px] opacity-60 saturate-0 md:hover:saturate-100 md:hover:!opacity-100" src="<?= $block->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . $category['brand_image']; ?>"
+                                        alt="<?= $escaper->escapeHtml($category['name']); ?>" />
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                <div class="swiper-scrollbar md:!max-w-[1224px] 2xl:!max-w-[1400px] md:ml-auto md:mr-auto md:justify-center swiper-scrollbar_<?= $uniqueId ?>"></div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php else: ?>
+    <p>No categories found.</p>
+<?php endif; ?>
+
+<!-- Include Swiper Initialization Script with Custom Configuration -->
+<script>
+function initSliderComponent_1(uniqueId, swiperJsUrl, swiperCssUrl) {
+    return {
+        init() {
+            if (!window.Swiper) {
+                this.addJsScript(swiperJsUrl);
+                this.addCss(swiperCssUrl);
+            } else {
+                this.initializeSwiper(uniqueId);
+            }
+        },
+        initializeSwiper(uniqueId) {
+            const swiperElement = this.$el.querySelector('.swiper_' + uniqueId);
+
+            if (!swiperElement) {
+                return;
+            }
+
+            const swiper = new Swiper(swiperElement, {
+                slidesPerView: '2.1',
+                spaceBetween: 12,
+                draggable: true,
+                autoHeight: true,
+                touchEventsTarget: 'container',
+                navigation: {
+                    nextEl: '.swiper-next_' + uniqueId,
+                    prevEl: '.swiper-prev_' + uniqueId,
+                },
+                scrollbar: {
+                    el: '.swiper-scrollbar_' + uniqueId,
+                    draggable: true,
+                },
+                breakpoints: {
+                    768: {
+                        spaceBetween: 12,
+                        slidesPerView: 3.25,
+                    },
+                    1440: {
+                        spaceBetween: 12,
+                        slidesPerView: 6.1, // Adjusted for this specific slider
+                    },
+                }
+            });
+        },
+        addJsScript(swiperJsUrl) {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.addEventListener('load', () => {
+                this.initializeSwiper(uniqueId);
+            });
+            script.src = swiperJsUrl;
+            document.head.appendChild(script);
+        },
+        addCss(swiperCssUrl) {
+            const link = document.createElement('link');
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            link.href = swiperCssUrl;
+            document.head.appendChild(link);
+        },
+    }
+}
+</script>

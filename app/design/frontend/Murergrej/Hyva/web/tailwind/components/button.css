@@ -1,0 +1,53 @@
+@layer components {
+    .btn {
+        @apply flex justify-start text-blue text-base font-extrabold items-center uppercase underline decoration-2 hover:text-blue-darker;
+
+        svg {
+            @apply inline-flex;
+        }
+
+        span {
+            @apply text-inherit mx-2 leading-5;
+        }
+
+        &:disabled {
+            @apply text-secondary;
+        }
+    }
+
+    .btn-primary {
+        @apply bg-primary text-white p-4 no-underline justify-center;
+
+        &:hover {
+            @apply bg-primary-darker text-white;
+        }
+
+        &:disabled {
+            @apply text-secondary bg-secondary;
+        }
+    }
+
+    .btn-secondary {
+        @apply bg-white border-2 border-primary-lighter text-black p-4 no-underline justify-center;
+
+        &:hover {
+            @apply bg-white border-primary-darker text-primary-darker;
+        }
+
+        &:disabled {
+            @apply border-secondary hover:text-secondary;
+        }
+
+        a {
+            @apply text-primary no-underline hover:text-primary-darker;
+        }
+    }
+
+    .btn-size-lg {
+        @apply px-10 py-4 text-lg;
+    }
+
+    .btn-size-sm {
+        @apply px-2 py-2 text-sm;
+    }
+}

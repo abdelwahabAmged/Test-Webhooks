@@ -1,0 +1,38 @@
+<?php
+/**
+ * @category    Murergrej
+ * @package     Murergrej_Checkout
+ * @author      Ernests Verins <info@scandiweb.com>
+ * @copyright   Copyright (c) 2025 Scandiweb, Inc (https://scandiweb.com)
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+?>
+<template x-if="freeShippingLimit">
+    <div class="pt-2 pb-3 px-6 bg-secondary-lighter">
+        <template x-if="cartValForFreeShipping >= freeShippingLimit">
+            <div class="text-sm flex justify-center">
+                <?= $escaper->escapeHtml(__('You have reached')) ?>
+                <div class="ml-1 font-extrabold text-green"><?= $escaper->escapeHtml(__('FREE shipping')) ?></div>
+            </div>
+        </template>
+        <template x-if="cartValForFreeShipping < freeShippingLimit">
+            <div class="text-sm flex justify-center">
+                <?= $escaper->escapeHtml(__('You are')) ?>
+                <div class="mx-1 font-extrabold" x-text="hyva.formatPrice(freeShippingLimit - cartValForFreeShipping)"></div>
+                <?= $escaper->escapeHtml(__('away from ')) ?>
+                <div class="ml-1 font-extrabold text-green"><?= $escaper->escapeHtml(__('FREE shipping')) ?></div>
+            </div>
+        </template>
+        <div class="flex items-center gap-2 text-sm font-bold">
+            <div class="text-xs font-extrabold" x-text="hyva.formatPrice(0)"></div>
+            <div class="flex-1 h-1 bg-secondary">
+                <div class="h-full bg-primary" :style="'width:' + Math.min((cartValForFreeShipping / freeShippingLimit) * 100, 100) + '%'"></div>
+            </div>
+            <div class="text-xs font-extrabold" x-text="hyva.formatPrice(freeShippingLimit)"></div>
+        </div>
+</template>

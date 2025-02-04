@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author CynoInfotech Team
+ * @package Cynoinfotech_ShippingRestrictions
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+		<resources>
+			<resource id="Magento_Backend::admin">
+			
+				<resource id="Magento_Sales::sales" title="SALES"> 	  
+   					
+					<resource id="Cynoinfotech_ShippingRestrictions::shippingrestrictions" title="Shipping Restrictions">					
+                        <resource id="Cynoinfotech_ShippingRestrictions::shippingrestrictions_manage" title="Shipping Restrictions Manage">
+							<resource id="Cynoinfotech_ShippingRestrictions::save" title="Save" sortOrder="10" />
+                            <resource id="Cynoinfotech_ShippingRestrictions::delete" title="Delete" sortOrder="20" />						
+                        </resource>	
+						
+						<resource id="Cynoinfotech_ShippingRestrictions::shippingrestrictions_setting" title="Shipping Restrictions Setting">
+						 </resource>	
+                    </resource>
+				</resource>
+				
+              		<resource id="Magento_Backend::stores">					
+						<resource id="Magento_Backend::stores_settings">
+							<resource id="Magento_Config::config">
+								<resource id="Cynoinfotech_ShippingRestrictions::Config_ShippingRestrictions" title="Shipping Restrictions" />
+							</resource>
+						</resource>
+					</resource>					
+			</resource>
+		</resources>	
+    </acl>
+</config>

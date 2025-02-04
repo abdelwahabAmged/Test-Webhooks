@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Inventory\Model\SourceItem\Command\SourceItemsSave">
+        <plugin name="murergrej_stock_email" type="Murergrej\Stock\Plugin\SourceItemSavePlugin"/>
+    </type>
+</config>

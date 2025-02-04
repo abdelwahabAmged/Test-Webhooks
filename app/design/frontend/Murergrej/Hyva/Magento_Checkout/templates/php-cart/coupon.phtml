@@ -1,0 +1,205 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Checkout\Block\Cart\Coupon;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\SvgIcons;
+/** @var SvgIcons $hyvaicons */
+$hyvaicons = $viewModels->require(SvgIcons::class);
+
+/** @var Coupon $block */
+/** @var Escaper $escaper */
+// We should use strlen function because coupon code could be "0", converted to bool will lead to false
+$hasCouponCode = (bool) strlen($block->getCouponCode() ?: "");
+$couponCode = $block->getCouponCode();
+
+$isMinicart = $block->getData('is_minicart');
+?>
+<script>
+    function initCouponForm() {
+        return {
+            showCouponForm: <?= $hasCouponCode ? 1 : 0 ?>,
+            formData: {
+                coupon_code: '<?= $escaper->escapeJs($block->getCouponCode()) ?>',
+                remove: '<?= (int) $hasCouponCode ?>'
+            },
+            init() {
+                this.showCouponForm = JSON.parse(hyva.getBrowserStorage().getItem('hyva.showCouponForm'));
+            },
+            toggleShowCoupon() {
+                this.showCouponForm = !this.showCouponForm;
+                hyva.getBrowserStorage().setItem('hyva.showCouponForm', this.showCouponForm);
+                this.$nextTick(() => this.$refs.couponInput.select());
+            }
+        }
+    }
+
+    function showLoader() {
+        const isMinicart = '<?= $isMinicart ?>';
+        const loader = isMinicart ?
+          document.querySelector('.minicart-loader') : document.querySelector('.cart_page_loader');
+
+        if (loader) {
+            loader.classList.remove('hidden');
+
+            if (isMinicart) {
+                loader.querySelector('.loader-container').style.display = 'flex'
+            }
+        }
+    }
+</script>
+<script>
+    'use strict';
+    (function( hyva, undefined ) {
+        let controller = new AbortController();
+
+        /**
+         * Takes a form element and submits it through fetch,
+         * then replaces the result into the document without
+         * refreshing the page
+         */
+        hyva.postCart = (form) => {
+            if (!form.action) {
+                return;
+            }
+            controller.abort();
+            controller = new AbortController();
+
+            const action = form.action;
+            const formData = new FormData(form);
+            const loader = document.querySelector('.minicart-loader');
+
+            if (!formData.uenc) {
+                formData.append('uenc', hyva.getUenc());
+            }
+
+            formData.append('form_key', hyva.getFormKey());
+
+            window.fetch(action, {
+                method: 'POST',
+                body: formData,
+                signal: controller.signal
+            }).then((result) => {
+                return result.text()
+            }).then(() => {
+                if (loader) {
+                    loader.classList.add('hidden');
+                    loader.querySelector('.loader-container').style.display = 'none'
+                }
+
+                location.reload();
+            }).catch((error) => {
+                if (loader) {
+                    loader.classList.add('hidden');
+                    loader.querySelector('.loader-container').style.display = 'none'
+                }
+
+                if (error.name !== 'AbortError') {
+                    console.error(error);
+                    typeof window.dispatchMessages !== "undefined" && window.dispatchMessages(
+                      [{
+                          type: "error",
+                          text: "<?= $escaper->escapeJs(__("Something went wrong. Please try again.")) ?>"
+                      }], 10000
+                    );
+                }
+            })
+        }
+    }( window.hyva = window.hyva || {} ));
+</script>
+<div class="coupon-form mt-0.5 px-6 py-4 bg-cream" x-data="initCouponForm()">
+    <div class="mx-auto lg:mx-0">
+        <div class="text-left flex">
+            <span>
+                <?= $hyvaicons->renderHtml('promo', ' inline-block', 24, 24) ?>
+            </span>
+            <span class="text-base font-extrabold text-gray-darker flex flex-1 ml-3">
+                <?= $escaper->escapeHtml(__('Have a discount code?')) ?>
+            </span>
+            <button
+                @click="toggleShowCoupon()"
+                class="inline-block cursor-pointer text-primary-lighter select-none whitespace-nowrap mr-auto"
+                id="discount-form-toggle"
+                :aria-expanded="showCouponForm"
+                type="button"
+            >
+                <template x-if="!showCouponForm">
+                    <?= $hyvaicons->renderHtml('Add', 'w-4 h-4 inline-block', 16, 16) ?>
+                </template>
+                <template x-if="showCouponForm">
+                    <?= $hyvaicons->renderHtml('Remove', 'w-4 h-4 inline-block', 16, 16) ?>
+                </template>
+            </button>
+        </div>
+        <div>
+            <form id="discount-coupon-form"
+                  class="my-4 card"
+                  x-show="showCouponForm"
+                  x-cloak
+                  action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/couponPost')) ?>"
+                  method="post"
+                  @submit.prevent="hyva.postCart($event.target)"
+            >
+                <?= $block->getBlockHtml('formkey') ?>
+                <div class="fieldset coupon">
+                    <input type="hidden" name="remove" id="remove-coupon" value="<?= (int) $hasCouponCode ?>"/>
+                    <div class="flex flex-col sm:flex-row gap-2 justify-center lg:justify-start">
+                        <label for="coupon_code" class="label sr-only">
+                            <?= $escaper->escapeHtml(__('Discount code')) ?>
+                        </label>
+                        <div class="control flex-1">
+                            <input type="text"
+                                   class="form-input w-full disabled:opacity-100 disabled:text-black 
+                                            disabled:bg-white disabled:placeholder:text-black"
+                                   id="coupon_code"
+                                   name="coupon_code"
+                                   value="<?= $escaper->escapeHtmlAttr($block->getCouponCode()) ?>"
+                                   x-model="formData.coupon_code"
+                                   x-ref="couponInput"
+                                   <?php if ($hasCouponCode): ?>
+                                       placeholder="<?= $couponCode ?>"
+                                       disabled
+                                   <?php else: ?>
+                                       placeholder="<?= $escaper->escapeHtmlAttr(__('Discount code')) ?>"
+                                   <?php endif; ?>
+                            />
+                        </div>
+                        <div>
+                            <?php if (!$hasCouponCode): ?>
+                                <div class="primary">
+                                    <button 
+                                        class="btn btn-primary font-extrabold bg-white 
+                                                text-primary border-blue border-2 max-h-14 min-w-28" 
+                                        type="submit" 
+                                        value="<?= $escaper->escapeHtmlAttr(__('Apply')) ?>"
+                                        onclick="showLoader()"
+                                    >
+                                        <span><?= $escaper->escapeHtml(__('Apply')) ?></span>
+                                    </button>
+                                </div>
+                            <?php else: ?>
+                                <div class="primary">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-primary bg-white text-primary border-blue border-2 max-h-14 min-w-28"
+                                        value="<?= $escaper->escapeHtmlAttr(__('Cancel')) ?>"
+                                        onclick="showLoader()"
+                                    >
+                                        <?= $escaper->escapeHtml(__('Cancel')) ?>
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

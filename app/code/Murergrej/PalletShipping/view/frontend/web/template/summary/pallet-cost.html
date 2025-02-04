@@ -1,0 +1,20 @@
+<!--
+/**
+ * Custom Pallet Cost Template
+ * Styled and structured like the Magento default shipping row.
+ *
+ * @category Murergrej
+ * @package Murergrej_PalletShipping
+ * @author Abanoub Youssef
+ * @contact abanoub.youssef@scandiweb.com
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ */
+-->
+<!-- ko if: isDisplayed() -->
+<tr class="totals pallet-cost">
+    <th class="mark" colspan="1" scope="row" data-bind="text: title"></th>
+    <td class="amount">
+        <span class="price" data-bind="text: getValue()"></span>
+    </td>
+</tr>
+<!-- /ko -->

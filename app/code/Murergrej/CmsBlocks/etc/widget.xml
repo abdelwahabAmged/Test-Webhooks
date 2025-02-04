@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget_definition.xsd">
+    <widget class="Murergrej\CmsBlocks\Block\Widget\CategoryWidget" id="murergrej_cmsblocks_category_widget">
+        <label>Brand Images</label>
+        <description>Displays a custom category block with a title.</description>
+        <parameters>
+            <parameter name="widget_title" sort_order="10" visible="true" xsi:type="text">
+                <label>Widget Title</label>
+                <description>Enter the title for the widget.</description>
+            </parameter>
+            <parameter name="category_id" sort_order="20" visible="true" xsi:type="select" source_model="Murergrej\CmsBlocks\Model\Config\Source\CategoryList">
+                <label translate="true">Category</label>
+                <description>Select a category to display.</description>
+            </parameter>
+        </parameters>
+    </widget>
+    <widget class="Murergrej\CmsBlocks\Block\Widget\TrustpilotHomePageWidget" id="murergrej_cmsblocks_trustpilot_homepage_widget">
+        <label>Homepage Trustpilot</label>
+        <description>Displays homepage trustpilot.</description>
+        <parameters>
+            <parameter name="title" xsi:type="text" visible="false">
+                <label translate="true">Title</label>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

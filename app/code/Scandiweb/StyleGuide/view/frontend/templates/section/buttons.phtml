@@ -1,0 +1,126 @@
+<?php
+
+/**
+ * @category  Scandiweb
+ * @package   Scandiweb_StyleGuide
+ * @author    Aleksandrs Kondratjevs <info@scandiweb.com>
+ * @copyright Copyright (c) 2024 Scandiweb, Inc (https://scandiweb.com)
+ * @license   http://opensource.org/licenses/OSL-3.0 The Open Software License 3.0 (OSL-3.0)
+ */
+declare(strict_types=1);
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var \Scandiweb\StyleGuide\Block\Section $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var SvgIcons $hyvaicons */
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+?>
+<div class="style-guide-buttons">
+    <h4 class="my-4">Primary</h4>
+    <div class="actions flex gap-x-4">
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-primary"><span><?= __('Active') ?></span></button>
+            <button disabled class="btn btn-primary"><span><?= __('Disabled') ?></span></button>
+        </div>
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-primary">
+                <?= $heroicons->shoppingCartHtml() ?>
+                <span>
+                    <?= __('Active') ?>
+                </span>
+            </button>
+            <button class="btn btn-primary" disabled>
+                <?= $heroicons->shoppingCartHtml() ?>
+                <span>
+                    <?= __('Disabled') ?>
+                </span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-primary">
+                <span>
+                    <?= __('Active') ?>
+                </span>
+                <?= $heroicons->arrowHtml() ?>
+            </button>
+            <button class="btn btn-primary" disabled>
+                <span>
+                    <?= __('Disabled') ?>
+                </span>
+                <?= $heroicons->arrowHtml() ?>
+            </button>
+        </div>
+    </div>
+    <h4 class="my-4">Secondary</h4>
+    <div class="actions flex gap-x-4">
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-secondary"><span><?= __('Active') ?></span></button>
+            <button disabled class="btn btn-secondary"><span><?= __('Disabled') ?></span></button>
+        </div>
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-secondary">
+                <?= $heroicons->shoppingCartHtml() ?>
+                <span>
+                    <?= __('Active') ?>
+                </span>
+            </button>
+            <button class="btn btn-secondary" disabled>
+                <?= $heroicons->shoppingCartHtml() ?>
+                <span>
+                    <?= __('Disabled') ?>
+                </span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-secondary">
+                <span>
+                    <?= __('Active') ?>
+                </span>
+                <?= $heroicons->arrowHtml() ?>
+            </button>
+            <button class="btn btn-secondary" disabled>
+                <span>
+                    <?= __('Disabled') ?>
+                </span>
+                <?= $heroicons->arrowHtml() ?>
+            </button>
+        </div>
+    </div>
+    <h4 class="my-4">Tritical</h4>
+    <div class="actions flex gap-x-4">
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-tritical"><span><?= $escaper->escapeHtml(__('Active')) ?></span></button>
+            <button disabled class="btn btn-tritical"><span><?= $escaper->escapeHtml(__('Disabled')) ?></span></button>
+        </div>
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-tritical">
+                <?= $heroicons->shoppingCartHtml() ?>
+                <span>
+                    <?= __('Active') ?>
+                </span>
+            </button>
+            <button class="btn btn-tritical" disabled>
+                <?= $heroicons->shoppingCartHtml() ?>
+                <span>
+                    <?= __('Disabled') ?>
+                </span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-y-4">
+            <button class="btn btn-tritical">
+                <span>
+                    <?= __('Active') ?>
+                </span>
+                <?= $heroicons->arrowHtml() ?>
+            </button>
+            <button class="btn btn-tritical" disabled>
+                <span>
+                    <?= __('Disabled') ?>
+                </span>
+                <?= $heroicons->arrowHtml() ?>
+            </button>
+        </div>
+    </div>
+</div>

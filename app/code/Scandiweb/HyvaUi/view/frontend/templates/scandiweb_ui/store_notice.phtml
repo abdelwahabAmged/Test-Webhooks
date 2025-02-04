@@ -1,0 +1,97 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+/**
+ * @category Scandiweb
+ * @author   Scandiweb <info@scandiweb.com>
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scandiweb\HyvaUi\Helper\Link as LinkHelper;
+use Scandiweb\HyvaUi\Helper\Decode as DecodeHelper;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$uniqueId = uniqid('_');
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+/** @var LinkHelper */
+$linkHelper = $this->helper(LinkHelper::class);
+/** @var DecodeHelper $decodeHelper */
+$decodeHelper = $this->helper(DecodeHelper::class);
+$link_url = $decodeHelper->decodeJSONHTMLEntity($block->getData('link_url'));
+$linkHref = $linkHelper->getLinkHref($block, $link_url);
+?>
+<div id="header-notification<?= $uniqueId; ?>"
+         class="shadow-lg z-20 block bg-inherit rounded-[inherit]"
+         :class="{ 'fixed top-0 inset-x-0' : isScrolledPast }"
+         x-data="initHeaderNotification<?= $uniqueId; ?>()"
+         x-show="notificationOpen"
+         x-cloak
+         @scroll.window="isScrolledPast = (window.scrollY >= document.getElementById('header').clientHeight)"
+    >
+    <div class="font-semibold text-sm p-4
+                flex items-center justify-between"
+        >
+        <a
+        <?php if ($linkHref): ?>
+            href="<?= $escaper->escapeUrl($block->getUrl('home')) ?>"
+        <?php endif; ?>
+            class="hover:underline"
+        >
+            <?= $escaper->escapeHtml(__($block->getData('content'))) ?>
+        </a>
+        <button
+            class="ml-3"
+            @click="closeNotification()"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Close')) ?>"
+            title="<?= $escaper->escapeHtmlAttr(__('Close')) ?>"
+        >
+            <?= $heroicons->xHtml('text-blue-200') ?>
+        </button>
+    </div>
+</div>
+<!--Notification-->
+<script>
+    function initHeaderNotification<?= $uniqueId; ?>() {
+        const closedCookieName = 'header-notification-closed';
+
+        /**
+         * Add closedCookieName to list of first-party cookies
+         * otherwise it would keep reappearing while cookie consent is missing
+         */
+        window.cookie_consent_config['necessary'] = [].concat(
+            window.cookie_consent_config['necessary'] || [],
+            [closedCookieName]
+        );
+
+        return {
+            notificationOpen: false,
+            closedCookieName: closedCookieName,
+            isScrolledPast: false,
+            init() {
+                this.notificationOpen = this.shouldShowNotification()
+            },
+            closeNotification() {
+                this.notificationOpen = false;
+                this.setCloseCookie();
+            },
+            setCloseCookie() {
+                hyva.setCookie(this.closedCookieName, true, 30);
+            },
+            shouldShowNotification() {
+                return !hyva.getCookie(this.closedCookieName);
+            }
+        }
+    }
+</script>

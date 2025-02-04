@@ -1,0 +1,55 @@
+<?php
+use Hyva\Theme\ViewModel\SvgIcons;
+
+$hyvaIcons = $viewModels->require(SvgIcons::class);
+?>
+<div class="expandable-item">
+    <!-- Header -->
+    <?php
+    $orderingHtml = $this->getLayout()->createBlock(\Magento\Cms\Block\Block::class)
+        ->setBlockId('Ordering')->toHtml();
+
+    $dom = new \DOMDocument();
+    libxml_use_internal_errors(true);
+    $dom->loadHTML('<?xml encoding="utf-8" ?>' . $orderingHtml);
+
+    $h4Elements = $dom->getElementsByTagName('h4');
+    $pElements = $dom->getElementsByTagName('p');
+    $aElements = $dom->getElementsByTagName('a'); // Get all anchor tags
+
+    // Display the first <h4> tag and add a button to control expand/collapse
+    if ($h4Elements->length > 0) {
+        echo '<h4 class="flex justify-between items-center mb-3 md:mb-4">';
+        echo htmlspecialchars($h4Elements->item(0)->textContent);
+        echo '<span class="toggle-btn block md:hidden">';
+        echo $hyvaIcons->renderHtml('arrow_expand', 24, 24); // Hyvä icon
+        echo '</span>';
+        echo '</h4>';
+    }
+    ?>
+
+    <!-- Expandable Content -->
+    <div class="content max-h-screen overflow-hidden transition-[max-height] duration-300 ease-in-out">
+        <?php
+        // Loop through and display all <p> tags and inject <a> tag into each <p>
+        foreach ($pElements as $index => $pElement) {
+            $pContent = htmlspecialchars($pElement->textContent);
+
+            // Check if there is a corresponding <a> tag
+            if ($index < $aElements->length) {
+                $aElement = $aElements->item($index);
+                $aHref = htmlspecialchars($aElement->getAttribute('href'));
+                $aText = htmlspecialchars($aElement->textContent);
+
+                // Wrap the <p> content with <a> tag
+                echo '<p class="mb-3 md:mb-4">';
+                echo '<a class="text-black no-underline font-normal"  href="' . $aHref . '" class="block">' . $pContent . '</a>';
+                echo '</p>';
+            } else {
+                // If no <a> tag exists, just output the <p> content
+                echo '<p class="mb-3 md:mb-4">' . $pContent . '</p>';
+            }
+        }
+        ?>
+    </div>
+</div>
